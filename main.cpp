@@ -34,7 +34,7 @@
 #include <Resources/TGAResource.h>
 
 // Camera stuff
-#include <Utils/Movehandler.h>
+#include <Utils/MoveHandler.h>
 
 // Fps stuff
 #include <Display/HUD.h>
@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     land->SetSunPos(sun->GetPos());
 
     // Setup water
-    ITextureResourcePtr waterSurface = ResourceManager<ITextureResource>::Create("textures/water.tga");
+    ITextureResourcePtr waterSurface = ResourceManager<ITextureResource>::Create("textures/Water.tga");
     WaterNode* water = new WaterNode(Vector<3, float>(origo), 512);
     water->SetSurfaceTexture(waterSurface, 4);
     renderer->InitializeEvent().Attach(*water);
