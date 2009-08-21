@@ -7,8 +7,8 @@ darcs-dev / fh.daimi.au.dk:/users/cgd/code/openengine
 
 # project repository
 # (uncomment the following two lines after uploading your project)
-#darcs /projects/Terrain http://openengine.dk/code/projects/Terrain
-#darcs-dev /projects/Terrain fh.daimi.au.dk:/users/cgd/code/projects/Terrain
+darcs /projects/Terrain http://openengine.dk/code/projects/Terrain
+darcs-dev /projects/Terrain fh.daimi.au.dk:/users/cgd/code/projects/Terrain
 
 # required extensions
 darcs /extensions/HeightMap		 http://openengine.dk/code/extensions/HeightMap
