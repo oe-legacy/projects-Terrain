@@ -18,12 +18,15 @@
 #include <Display/Camera.h>
 #include <Display/Frustum.h>
 #include <Display/PerspectiveViewingVolume.h>
-#include <Renderers/OpenGL/Renderer.h>
 #include <Resources/ResourceManager.h>
 #include <Scene/SceneNode.h>
 
 // SDL extension
 #include <Display/SDLEnvironment.h>
+
+// OpenGL stuff
+#include <Renderers/OpenGL/Renderer.h>
+#include <Resources/GLSLResource.h>
 
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
@@ -174,21 +177,22 @@ int main(int argc, char** argv) {
 
     // Setup scene
     IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/Terrain/Terrain.glsl");
-    ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("Heightmap2.tga");
-    LandscapeNode* land = new LandscapeNode(tgamapPtr, IShaderResourcePtr(), 0.5, 1.0);
+    ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("HeightMap.tga");
+    LandscapeNode* land = new LandscapeNode(tgamapPtr, landShader, 0.5, 1.0);
     // setup landscape shader;
+    land->CloseBorder(32);
     land->SetTextureDetail(4);
     renderer->InitializeEvent().Attach(*land);
     
     // setup sun
-    float sunDir[] = {512, 512, 512};
+    float sunDir[] = {1024, 1024, 1024};
     float origo[] = {land->GetDepth() / 2, 0, land->GetWidth() / 2};
     SunNode* sun = new SunNode(sunDir, origo);
     land->SetSunPos(sun->GetPos());
 
     // Setup water
     ITextureResourcePtr waterSurface = ResourceManager<ITextureResource>::Create("textures/Water.tga");
-    WaterNode* water = new WaterNode(Vector<3, float>(origo), 512);
+    WaterNode* water = new WaterNode(Vector<3, float>(origo), 1024);
     water->SetSurfaceTexture(waterSurface, 4);
     renderer->InitializeEvent().Attach(*water);
 
