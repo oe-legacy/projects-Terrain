@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
     LandscapeNode* land = new LandscapeNode(tgamapPtr, landShader, 0.5, 1.0);
     // setup landscape shader;
     land->CloseBorder(32);
-    land->SetTextureDetail(4);
+    land->SetTextureDetail(8);
     renderer->InitializeEvent().Attach(*land);
     
     // setup sun
