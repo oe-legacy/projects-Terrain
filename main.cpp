@@ -123,8 +123,7 @@ int main(int argc, char** argv) {
     IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
     ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("heightmap.tga");
     LandscapeNode* land = new LandscapeNode(tgamapPtr, landShader, 0.5, 1.0);
-    // setup landscape shader;
-    land->CloseBorder(32);
+    land->CloseBorder(64);
     land->SetTextureDetail(8);
     renderer->InitializeEvent().Attach(*land);
     
@@ -142,7 +141,7 @@ int main(int argc, char** argv) {
     water->SetReflectionScene(land);
     //water->SetWaterShader(waterShader);
     renderer->InitializeEvent().Attach(*water);
-
+    
     // Scene setup
     scene->AddNode(land);
     scene->AddNode(sun);
