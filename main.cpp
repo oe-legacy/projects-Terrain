@@ -7,8 +7,6 @@
 // See the GNU General Public License for more details (see LICENSE). 
 //--------------------------------------------------------------------
 
-//#define DRUK
-
 // OpenEngine stuff
 #include <Meta/Config.h>
 #include <Logging/Logger.h>
@@ -67,57 +65,6 @@ IRenderingView* renderingview;
 TextureLoader* textureloader;
 HUD* hud;
 
-#ifdef DRUK
-#include <Utils/CairoTextTool.h>
-#include <Math/RandomGenerator.h>
-CairoTextTool text;
-CairoResourcePtr drik;
-
-class DrukHandler : public IListener<KeyboardEventArg> {
-public:
-    RandomGenerator rand;
-    DrukHandler() {
-        rand = RandomGenerator();
-        rand.SeedWithTime();
-
-        drik = CairoResource::Create(512,64);
-        text.SetFontSize(64);
-        text.DrawText("Knalde DRIK!1", drik);
-        drik->RebindTexture();
-        textureloader->Load(drik, TextureLoader::RELOAD_QUEUED);
-        HUD::Surface* drikHud = hud->CreateSurface(drik);
-        drikHud->SetPosition(HUD::Surface::MIDDLE, HUD::Surface::CENTER);
-    }
-
-    void Handle(KeyboardEventArg arg) {
-        if (arg.type == EVENT_PRESS && arg.sym == KEY_RETURN) {
-            text.SetColor(Vector<4, float>(0, 1, 1, 1));
-            switch(rand.UniformInt(1, 6)){
-            case 1:
-                text.DrawText("Knalde DRIK", drik);
-                break;
-            case 2:
-                text.DrawText("MACARDLES", drik);
-                break;
-            case 3:
-                text.DrawText("TOOPZ!", drik);
-                break;
-            case 4:
-                text.DrawText("Christizzle", drik);
-                break;
-            case 5:
-                text.DrawText("ASGER", drik);
-                break;
-            default:
-                text.DrawText("Fælles ebba", drik);
-                break;
-            }
-            drik->RebindTexture();
-        }
-    }
-};
-#endif
-
 class TextureLoadOnInit
     : public IListener<RenderingEventArg> {
     TextureLoader& tl;
@@ -171,9 +118,6 @@ int main(int argc, char** argv) {
 
     // bind default keys
     keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
-#ifdef DRUK
-    keyboard->KeyEvent().Attach(*(new DrukHandler()));
-#endif
 
     // Setup scene
     IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
