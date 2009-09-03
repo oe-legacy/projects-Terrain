@@ -169,7 +169,7 @@ void SetupDisplay(){
 
     // setup a default viewport and camera
     viewport = new Viewport(*frame);
-    camera  = new Camera(*(new PerspectiveViewingVolume()));
+    camera  = new Camera(*(new PerspectiveViewingVolume(50, 1500)));
     frustum = new Frustum(*camera);
     viewport->SetViewingVolume(frustum);
 
