@@ -30,7 +30,6 @@
 #include <Renderers/OpenGL/TerrainRenderingView.h>
 #include <Scene/LandscapeNode.h>
 #include <Scene/SunNode.h>
-#include <Scene/TerrainModule.h>
 #include <Scene/WaterNode.h>
 #include <Resources/SDLImage.h>
 
@@ -64,6 +63,8 @@ Frustum* frustum;
 IRenderingView* renderingview;
 TextureLoader* textureloader;
 HUD* hud;
+
+bool useShader = true;
 
 class TextureLoadOnInit
     : public IListener<RenderingEventArg> {
@@ -119,37 +120,50 @@ int main(int argc, char** argv) {
     // bind default keys
     keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
 
+    // setup sun
+    float sunDir[] = {724, 1024, 724};
+    float origo[] = {0, 0, 0};
+    SunNode* sun = new SunNode(sunDir, origo);
+    engine->ProcessEvent().Attach(*sun);
+
     // Setup scene
-    IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
     ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("heightmap.tga");
-    LandscapeNode* land = new LandscapeNode(tgamapPtr, landShader, 0.5, 1.0);
+    LandscapeNode* land;
+    if (useShader){
+        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
+        land = new LandscapeNode(tgamapPtr, landShader, 0.5, 1.0);
+    }else{
+        land = new LandscapeNode(tgamapPtr, IShaderResourcePtr(), 0.5, 1.0);
+    }
     land->CloseBorder(64);
     land->SetTextureDetail(8);
+    land->SetSun(sun);
+    land->SetCenter(Vector<3, float>(0, 0, 0));
     renderer->InitializeEvent().Attach(*land);
     
-    // setup sun
-    float sunDir[] = {1024, 1024, 1024};
-    float origo[] = {land->GetDepth() / 2, 0, land->GetWidth() / 2};
-    SunNode* sun = new SunNode(sunDir, origo);
-    land->SetSunPos(sun->GetPos());
+    // Reflection scene for water
+    ISceneNode* refl = new SceneNode();
 
     // Setup water
-    IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
     ITextureResourcePtr waterSurface = ResourceManager<ITextureResource>::Create("textures/water.tga");
     WaterNode* water = new WaterNode(Vector<3, float>(origo), 1024);
-    water->SetSurfaceTexture(waterSurface, 4);
-    water->SetReflectionScene(land);
-    //water->SetWaterShader(waterShader);
+    if (useShader){
+        IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
+        water->SetWaterShader(waterShader, 1.0/64.0);
+    }else{
+        water->SetSurfaceTexture(waterSurface, 1.0/64.0);
+    }
+    water->SetReflectionScene(refl);
+    water->SetSun(sun);
     renderer->InitializeEvent().Attach(*water);
+    engine->ProcessEvent().Attach(*water);
     
     // Scene setup
-    scene->AddNode(land);
-    scene->AddNode(sun);
+    refl->AddNode(land);
+    refl->AddNode(sun);
+    //scene->AddNode(land); // gets drawn by the waternode
+    //scene->AddNode(sun);
     scene->AddNode(water);
-
-    // Terrain Module
-    TerrainModule* tm = new TerrainModule(sun, land);
-    engine->ProcessEvent().Attach(*tm);
 
     engine->Start();
 
@@ -169,15 +183,15 @@ void SetupDisplay(){
 
     // setup a default viewport and camera
     viewport = new Viewport(*frame);
-    camera  = new Camera(*(new PerspectiveViewingVolume(50, 1500)));
+    camera  = new Camera(*(new PerspectiveViewingVolume(1, 2000)));
     frustum = new Frustum(*camera);
     viewport->SetViewingVolume(frustum);
 
     // movecamera
     MoveHandler* move = new MoveHandler(*camera, *mouse);
     keyboard->KeyEvent().Attach(*move);
-    camera->SetPosition(Vector<3, float>(-127.0, 250.0, -127.0));
-    camera->LookAt(127.0, 127.0, 127.0);
+    camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
+    camera->LookAt(0.0, 127.0, 0.0);
     engine->InitializeEvent().Attach(*move);
     engine->ProcessEvent().Attach(*move);
 }
