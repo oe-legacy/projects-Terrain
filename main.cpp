@@ -149,9 +149,9 @@ int main(int argc, char** argv) {
     WaterNode* water = new WaterNode(Vector<3, float>(origo), 1024);
     if (useShader){
         IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
-        water->SetWaterShader(waterShader, 1.0/64.0);
+        water->SetWaterShader(waterShader, 64.0);
     }else{
-        water->SetSurfaceTexture(waterSurface, 1.0/64.0);
+        water->SetSurfaceTexture(waterSurface, 64.0);
     }
     water->SetReflectionScene(refl);
     water->SetSun(sun);
@@ -160,9 +160,7 @@ int main(int argc, char** argv) {
     
     // Scene setup
     refl->AddNode(land);
-    refl->AddNode(sun);
-    //scene->AddNode(land); // gets drawn by the waternode
-    //scene->AddNode(sun);
+    scene->AddNode(sun);
     scene->AddNode(water);
 
     engine->Start();
