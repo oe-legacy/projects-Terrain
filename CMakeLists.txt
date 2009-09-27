@@ -34,4 +34,5 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   Extensions_SDLImage
   Extensions_HUD
   Extensions_OpenGLRenderer
+  Extensions_OpenGLSelection
 )

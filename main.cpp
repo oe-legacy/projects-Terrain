@@ -41,6 +41,10 @@
 #include <Utils/FPSSurface.h>
 #include <Renderers/TextureLoader.h>
 
+// mouse tool stuff
+#include <Utils/MouseSelection.h>
+#include <Utils/CameraTool.h>
+
 // name spaces that we will be using.
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Display;
@@ -63,6 +67,7 @@ Frustum* frustum;
 IRenderingView* renderingview;
 TextureLoader* textureloader;
 HUD* hud;
+MouseSelection* ms;
 
 bool useShader = true;
 
@@ -186,13 +191,22 @@ void SetupDisplay(){
     viewport->SetViewingVolume(frustum);
 
     // movecamera
-    MoveHandler* move = new MoveHandler(*camera, *mouse);
-    keyboard->KeyEvent().Attach(*move);
-    camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
-    camera->LookAt(0.0, 127.0, 0.0);
-    engine->InitializeEvent().Attach(*move);
-    engine->ProcessEvent().Attach(*move);
+    // MoveHandler* move = new MoveHandler(*camera, *mouse);
+    // keyboard->KeyEvent().Attach(*move);
+    // camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
+    // camera->LookAt(0.0, 127.0, 0.0);
+    // engine->InitializeEvent().Attach(*move);
+    // engine->ProcessEvent().Attach(*move);
+
+    ms = new MouseSelection(*frame, *mouse, NULL);
+    CameraTool*     ct = new CameraTool();
+    ms->BindTool(viewport, ct);
+
+    keyboard->KeyEvent().Attach(*ms);
+    mouse->MouseMovedEvent().Attach(*ms);
+    mouse->MouseButtonEvent().Attach(*ms);
 }
+
 
 void SetupRendering(){
     renderer = new Renderer(viewport);
@@ -209,4 +223,7 @@ void SetupRendering(){
     renderer->PreProcessEvent().Attach(*textureloader);
 
     renderer->SetBackgroundColor(Vector<4, float>(0.5, 0.5, 1.0, 1.0));
+
+    renderer->PostProcessEvent().Attach(*ms);
+
 }
