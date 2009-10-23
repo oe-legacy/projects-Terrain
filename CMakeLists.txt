@@ -28,7 +28,6 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   OpenEngine_Scene
   # Extension dependencies
   Extensions_SDL
-  Extensions_GenericHandlers
   Extensions_HeightMap
   Extensions_CairoResource
   Extensions_SDLImage

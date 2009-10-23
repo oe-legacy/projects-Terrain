@@ -12,12 +12,12 @@ uniform sampler2D normalmap;
 uniform sampler2D reflection;
 uniform sampler2D dudvmap;
 
-varying vec3 lightDir; //lightpos
+uniform vec3 lightDir;
+
 varying vec2 waterFlow; //moving texcoords
 varying vec2 waterRipple; //moving texcoords
 varying vec4 projCoords; //for projection
 varying vec3 eyeDir; //viewts
-varying vec3 vnormal;
 
 void main(void)
 {
@@ -28,16 +28,16 @@ void main(void)
 
     // Reflection distortion
     vec2 fdist = texture2D(dudvmap, waterFlow + rippleEffect).xy;
-    fdist = fdist * 2.0 - vec2(1.0);
+    fdist = fdist * 2.0 + vec2(-1.0);
     fdist *= sca;
      
     //load normalmap
-    vec3 vNorm = (normal-ofive) * 2.0;
+    //vec3 vNorm = (normal-ofive) * 2.0;
+    vec3 vNorm = normal * 2.0 + vec3(-1.0);
     vNorm = normalize(vNorm);
             
     //calculate specular highlight
-    vec3 lightTS = normalize(lightDir);
-    vec3 vRef = normalize(reflect(-lightTS, vNorm));
+    vec3 vRef = normalize(reflect(-lightDir, vNorm));
     float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
     stemp = pow(stemp, exponent);
     vec4 specular = vec4(stemp);
@@ -51,6 +51,7 @@ void main(void)
     projCoord = projCoord * 0.5 + 0.5;
     projCoord += fdist.xy;
     //projCoord = clamp(projCoord, 0.001, 0.999); // superfluous because of clamp
+
     //load and calculate reflection
     vec4 refl = texture2D(reflection, projCoord);
     refl *= fres;

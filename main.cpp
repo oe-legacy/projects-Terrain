@@ -18,6 +18,8 @@
 #include <Display/PerspectiveViewingVolume.h>
 #include <Resources/ResourceManager.h>
 #include <Scene/SceneNode.h>
+#include <Devices/IMouse.h>
+#include <Devices/IKeyboard.h>
 
 // SDL extension
 #include <Display/SDLEnvironment.h>
@@ -29,24 +31,26 @@
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
 #include <Scene/LandscapeNode.h>
+#include <Scene/HeightFieldNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
 #include <Resources/SDLImage.h>
-
-// Camera stuff
-#include <Utils/MoveHandler.h>
 
 // Fps stuff
 #include <Display/HUD.h>
 #include <Utils/FPSSurface.h>
 #include <Renderers/TextureLoader.h>
 
-// mouse tool stuff
+// Edit stuff
 #include <Utils/MouseSelection.h>
+#include <Utils/SelectionSet.h>
+//#include <Utils/TerrainEditTool.h>
 #include <Utils/CameraTool.h>
+#include <Utils/ToolChain.h>
 
 // name spaces that we will be using.
 using namespace OpenEngine::Core;
+using namespace OpenEngine::Devices;
 using namespace OpenEngine::Display;
 using namespace OpenEngine::Logging;
 using namespace OpenEngine::Renderers::OpenGL;
@@ -67,7 +71,6 @@ Frustum* frustum;
 IRenderingView* renderingview;
 TextureLoader* textureloader;
 HUD* hud;
-MouseSelection* ms;
 
 bool useShader = true;
 
@@ -125,27 +128,43 @@ int main(int argc, char** argv) {
     // bind default keys
     keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
 
+    // Setup scene
+    ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("heightmap2.tga");
+    tgamapPtr->Load();
+    float widthScale = 2.0;
+    float origo[] = {tgamapPtr->GetDepth() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
+
     // setup sun
     float sunDir[] = {724, 1024, 724};
-    float origo[] = {0, 0, 0};
     SunNode* sun = new SunNode(sunDir, origo);
     engine->ProcessEvent().Attach(*sun);
 
-    // Setup scene
-    ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("heightmap.tga");
+    // Setup terrain
+    /*
     LandscapeNode* land;
     if (useShader){
-        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
-        land = new LandscapeNode(tgamapPtr, landShader, 0.5, 1.0);
+        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain-old/Terrain.glsl");
+        land = new LandscapeNode(tgamapPtr, landShader, 1.5, widthScale);
     }else{
-        land = new LandscapeNode(tgamapPtr, IShaderResourcePtr(), 0.5, 1.0);
+        land = new LandscapeNode(tgamapPtr, IShaderResourcePtr(), 1.5, widthScale);
     }
-    land->CloseBorder(64);
-    land->SetTextureDetail(8);
+    //land->CloseBorder(64);
+    land->SetTextureDetail(1.0f / 64.0f);
     land->SetSun(sun);
-    land->SetCenter(Vector<3, float>(0, 0, 0));
     renderer->InitializeEvent().Attach(*land);
-    
+    */
+    HeightFieldNode* land = new HeightFieldNode(tgamapPtr);
+    if (useShader){
+        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
+        land->SetLandscapeShader(landShader);
+    }
+    land->SetHeightScale(1.5);
+    land->SetWidthScale(widthScale);
+    land->SetTextureDetail(1.0f / 16.0f);
+    land->SetSun(sun);
+    land->Load();
+    renderer->InitializeEvent().Attach(*land);
+
     // Reflection scene for water
     ISceneNode* refl = new SceneNode();
 
@@ -167,6 +186,21 @@ int main(int argc, char** argv) {
     refl->AddNode(land);
     scene->AddNode(sun);
     scene->AddNode(water);
+
+    // Setup Edit Tool
+    ToolChain* chain = new ToolChain();
+    CameraTool* ct = new CameraTool();
+    chain->PushBackTool(ct);    
+    //TerrainEditTool* editTool = new TerrainEditTool(land, frame);
+    //chain->PushBackTool(editTool);
+
+    MouseSelection* ms = new MouseSelection(*frame, *mouse, NULL);
+    ms->BindTool(viewport, chain);
+    
+    keyboard->KeyEvent().Attach(*ms);
+    mouse->MouseMovedEvent().Attach(*ms);
+    mouse->MouseButtonEvent().Attach(*ms);
+    renderer->PostProcessEvent().Attach(*ms);
 
     engine->Start();
 
@@ -190,21 +224,8 @@ void SetupDisplay(){
     frustum = new Frustum(*camera);
     viewport->SetViewingVolume(frustum);
 
-    // movecamera
-    // MoveHandler* move = new MoveHandler(*camera, *mouse);
-    // keyboard->KeyEvent().Attach(*move);
-    // camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
-    // camera->LookAt(0.0, 127.0, 0.0);
-    // engine->InitializeEvent().Attach(*move);
-    // engine->ProcessEvent().Attach(*move);
-
-    ms = new MouseSelection(*frame, *mouse, NULL);
-    CameraTool*     ct = new CameraTool();
-    ms->BindTool(viewport, ct);
-
-    keyboard->KeyEvent().Attach(*ms);
-    mouse->MouseMovedEvent().Attach(*ms);
-    mouse->MouseButtonEvent().Attach(*ms);
+    camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
+    camera->LookAt(0.0, 127.0, 0.0);
 }
 
 
@@ -224,6 +245,6 @@ void SetupRendering(){
 
     renderer->SetBackgroundColor(Vector<4, float>(0.5, 0.5, 1.0, 1.0));
 
-    renderer->PostProcessEvent().Attach(*ms);
+
 
 }
