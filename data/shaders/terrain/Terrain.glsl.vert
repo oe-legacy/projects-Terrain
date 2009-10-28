@@ -28,7 +28,7 @@ void main()
     float distance = length(viewPos - patchCenter) - baseDistance;
 
     float morphScale = clamp(distance * invIncDistance - lod, 0.0, 1.0);
-    vertex.y = vertex.y + morphScale * morphValue;
+    vertex.y += morphScale * morphValue;
 
     // Calculating the texture factors
     snowFactor = (vertex.y - snowStartHeight) / snowBlend;

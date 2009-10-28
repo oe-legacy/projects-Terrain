@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
     ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("heightmap2.tga");
     tgamapPtr->Load();
     float widthScale = 2.0;
-    float origo[] = {tgamapPtr->GetDepth() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
+    float origo[] = {tgamapPtr->GetHeight() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
 
     // setup sun
     float sunDir[] = {724, 1024, 724};
