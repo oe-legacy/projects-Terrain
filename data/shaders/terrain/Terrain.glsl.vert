@@ -1,5 +1,3 @@
-uniform sampler2D normalMap;
-
 uniform float snowStartHeight;
 uniform float snowBlend;
 uniform float grassStartHeight;
@@ -7,9 +5,14 @@ uniform float grassBlend;
 uniform float sandStartHeight;
 uniform float sandBlend;
 
+uniform vec3 viewPos;
+uniform float baseDistance;
+uniform float invIncDistance;
+
 varying float snowFactor;
 varying float grassFactor;
 varying float sandFactor;
+
 
 void main()
 {
@@ -17,21 +20,22 @@ void main()
     gl_TexCoord[1] = gl_MultiTexCoord1;
 
 	// Transforming The Vertex
-    gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    vec4 vertex = vec4(gl_Vertex.xyz, 1.0);
+    float morphValue = gl_Vertex.w;
+    
+    vec3 patchCenter = vec3(gl_Normal.x, 0, gl_Normal.y);
+    float lod = gl_Normal.z;
+    float distance = length(viewPos - patchCenter) - baseDistance;
 
-	// Transforming The Normal To ModelView-Space
-    /*
-    vec4 texNormal = texture2D(normalMap, gl_TexCoord[1].xy);
-    vec3 vNorm = texNormal.xyz * 2.0 - 1.0;
-    normal = gl_NormalMatrix * vNorm;
-    */
+    float morphScale = clamp(distance * invIncDistance - lod, 0.0, 1.0);
+    vertex.y = vertex.y + morphScale * morphValue;
 
-    // Dorectional light, so the position is the direction
-    //lightDir = normalize(vec3(gl_LightSource[0].position));
+    // Calculating the texture factors
+    snowFactor = (vertex.y - snowStartHeight) / snowBlend;
+    grassFactor = (vertex.y - grassStartHeight) / grassBlend;
+    sandFactor = (vertex.y - sandStartHeight) / sandBlend;
 
-    float height = gl_Vertex.y;
-    snowFactor = (height - snowStartHeight) / snowBlend;
-    grassFactor = (height - grassStartHeight) / grassBlend;
-    sandFactor = (height - sandStartHeight) / sandBlend;
+    // Doing the stuff
+    gl_ClipVertex = gl_ModelViewMatrix * vertex;
+	gl_Position = gl_ModelViewProjectionMatrix * vertex;
 }

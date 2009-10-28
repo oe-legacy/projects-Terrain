@@ -2,11 +2,8 @@ const vec4 WATER_COLOR = vec4(0.0, 0.0, 0.5, 1.0);
 const float sca = 0.005;
 const float sca2 = 0.02;
 const float tscale = 0.25;
-const vec4 two = vec4(2.0, 2.0, 2.0, 1.0);
-const vec4 mone = vec4(-1.0, -1.0, -1.0, 1.0);
 
-const vec3 ofive = vec3(0.5,0.5,0.5);
-const float exponent = 196.0;
+const float exponent = 128.0;
 
 uniform sampler2D normalmap;
 uniform sampler2D reflection;
@@ -32,9 +29,8 @@ void main(void)
     fdist *= sca;
      
     //load normalmap
-    //vec3 vNorm = (normal-ofive) * 2.0;
     vec3 vNorm = normal * 2.0 + vec3(-1.0);
-    vNorm = normalize(vNorm);
+    //vNorm = normalize(vNorm);
             
     //calculate specular highlight
     vec3 vRef = normalize(reflect(-lightDir, vNorm));
@@ -68,6 +64,4 @@ void main(void)
 /*
  * When the light dims and the water color fades, remember to increase
  * the alpha value or else underlying geometry colors will become too visible.
- *
- * Or color it black damn it. Try it after adding a decent skybox
  */
