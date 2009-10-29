@@ -45,7 +45,8 @@ void main(void)
     //get projective texcoords
     vec2 projCoord = projCoords.xy / projCoords.w;
     projCoord = projCoord * 0.5 + 0.5;
-    projCoord += fdist.xy;
+    projCoord += fdist.x; // only distort horisontally for fewer gaps
+    // projCoord += fdist.xy; // distort in 2 dimensions
     //projCoord = clamp(projCoord, 0.001, 0.999); // superfluous because of clamp
 
     //load and calculate reflection

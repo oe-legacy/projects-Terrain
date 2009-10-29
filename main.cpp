@@ -47,6 +47,7 @@
 //#include <Utils/TerrainEditTool.h>
 #include <Utils/CameraTool.h>
 #include <Utils/ToolChain.h>
+#include "TerrainHandler.h"
 
 // name spaces that we will be using.
 using namespace OpenEngine::Core;
@@ -94,6 +95,23 @@ public:
     }
 };
 
+class RenderStateHandler : public IListener<KeyboardEventArg> {
+    RenderStateNode* node;
+public:
+    RenderStateHandler(RenderStateNode* n) : node(n) {            
+        node->DisableOption(RenderStateNode::WIREFRAME);
+        node->DisableOption(RenderStateNode::TANGENT);
+    }
+    void Handle(KeyboardEventArg arg) {
+        if (arg.type == EVENT_PRESS && arg.sym == KEY_g){
+            node->ToggleOption(RenderStateNode::WIREFRAME);
+        }
+        if (arg.type == EVENT_PRESS && arg.sym == KEY_b){
+            node->ToggleOption(RenderStateNode::TANGENT);
+        }
+    }
+};
+
 // Forward declarations ... ffs c++
 void SetupDisplay();
 void SetupRendering();
@@ -117,6 +135,7 @@ int main(int argc, char** argv) {
     SetupRendering();
 
     // Setup fps counter
+    /*
     FPSSurfacePtr fps = FPSSurface::Create();
     textureloader->Load(fps, TextureLoader::RELOAD_QUEUED);
     engine->ProcessEvent().Attach(*fps);
@@ -124,6 +143,7 @@ int main(int argc, char** argv) {
     HUD::Surface* fpshud = hud->CreateSurface(fps);
     renderer->PostProcessEvent().Attach(*hud);
     fpshud->SetPosition(HUD::Surface::LEFT, HUD::Surface::TOP);
+    */
 
     // bind default keys
     keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
@@ -135,7 +155,8 @@ int main(int argc, char** argv) {
     float origo[] = {tgamapPtr->GetHeight() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
 
     // setup sun
-    float sunDir[] = {724, 1024, 724};
+    //float sunDir[] = {724, 1024, 724};
+    float sunDir[] = {1448, 2048, 1448};
     SunNode* sun = new SunNode(sunDir, origo);
     engine->ProcessEvent().Attach(*sun);
 
@@ -164,6 +185,7 @@ int main(int argc, char** argv) {
     land->SetTextureDetail(1.0f / 16.0f);
     land->SetSun(sun);
     renderer->InitializeEvent().Attach(*land);
+    keyboard->KeyEvent().Attach(*(new TerrainHandler(land)));
 #endif
 
     // Reflection scene for water
@@ -171,7 +193,8 @@ int main(int argc, char** argv) {
 
     // Setup water
     ITextureResourcePtr waterSurface = ResourceManager<ITextureResource>::Create("textures/water.tga");
-    WaterNode* water = new WaterNode(Vector<3, float>(origo), 1024);
+    //WaterNode* water = new WaterNode(Vector<3, float>(origo), 1024);
+    WaterNode* water = new WaterNode(Vector<3, float>(origo), 2048);
     if (useShader){
         IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
         water->SetWaterShader(waterShader, 64.0);
@@ -182,9 +205,14 @@ int main(int argc, char** argv) {
     water->SetSun(sun);
     renderer->InitializeEvent().Attach(*water);
     engine->ProcessEvent().Attach(*water);
+
+    // Renderstate node
+    RenderStateNode* state = new RenderStateNode();
+    keyboard->KeyEvent().Attach(*(new RenderStateHandler(state)));
     
     // Scene setup
-    refl->AddNode(land);
+    refl->AddNode(state);
+    state->AddNode(land);
     scene->AddNode(sun);
     scene->AddNode(water);
 
@@ -221,7 +249,7 @@ void SetupDisplay(){
 
     // setup a default viewport and camera
     viewport = new Viewport(*frame);
-    camera  = new Camera(*(new PerspectiveViewingVolume(1, 2000)));
+    camera  = new Camera(*(new PerspectiveViewingVolume(1, 4000)));
     frustum = new Frustum(*camera);
     viewport->SetViewingVolume(frustum);
 

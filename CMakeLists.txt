@@ -6,6 +6,7 @@ SET( PROJECT_NAME "Terrain")
 SET( PROJECT_SOURCES
   # Add all the cpp source files here
   main.cpp
+  TerrainHandler.cpp
 )
 
 # Include needed to use SDL under Mac OS X
