@@ -34,7 +34,8 @@
 #include <Scene/HeightFieldNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
-#include <Resources/SDLImage.h>
+//#include <Resources/SDLImage.h>
+#include <Resources/TGAResource.h>
 
 // Fps stuff
 #include <Display/HUD.h>
@@ -126,7 +127,8 @@ int main(int argc, char** argv) {
     SetupDisplay();
 
     // add plug-ins
-    ResourceManager<ITextureResource>::AddPlugin(new SDLImagePlugin());
+    //ResourceManager<ITextureResource>::AddPlugin(new SDLImagePlugin());
+    ResourceManager<ITextureResource>::AddPlugin(new TGAPlugin());
     ResourceManager<IShaderResource>::AddPlugin(new GLSLPlugin());
     DirectoryManager::AppendPath("projects/Terrain/data/");
 
@@ -135,7 +137,6 @@ int main(int argc, char** argv) {
     SetupRendering();
 
     // Setup fps counter
-    /*
     FPSSurfacePtr fps = FPSSurface::Create();
     textureloader->Load(fps, TextureLoader::RELOAD_QUEUED);
     engine->ProcessEvent().Attach(*fps);
@@ -143,7 +144,6 @@ int main(int argc, char** argv) {
     HUD::Surface* fpshud = hud->CreateSurface(fps);
     renderer->PostProcessEvent().Attach(*hud);
     fpshud->SetPosition(HUD::Surface::LEFT, HUD::Surface::TOP);
-    */
 
     // bind default keys
     keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
@@ -155,7 +155,6 @@ int main(int argc, char** argv) {
     float origo[] = {tgamapPtr->GetHeight() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
 
     // setup sun
-    //float sunDir[] = {724, 1024, 724};
     float sunDir[] = {1448, 2048, 1448};
     SunNode* sun = new SunNode(sunDir, origo);
     engine->ProcessEvent().Attach(*sun);
@@ -193,7 +192,6 @@ int main(int argc, char** argv) {
 
     // Setup water
     ITextureResourcePtr waterSurface = ResourceManager<ITextureResource>::Create("textures/water.tga");
-    //WaterNode* water = new WaterNode(Vector<3, float>(origo), 1024);
     WaterNode* water = new WaterNode(Vector<3, float>(origo), 2048);
     if (useShader){
         IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
