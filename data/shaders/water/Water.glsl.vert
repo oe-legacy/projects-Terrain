@@ -15,10 +15,8 @@ varying vec3 eyeDir;
 void main(void)
 {
     //vec4 temp = viewpos - gl_ModelViewMatrix * gl_Vertex;
-    eyeDir = (viewpos - gl_Vertex.xyz) * lightTransformation;    
-
-    //Is done in the renderingview
-    //lightDir = (lightPos/* - gl_Vertex.xyz*/) * lightTransformation;
+    //eyeDir = (viewpos - gl_Vertex.xyz) * lightTransformation;
+    eyeDir = (viewpos - gl_Vertex.xyz).xzy;
 
     // texcoords for making the water flow
     waterFlow = vec2(gl_MultiTexCoord0) + vec2(0.0, time);

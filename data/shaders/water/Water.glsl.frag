@@ -47,7 +47,6 @@ void main(void)
     projCoord = projCoord * 0.5 + 0.5;
     projCoord += fdist.x; // only distort horisontally for fewer gaps
     // projCoord += fdist.xy; // distort in 2 dimensions
-    //projCoord = clamp(projCoord, 0.001, 0.999); // superfluous because of clamp
 
     //load and calculate reflection
     vec4 refl = texture2D(reflection, projCoord);
