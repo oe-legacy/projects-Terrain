@@ -12,7 +12,7 @@ uniform float invIncDistance;
 varying float snowFactor;
 varying float grassFactor;
 varying float sandFactor;
-
+varying vec3 eyeDir;
 
 void main()
 {
@@ -29,6 +29,9 @@ void main()
 
     float morphScale = clamp(distance * invIncDistance - lod, 0.0, 1.0);
     vertex.y += morphScale * morphValue;
+    
+    // Calculate the eyeDir relative to the vertex.
+    eyeDir = viewPos - vertex.xyz;
 
     // Calculating the texture factors
     snowFactor = (vertex.y - snowStartHeight) / snowBlend;
