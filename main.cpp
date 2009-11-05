@@ -30,7 +30,6 @@
 
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
-#include <Scene/LandscapeNode.h>
 #include <Scene/HeightFieldNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
@@ -160,20 +159,6 @@ int main(int argc, char** argv) {
     engine->ProcessEvent().Attach(*sun);
 
     // Setup terrain
-    //#define OLD_TERRAIN_IMPL
-#ifdef OLD_TERRAIN_IMPL
-    LandscapeNode* land;
-    if (useShader){
-        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain-old/Terrain.glsl");
-        land = new LandscapeNode(tgamapPtr, landShader, 1.5, widthScale);
-    }else{
-        land = new LandscapeNode(tgamapPtr, IShaderResourcePtr(), 1.5, widthScale);
-    }
-    //land->CloseBorder(64);
-    land->SetTextureDetail(1.0f / 64.0f);
-    land->SetSun(sun);
-    renderer->InitializeEvent().Attach(*land);
-#else
     HeightFieldNode* land = new HeightFieldNode(tgamapPtr);
     if (useShader){
         IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
@@ -185,7 +170,6 @@ int main(int argc, char** argv) {
     land->SetSun(sun);
     renderer->InitializeEvent().Attach(*land);
     keyboard->KeyEvent().Attach(*(new TerrainHandler(land)));
-#endif
 
     // Reflection scene for water
     ISceneNode* refl = new SceneNode();
