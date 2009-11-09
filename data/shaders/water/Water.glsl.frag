@@ -31,10 +31,10 @@ void main(void)
     fdist *= sca;
                  
     //calculate specular highlight
-    vec3 vRef = normalize(reflect(-lightDir, normal));
+    //vec3 vRef = normalize(reflect(-lightDir, normal));
+    vec3 vRef = reflect(-lightDir, normal);
     float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
-    stemp = pow(stemp, exponent);
-    vec4 specular = vec4(stemp);
+    vec4 specular = gl_LightSource[0].specular * pow(stemp, exponent);
 
     //calculate fresnel and inverted fresnel
     float invfres = dot(normal, viewt);

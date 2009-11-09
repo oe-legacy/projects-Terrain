@@ -1,6 +1,6 @@
 // material pecular, the alpha channel is the shininess
-const vec4 SNOW_SPECULAR = vec4(1.0, 1.0, 1.0, 32.0);
-const vec4 GRASS_SPECULAR = vec4(0.0, 0.0, 0.0, 128.0);
+const vec4 SNOW_SPECULAR = vec4(0.7, 0.7, 1.0, 32.0);
+const vec4 GRASS_SPECULAR = vec4(0.0, 0.0, 0.0, 1.0);
 const vec4 SAND_SPECULAR = vec4(0.8, 0.8, 0.5, 96.0);
 
 const vec4 WATER_COLOR = vec4(0.0, 0.5, 0.0, 1.0);
@@ -37,7 +37,8 @@ void main()
     matSpecular = mix(SAND_SPECULAR, matSpecular, grassFactor);
 
     // Calculate specular
-    vec3 vRef = normalize(reflect(-lightDir, normal));
+    //vec3 vRef = normalize(reflect(-lightDir, normal));
+    vec3 vRef = reflect(-lightDir, normal);
     float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
     vec4 specular = matSpecular * pow(stemp, matSpecular.w);
     
@@ -52,7 +53,7 @@ void main()
     text = mix(sand, text, grassFactor);
 
     vec4 color = text * gl_LightSource[0].ambient;
-    color += text * gl_LightSource[0].diffuse * diffuse + specular;
+    color += text * gl_LightSource[0].diffuse * diffuse + gl_LightSource[0].specular * specular;
 
     gl_FragColor = mix(WATER_COLOR, color, sandFactor);
     //gl_FragColor.a = 1.0 - sandFactor;
