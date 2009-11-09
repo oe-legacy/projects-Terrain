@@ -25,9 +25,9 @@ void main()
     
     vec3 patchCenter = vec3(gl_Normal.x, 0, gl_Normal.y);
     float lod = gl_Normal.z;
-    float distance = length(viewPos - patchCenter) - baseDistance;
+    float dist = distance(viewPos, patchCenter) - baseDistance;
 
-    float morphScale = clamp(distance * invIncDistance - lod, 0.0, 1.0);
+    float morphScale = clamp(dist * invIncDistance - lod, 0.0, 1.0);
     vertex.y += morphScale * morphValue;
     
     // Calculate the eyeDir relative to the vertex.
