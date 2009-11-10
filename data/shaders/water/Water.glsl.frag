@@ -31,8 +31,7 @@ void main(void)
     fdist *= sca;
                  
     //calculate specular highlight
-    //vec3 vRef = normalize(reflect(-lightDir, normal));
-    vec3 vRef = reflect(-lightDir, normal);
+    vec3 vRef = normalize(reflect(-lightDir, normal));
     float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
     vec4 specular = gl_LightSource[0].specular * pow(stemp, exponent);
 
