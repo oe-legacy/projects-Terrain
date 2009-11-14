@@ -33,8 +33,8 @@
 #include <Scene/HeightFieldNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
-//#include <Resources/SDLImage.h>
-#include <Resources/TGAResource.h>
+#include <Resources/SDLImage.h>
+//#include <Resources/TGAResource.h>
 
 // Fps stuff
 #include <Display/HUD.h>
@@ -126,8 +126,7 @@ int main(int argc, char** argv) {
     SetupDisplay();
 
     // add plug-ins
-    //ResourceManager<ITextureResource>::AddPlugin(new SDLImagePlugin());
-    ResourceManager<ITextureResource>::AddPlugin(new TGAPlugin());
+    ResourceManager<ITextureResource>::AddPlugin(new SDLImagePlugin());
     ResourceManager<IShaderResource>::AddPlugin(new GLSLPlugin());
     DirectoryManager::AppendPath("projects/Terrain/data/");
 
