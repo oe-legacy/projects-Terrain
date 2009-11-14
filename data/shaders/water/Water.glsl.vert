@@ -1,8 +1,5 @@
-const vec3 tangent = vec3(1.0, 0.0, 0.0);
-const vec3 norm = vec3(0.0, 1.0, 0.0);
-const vec3 binormal = vec3(0.0, 0.0, 1.0);
-
-const mat3 lightTransformation = mat3(tangent, binormal, norm);
+const float tscale = 0.25;
+const vec2 center = vec2(400.0, 400.0);
 
 uniform vec3 viewpos;
 uniform float time, time2;
@@ -14,15 +11,16 @@ varying vec3 eyeDir;
 
 void main(void)
 {
-    //vec4 temp = viewpos - gl_ModelViewMatrix * gl_Vertex;
-    //eyeDir = (viewpos - gl_Vertex.xyz) * lightTransformation;
+    // Eyedir should be transformed because the normalmaps upvector is
+    // z, where ours is y.
     eyeDir = (viewpos - gl_Vertex.xyz).xzy;
 
     // texcoords for making the water flow
-    waterFlow = vec2(gl_MultiTexCoord0) + vec2(0.0, time);
+    vec2 flowDir = center - vec2(gl_Vertex.x, gl_Vertex.z);
+    waterFlow = vec2(gl_MultiTexCoord0) - time * flowDir;
 
     // texcoords for making the water ripple
-    waterRipple = vec2(gl_MultiTexCoord0) + vec2(0.0, time2);
+    waterRipple = (vec2(gl_MultiTexCoord0) + vec2(0.0, time2)) * tscale;
 
     gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
 	gl_Position = projCoords = gl_ModelViewProjectionMatrix * gl_Vertex;

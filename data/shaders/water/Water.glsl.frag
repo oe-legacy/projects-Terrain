@@ -1,7 +1,6 @@
 const vec4 WATER_COLOR = vec4(0.0, 0.0, 0.5, 1.0);
 const float sca = 0.005;
 const float sca2 = 0.02;
-const float tscale = 0.25;
 
 const float exponent = 128.0;
 
@@ -20,7 +19,7 @@ void main(void)
 {
     vec3 viewt = normalize(eyeDir);
     
-    vec2 rippleEffect = sca2 * texture2D(dudvmap, waterRipple * tscale).xy;
+    vec2 rippleEffect = sca2 * texture2D(dudvmap, waterRipple).xy;
     vec3 normal = texture2D(normalmap, waterFlow + rippleEffect).xyz;
     normal = normal * 2.0 + vec3(-1.0);
     //normal = normalize(normal);
@@ -51,10 +50,13 @@ void main(void)
 
     // Set the water color
     vec4 waterColor = WATER_COLOR * invfres;
-    waterColor *= (gl_LightSource[0].ambient + gl_LightSource[0].diffuse);
+    
+    // Add specular to the water
+    vec4 color = refl + waterColor;
+    color *= (gl_LightSource[0].ambient + gl_LightSource[0].diffuse);
 
     //add it all up for the effect
-    gl_FragColor = refl + waterColor + specular;
+    gl_FragColor = color + specular;
     gl_FragColor.a = -0.35 * gl_LightSource[0].diffuse.a + 0.95;
 }
 
