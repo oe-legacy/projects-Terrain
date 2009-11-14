@@ -26,7 +26,7 @@ void main()
 
     // Extract normal
     vec3 normal = texture2D(normalMap, gl_TexCoord[1].xy).xyz;
-    normal = normal * 2.0 - 1.0;  // normal already in normalized form after these calculations
+    //normal = normal * 2.0 - 1.0;  // normal already in normalized form after these calculations
 
     // Calculate diffuse
     float ndotl = dot(normal, lightDir);
