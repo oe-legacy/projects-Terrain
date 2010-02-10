@@ -1,7 +1,7 @@
 // material pecular, the alpha channel is the shininess
 const vec4 SNOW_SPECULAR = vec4(0.7, 0.7, 1.0, 32.0);
 const vec4 GRASS_SPECULAR = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 SAND_SPECULAR = vec4(0.8, 0.8, 0.5, 128.0);
+const vec4 SAND_SPECULAR = vec4(0.2, 0.2, 0.1, 128.0);
 
 const vec4 WATER_COLOR = vec4(0.0, 0.5, 0.0, 1.0);
 
