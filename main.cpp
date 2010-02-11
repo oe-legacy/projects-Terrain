@@ -220,7 +220,8 @@ int main(int argc, char** argv) {
 
 void SetupDisplay(){
     // setup display and devices
-    env = new SDLEnvironment(800,600);
+    env = new SDLEnvironment(1024,768,32,FRAME_FULLSCREEN);
+    //env = new SDLEnvironment(800,600);
     frame    = &env->GetFrame();
     mouse    = env->GetMouse();
     keyboard = env->GetKeyboard();
