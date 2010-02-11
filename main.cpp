@@ -250,7 +250,7 @@ void SetupRendering(){
 
     renderer->ProcessEvent().Attach(*renderingview);
     renderer->SetSceneRoot(scene);
-    renderer->InitializeEvent().Attach(*(new TextureLoadOnInit(*textureloader)));
+    //renderer->InitializeEvent().Attach(*(new TextureLoadOnInit(*textureloader)));
     renderer->PreProcessEvent().Attach(*textureloader);
 
     renderer->SetBackgroundColor(Vector<4, float>(0.5, 0.5, 1.0, 1.0));

@@ -59,8 +59,3 @@ void main(void)
     gl_FragColor = color + specular;
     gl_FragColor.a = -0.35 * gl_LightSource[0].diffuse.a + 0.95;
 }
-
-/*
- * When the light dims and the water color fades, remember to increase
- * the alpha value or else underlying geometry colors will become too visible.
- */

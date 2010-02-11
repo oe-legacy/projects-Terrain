@@ -52,8 +52,18 @@ void main()
     vec4 text = mix(grass, snow, snowFactor);
     text = mix(sand, text, grassFactor);
 
-    vec4 color = text * gl_LightSource[0].ambient;
-    color += text * gl_LightSource[0].diffuse * diffuse + gl_LightSource[0].specular * specular;
+    // pure color
+    vec4 color = text;
+    // only ambient
+    //vec4 color = text * gl_LightSource[0].ambient;
+    // only diffuse
+    //vec4 color = text * gl_LightSource[0].diffuse * diffuse;
+    // pure specular
+    //vec4 color = gl_LightSource[0].specular * specular;
+    // ambient and diffuse
+    //vec4 color = text * (gl_LightSource[0].ambient + gl_LightSource[0].diffuse * diffuse);
+    // the works
+    //vec4 color = text * (gl_LightSource[0].ambient + gl_LightSource[0].diffuse * diffuse) + gl_LightSource[0].specular * specular;
 
     gl_FragColor = mix(WATER_COLOR, color, sandFactor);
     //gl_FragColor.a = 1.0 - sandFactor;
