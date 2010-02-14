@@ -22,8 +22,7 @@ void main(void)
     vec2 rippleEffect = sca2 * texture2D(dudvmap, waterRipple).xy;
     //rippleEffect = rippleEffect * 2.0 + vec2(-1.0);
     vec3 normal = texture2D(normalmap, waterFlow + rippleEffect).xyz;
-    normal = normal * 2.0 + vec3(-1.0);
-    //normal = normalize(normal);
+    normal = normalize(normal * 2.0 + vec3(-1.0));
 
     // Reflection distortion
     vec2 fdist = texture2D(dudvmap, waterFlow + rippleEffect).xy;

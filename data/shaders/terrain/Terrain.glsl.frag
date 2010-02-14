@@ -25,8 +25,8 @@ void main()
     float sandFactor = clamp(sandFactor, 0.0, 1.0);
 
     // Extract normal
-    vec3 normal = texture2D(normalMap, gl_TexCoord[1].xy).xyz;
-    //normal = normal * 2.0 - 1.0;  // normal already in normalized form after these calculations
+    vec3 normal = normalize(texture2D(normalMap, gl_TexCoord[1].xy).xyz);
+    //normal = normal * 2.0 - 1.0;  // normal close enough to normalized form after these calculations
 
     // Calculate diffuse
     float ndotl = dot(normal, lightDir);
@@ -37,12 +37,12 @@ void main()
     matSpecular = mix(SAND_SPECULAR, matSpecular, grassFactor);
 
     // Calculate specular
-    vec3 vRef = normalize(reflect(-lightDir, normal));
-    float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
+    //vec3 vRef = normalize(reflect(-lightDir, normal));
+    //float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
 
     // approximated specular light used in OpenGL (ref. lighthouse 3D)
-    //vec3 halfVec = normalize(normalize(eyeDir) + lightDir);
-    //float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
+    vec3 halfVec = normalize(normalize(eyeDir) + lightDir);
+    float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
 
     vec4 specular = matSpecular * pow(stemp, matSpecular.w);
     
