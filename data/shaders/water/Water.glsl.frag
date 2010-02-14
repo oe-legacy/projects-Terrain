@@ -20,6 +20,7 @@ void main(void)
     vec3 viewt = normalize(eyeDir);
     
     vec2 rippleEffect = sca2 * texture2D(dudvmap, waterRipple).xy;
+    //rippleEffect = rippleEffect * 2.0 + vec2(-1.0);
     vec3 normal = texture2D(normalmap, waterFlow + rippleEffect).xyz;
     normal = normal * 2.0 + vec3(-1.0);
     //normal = normalize(normal);
@@ -32,6 +33,9 @@ void main(void)
     //calculate specular highlight
     vec3 vRef = normalize(reflect(-lightDir, normal));
     float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
+    // aproximated specular light
+    //vec3 halfVec = normalize(viewt + lightDir);
+    //float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
     vec4 specular = gl_LightSource[0].specular * pow(stemp, exponent);
 
     //calculate fresnel and inverted fresnel
@@ -41,8 +45,8 @@ void main(void)
     //get projective texcoords
     vec2 projCoord = projCoords.xy / projCoords.w;
     projCoord = projCoord * 0.5 + 0.5;
-    projCoord.x += fdist.x; // only distort horisontally for fewer gaps
-    // projCoord += fdist; // distort in 2 dimensions
+    fdist.y = -abs(fdist.y);
+    projCoord += fdist;
 
     //load and calculate reflection
     vec4 refl = texture2D(reflection, projCoord);
@@ -53,7 +57,7 @@ void main(void)
     
     // Add specular to the water
     vec4 color = refl + waterColor;
-    color *= (gl_LightSource[0].ambient + gl_LightSource[0].diffuse);
+    color *= (gl_LightSource[0].ambient + gl_LightSource[0].diffuse);    
 
     //add it all up for the effect
     gl_FragColor = color + specular;

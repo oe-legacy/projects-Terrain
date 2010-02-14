@@ -37,9 +37,13 @@ void main()
     matSpecular = mix(SAND_SPECULAR, matSpecular, grassFactor);
 
     // Calculate specular
-    //vec3 vRef = normalize(reflect(-lightDir, normal));
-    vec3 vRef = reflect(-lightDir, normal);
+    vec3 vRef = normalize(reflect(-lightDir, normal));
     float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
+
+    // approximated specular light used in OpenGL (ref. lighthouse 3D)
+    //vec3 halfVec = normalize(normalize(eyeDir) + lightDir);
+    //float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
+
     vec4 specular = matSpecular * pow(stemp, matSpecular.w);
     
     // Looking up the texture values
@@ -52,18 +56,7 @@ void main()
     vec4 text = mix(grass, snow, snowFactor);
     text = mix(sand, text, grassFactor);
 
-    // pure color
-    vec4 color = text;
-    // only ambient
-    //vec4 color = text * gl_LightSource[0].ambient;
-    // only diffuse
-    //vec4 color = text * gl_LightSource[0].diffuse * diffuse;
-    // pure specular
-    //vec4 color = gl_LightSource[0].specular * specular;
-    // ambient and diffuse
-    //vec4 color = text * (gl_LightSource[0].ambient + gl_LightSource[0].diffuse * diffuse);
-    // the works
-    //vec4 color = text * (gl_LightSource[0].ambient + gl_LightSource[0].diffuse * diffuse) + gl_LightSource[0].specular * specular;
+    vec4 color = text * (gl_LightSource[0].ambient + gl_LightSource[0].diffuse * diffuse) + gl_LightSource[0].specular * specular;
 
     gl_FragColor = mix(WATER_COLOR, color, sandFactor);
     //gl_FragColor.a = 1.0 - sandFactor;

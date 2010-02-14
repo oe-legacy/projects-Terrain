@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
 
 void SetupDisplay(){
     // setup display and devices
-    env = new SDLEnvironment(1024,768,32,FRAME_FULLSCREEN);
+    env = new SDLEnvironment(1440,900,32,FRAME_FULLSCREEN);
     //env = new SDLEnvironment(800,600);
     frame    = &env->GetFrame();
     mouse    = env->GetMouse();
@@ -237,6 +237,8 @@ void SetupDisplay(){
 
     camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
     camera->LookAt(0.0, 127.0, 0.0);
+    //camera->SetPosition(Vector<3, float>(1056.0, 200.0, 1056.0));
+    //camera->LookAt(800.0, 127.0, 800.0);
 }
 
 
