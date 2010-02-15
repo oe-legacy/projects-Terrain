@@ -44,7 +44,6 @@
 // Edit stuff
 #include <Utils/MouseSelection.h>
 #include <Utils/SelectionSet.h>
-//#include <Utils/TerrainEditTool.h>
 #include <Utils/CameraTool.h>
 #include <Utils/ToolChain.h>
 #include "TerrainHandler.h"
@@ -75,6 +74,7 @@ HUD* hud;
 
 bool useShader = true;
 
+/*
 class TextureLoadOnInit
     : public IListener<RenderingEventArg> {
     TextureLoader& tl;
@@ -85,6 +85,7 @@ public:
             tl.Load(*arg.renderer.GetSceneRoot());
     }
 };
+*/
 
 class QuitHandler : public IListener<KeyboardEventArg> {
     IEngine& engine;
@@ -148,6 +149,7 @@ int main(int argc, char** argv) {
 
     // Setup scene
     ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("heightmap2.tga");
+    //ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("Vertigo.tga");
     tgamapPtr->Load();
     float widthScale = 2.0;
     float origo[] = {tgamapPtr->GetHeight() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
