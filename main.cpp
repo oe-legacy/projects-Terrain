@@ -127,7 +127,8 @@ int main(int argc, char** argv) {
     SetupDisplay();
 
     // add plug-ins
-    ResourceManager<ITextureResource>::AddPlugin(new SDLImagePlugin());
+    ResourceManager<ITexture2D>::AddPlugin(new SDLImagePlugin());
+    ResourceManager<UCharTexture2D>::AddPlugin(new UCharSDLImagePlugin());
     ResourceManager<IShaderResource>::AddPlugin(new GLSLPlugin());
     DirectoryManager::AppendPath("projects/Terrain/data/");
 
@@ -148,8 +149,8 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
 
     // Setup scene
-    ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("heightmap2.tga");
-    //ITextureResourcePtr tgamapPtr = ResourceManager<ITextureResource>::Create("Vertigo.tga");
+    UCharTexture2DPtr tgamapPtr = ResourceManager<UCharTexture2D>::Create("heightmap2.tga");
+    //UCharTexture2DPtr tgamapPtr = ResourceManager<UCharTexture2D>::Create("Vertigo.tga");
     tgamapPtr->Load();
     float widthScale = 2.0;
     float origo[] = {tgamapPtr->GetHeight() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
@@ -176,7 +177,7 @@ int main(int argc, char** argv) {
     ISceneNode* refl = new SceneNode();
 
     // Setup water
-    ITextureResourcePtr waterSurface = ResourceManager<ITextureResource>::Create("textures/water.tga");
+    ITexture2DPtr waterSurface = ResourceManager<ITexture2D>::Create("textures/water.tga");
     WaterNode* water = new WaterNode(Vector<3, float>(origo), 2048);
     if (useShader){
         IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
