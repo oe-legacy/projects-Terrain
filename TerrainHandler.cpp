@@ -28,10 +28,11 @@ void TerrainHandler::Handle(KeyboardEventArg arg){
         terrain->SetVertex(129,128, terrain->GetVertex(129, 128)[1] - 10);
         terrain->SetVertex(129,129, terrain->GetVertex(129, 129)[1] - 10);
     }
-    if (arg.type == EVENT_PRESS && arg.sym == KEY_y){
-        terrain->SetVertex(128,128, terrain->GetVertex(128, 128)[1]);
-        terrain->SetVertex(128,129, terrain->GetVertex(128, 129)[1]);
-        terrain->SetVertex(129,128, terrain->GetVertex(129, 128)[1]);
-        terrain->SetVertex(129,129, terrain->GetVertex(129, 129)[1]);
+    if (arg.type == EVENT_PRESS && arg.sym == KEY_r){
+        float* hat = new float[64];
+        for (int i = 0; i < 64; ++i)
+            hat[i] = 70;
+        terrain->SetVertices(57, 57, 8, 8, hat);
+        //terrain->SetVertices(-1, -1, 3, 3, hat);
     }
 }
