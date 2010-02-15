@@ -1,9 +1,17 @@
+/*
 uniform float snowStartHeight;
 uniform float snowBlend;
 uniform float grassStartHeight;
 uniform float grassBlend;
 uniform float sandStartHeight;
 uniform float sandBlend;
+*/
+const float snowStartHeight = 50.0;
+const float snowBlend = 20.0;
+const float grassStartHeight = 5.0;
+const float grassBlend = 5.0;
+const float sandStartHeight = -10.0;
+const float sandBlend = 10.0;
 
 uniform vec3 viewPos;
 uniform float baseDistance;

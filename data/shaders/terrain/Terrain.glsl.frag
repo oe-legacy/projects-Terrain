@@ -37,12 +37,12 @@ void main()
     matSpecular = mix(SAND_SPECULAR, matSpecular, grassFactor);
 
     // Calculate specular
-    //vec3 vRef = normalize(reflect(-lightDir, normal));
-    //float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
+    vec3 vRef = normalize(reflect(-lightDir, normal));
+    float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
 
     // approximated specular light used in OpenGL (ref. lighthouse 3D)
-    vec3 halfVec = normalize(normalize(eyeDir) + lightDir);
-    float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
+    //vec3 halfVec = normalize(normalize(eyeDir) + lightDir);
+    //float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
 
     vec4 specular = matSpecular * pow(stemp, matSpecular.w);
     
