@@ -34,6 +34,7 @@
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
 #include <Resources/SDLImage.h>
+#include <Utils/TerrainTexUtils.h>
 //#include <Resources/TGAResource.h>
 
 // Fps stuff
@@ -150,8 +151,9 @@ int main(int argc, char** argv) {
 
     // Setup scene
     UCharTexture2DPtr tgamapPtr = ResourceManager<UCharTexture2D>::Create("heightmap2.tga");
-    //UCharTexture2DPtr tgamapPtr = ResourceManager<UCharTexture2D>::Create("Vertigo.tga");
     tgamapPtr->Load();
+    FloatTexture2DPtr map = ConvertTex(tgamapPtr);
+    //UCharTexture2DPtr tgamapPtr = ResourceManager<UCharTexture2D>::Create("Vertigo.tga");
     float widthScale = 2.0;
     float origo[] = {tgamapPtr->GetHeight() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
 
@@ -161,7 +163,7 @@ int main(int argc, char** argv) {
     engine->ProcessEvent().Attach(*sun);
 
     // Setup terrain
-    HeightFieldNode* land = new HeightFieldNode(tgamapPtr);
+    HeightFieldNode* land = new HeightFieldNode(map);
     if (useShader){
         IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
         land->SetLandscapeShader(landShader);
