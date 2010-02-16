@@ -13,7 +13,7 @@ void main(void)
 {
     // Eyedir should be transformed because the normalmaps upvector is
     // z, where ours is y.
-    eyeDir = (viewpos - gl_Vertex.xyz).xzy;
+    eyeDir = viewpos - gl_Vertex.xyz;
 
     // texcoords for making the water flow
     vec2 flowDir = center - vec2(gl_Vertex.x, gl_Vertex.z);

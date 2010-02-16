@@ -1,5 +1,5 @@
 const vec4 WATER_COLOR = vec4(0.0, 0.0, 0.5, 1.0);
-const float sca = 0.005;
+const float sca = 0.02;
 const float sca2 = 0.02;
 
 const float exponent = 128.0;
@@ -21,8 +21,8 @@ void main(void)
     
     vec2 rippleEffect = sca2 * texture2D(dudvmap, waterRipple).xy;
     //rippleEffect = rippleEffect * 2.0 + vec2(-1.0);
-    vec3 normal = texture2D(normalmap, waterFlow + rippleEffect).xyz;
-    normal = normalize(normal * 2.0 + vec3(-1.0));
+    vec3 normal = texture2D(normalmap, waterFlow + rippleEffect).xzy;
+    normal = normalize(normal - 0.5);
 
     // Reflection distortion
     vec2 fdist = texture2D(dudvmap, waterFlow + rippleEffect).xy;
