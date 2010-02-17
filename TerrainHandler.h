@@ -11,7 +11,7 @@
 
 namespace OpenEngine {
     namespace Scene {
-        class HeightFieldNode;
+        class HeightMapNode;
     }
 }
 
@@ -20,9 +20,9 @@ using namespace OpenEngine::Scene;
 
 class TerrainHandler : public IListener<KeyboardEventArg> {
 private:
-    HeightFieldNode* terrain;
+    HeightMapNode* terrain;
 public:
-    TerrainHandler(HeightFieldNode* node);
+    TerrainHandler(HeightMapNode* node);
     ~TerrainHandler() {}
 
     void Handle(KeyboardEventArg arg);

@@ -30,12 +30,13 @@
 
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
-#include <Scene/HeightFieldNode.h>
+#include <Scene/HeightMapNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/WaterNode.h>
 #include <Resources/SDLImage.h>
+#include <Utils/TerrainUtils.h>
 #include <Utils/TerrainTexUtils.h>
-//#include <Resources/TGAResource.h>
+#include <Resources/TGAResource.h>
 
 // Fps stuff
 #include <Display/HUD.h>
@@ -128,7 +129,7 @@ int main(int argc, char** argv) {
     SetupDisplay();
 
     // add plug-ins
-    ResourceManager<ITexture2D>::AddPlugin(new SDLImagePlugin());
+    ResourceManager<ITexture2D>::AddPlugin(new TGAPlugin());
     ResourceManager<UCharTexture2D>::AddPlugin(new UCharSDLImagePlugin());
     ResourceManager<IShaderResource>::AddPlugin(new GLSLPlugin());
     DirectoryManager::AppendPath("projects/Terrain/data/");
@@ -150,12 +151,25 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
 
     // Setup scene
-    UCharTexture2DPtr tgamapPtr = ResourceManager<UCharTexture2D>::Create("heightmap2.tga");
-    tgamapPtr->Load();
-    FloatTexture2DPtr map = ConvertTex(tgamapPtr);
-    //UCharTexture2DPtr tgamapPtr = ResourceManager<UCharTexture2D>::Create("Vertigo.tga");
+    /*
+    UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>::Create("heightmap2.tga");
+    tmap = ChangeChannels(tmap, 1);
+    FloatTexture2DPtr map = ConvertTex(tmap);
+    */
+    FloatTexture2DPtr map = FloatTexture2DPtr(new FloatTexture2D(1024, 1024, 1));
+    map = CreateSmoothTerrain(map, 1000, 50, 15);
+    map = CreateSmoothTerrain(map, 2000, 25, -7);
+    map = CreateSmoothTerrain(map, 4000, 10, 3);
+    /*
+    FloatTexture2DPtr map = FloatTexture2DPtr(new FloatTexture2D(2, 2, 1));
+    map->Load();
+    map->GetPixel(0,0)[0] = 0;
+    map->GetPixel(0,1)[0] = 0;
+    map->GetPixel(1,0)[0] = 0;
+    map->GetPixel(1,1)[0] = 0;
+    */
     float widthScale = 2.0;
-    float origo[] = {tgamapPtr->GetHeight() * widthScale / 2, 0, tgamapPtr->GetWidth() * widthScale / 2};
+    float origo[] = {map->GetHeight() * widthScale / 2, 0, map->GetWidth() * widthScale / 2};
 
     // setup sun
     float sunDir[] = {1448, 2048, 1448};
@@ -163,14 +177,16 @@ int main(int argc, char** argv) {
     engine->ProcessEvent().Attach(*sun);
 
     // Setup terrain
-    HeightFieldNode* land = new HeightFieldNode(map);
+    HeightMapNode* land = new HeightMapNode(map);
     if (useShader){
-        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
+        //IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
+        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/oceanfloor/oceanfloor.glsl");
         land->SetLandscapeShader(landShader);
     }
     land->SetHeightScale(1.5);
     land->SetWidthScale(widthScale);
-    land->SetTextureDetail(1.0f / 16.0f);
+    //land->SetTextureDetail(1.0f / 16.0f);
+    land->SetTextureDetail(1.0f / 33.0f);
     land->SetSun(sun);
     renderer->InitializeEvent().Attach(*land);
     keyboard->KeyEvent().Attach(*(new TerrainHandler(land)));
@@ -225,8 +241,8 @@ int main(int argc, char** argv) {
 
 void SetupDisplay(){
     // setup display and devices
-    env = new SDLEnvironment(1440,900,32,FRAME_FULLSCREEN);
-    //env = new SDLEnvironment(800,600);
+    //env = new SDLEnvironment(1440,900,32,FRAME_FULLSCREEN);
+    env = new SDLEnvironment(800,600);
     frame    = &env->GetFrame();
     mouse    = env->GetMouse();
     keyboard = env->GetKeyboard();

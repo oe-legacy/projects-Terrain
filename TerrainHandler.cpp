@@ -7,10 +7,10 @@
 // See the GNU General Public License for more details (see LICENSE). 
 //--------------------------------------------------------------------
 
-#include <Scene/HeightFieldNode.h>
+#include <Scene/HeightMapNode.h>
 #include "TerrainHandler.h"
 
-TerrainHandler::TerrainHandler(HeightFieldNode* node)
+TerrainHandler::TerrainHandler(HeightMapNode* node)
     : terrain(node){
     
 }
