@@ -169,24 +169,23 @@ int main(int argc, char** argv) {
     map->GetPixel(1,1)[0] = 0;
     */
     float widthScale = 2.0;
-    float origo[] = {map->GetHeight() * widthScale / 2, 0, map->GetWidth() * widthScale / 2};
+    Vector<3, float> origo = Vector<3, float>(map->GetHeight() * widthScale / 2, 0, map->GetWidth() * widthScale / 2);
 
     // setup sun
-    float sunDir[] = {1448, 2048, 1448};
+    Vector<3, float> sunDir = Vector<3, float>(1448, 2048, 1448);
     SunNode* sun = new SunNode(sunDir, origo);
     engine->ProcessEvent().Attach(*sun);
 
     // Setup terrain
     HeightMapNode* land = new HeightMapNode(map);
     if (useShader){
-        //IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
-        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/oceanfloor/oceanfloor.glsl");
+        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
+        //IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/oceanfloor/oceanfloor.glsl");
         land->SetLandscapeShader(landShader);
     }
     land->SetHeightScale(1.5);
     land->SetWidthScale(widthScale);
-    //land->SetTextureDetail(1.0f / 16.0f);
-    land->SetTextureDetail(1.0f / 33.0f);
+    land->SetTextureDetail(1.0f / 16.0f);
     land->SetSun(sun);
     renderer->InitializeEvent().Attach(*land);
     keyboard->KeyEvent().Attach(*(new TerrainHandler(land)));
