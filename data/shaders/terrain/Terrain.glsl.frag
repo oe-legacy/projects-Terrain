@@ -45,8 +45,11 @@ void main()
     // Calculate bump
     vec3 sandBump = texture2D(sandBump, gl_TexCoord[0].xy).xzy * 2.0 - 1.0;
     sandBump.y *= 3.0;
+    vec3 snowBump = sandBump;
+    snowBump.y *= 2.0;
+    vec3 grassBump = vec3(0.0, 1.0, 0.0);
     vec3 cliffBump = texture2D(cliffBump, gl_TexCoord[0].xy * cliffScaling).xzy * 2.0 - 1.0;
-    vec3 bump = vec3(0.0, 1.0, 0.0);
+    vec3 bump = mix(grassBump, snowBump, snowFactor);
     bump = mix(sandBump, bump, grassFactor);
     bump = mix(cliffBump, bump, cliffFactor);
     bump = vec3(dot(bump, tangent), dot(bump, normal), dot(bump, binormal));
