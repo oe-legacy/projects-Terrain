@@ -26,7 +26,7 @@
 
 // OpenGL stuff
 #include <Renderers/OpenGL/Renderer.h>
-#include <Resources/GLSLResource.h>
+#include <Resources/OpenGLShader.h>
 
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
@@ -129,9 +129,10 @@ int main(int argc, char** argv) {
     SetupDisplay();
 
     // add plug-ins
-    ResourceManager<ITexture2D>::AddPlugin(new TGAPlugin());
+    ResourceManager<ITexture2D>::AddPlugin(new SDLImagePlugin());
     ResourceManager<UCharTexture2D>::AddPlugin(new UCharSDLImagePlugin());
-    ResourceManager<IShaderResource>::AddPlugin(new GLSLPlugin());
+    //ResourceManager<IShaderResource>::AddPlugin(new GLSLPlugin());
+    ResourceManager<IShaderResource>::AddPlugin(new GLShaderPlugin());
     DirectoryManager::AppendPath("projects/Terrain/data/");
 
     scene = new SceneNode();
@@ -151,23 +152,9 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
 
     // Setup scene
-    /*
-    UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>::Create("heightmap2.tga");
+    UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>::Create("textures/heightmap2.tga");
     tmap = ChangeChannels(tmap, 1);
     FloatTexture2DPtr map = ConvertTex(tmap);
-    */
-    FloatTexture2DPtr map = FloatTexture2DPtr(new FloatTexture2D(1024, 1024, 1));
-    map = CreateSmoothTerrain(map, 1000, 50, 15);
-    map = CreateSmoothTerrain(map, 2000, 25, -7);
-    map = CreateSmoothTerrain(map, 4000, 10, 3);
-    /*
-    FloatTexture2DPtr map = FloatTexture2DPtr(new FloatTexture2D(2, 2, 1));
-    map->Load();
-    map->GetPixel(0,0)[0] = 0;
-    map->GetPixel(0,1)[0] = 0;
-    map->GetPixel(1,0)[0] = 0;
-    map->GetPixel(1,1)[0] = 0;
-    */
     float widthScale = 2.0;
     Vector<3, float> origo = Vector<3, float>(map->GetHeight() * widthScale / 2, 0, map->GetWidth() * widthScale / 2);
 
@@ -180,7 +167,6 @@ int main(int argc, char** argv) {
     HeightMapNode* land = new HeightMapNode(map);
     if (useShader){
         IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
-        //IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/oceanfloor/oceanfloor.glsl");
         land->SetLandscapeShader(landShader);
     }
     land->SetHeightScale(1.5);
@@ -194,12 +180,15 @@ int main(int argc, char** argv) {
     ISceneNode* refl = new SceneNode();
 
     // Setup water
-    ITexture2DPtr waterSurface = ResourceManager<ITexture2D>::Create("textures/water.tga");
     WaterNode* water = new WaterNode(Vector<3, float>(origo), 2048);
     if (useShader){
         IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
         water->SetWaterShader(waterShader, 64.0);
+        UCharTexture2DPtr normalmap = ResourceManager<UCharTexture2D>::Create("textures/waterNormalMap.jpg");
+        UCharTexture2DPtr dudvmap = ResourceManager<UCharTexture2D>::Create("textures/waterDistortion.jpg");
+        water->SetNormalDudvMap(normalmap, dudvmap);
     }else{
+        ITexture2DPtr waterSurface = ResourceManager<ITexture2D>::Create("textures/water.tga");
         water->SetSurfaceTexture(waterSurface, 64.0);
     }
     water->SetReflectionScene(refl);
@@ -219,7 +208,7 @@ int main(int argc, char** argv) {
 
     // Setup Edit Tool
     ToolChain* chain = new ToolChain();
-    CameraTool* ct = new CameraTool();
+    CameraTool* ct = new CameraTool(false);
     chain->PushBackTool(ct);    
     //TerrainEditTool* editTool = new TerrainEditTool(land, frame);
     //chain->PushBackTool(editTool);

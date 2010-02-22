@@ -4,9 +4,11 @@ const float sca2 = 0.02;
 
 const float exponent = 128.0;
 
-uniform sampler2D normalmap;
 uniform sampler2D reflection;
-uniform sampler2D dudvmap;
+// Contains the normalmap and dudv. 
+// xy is xz of the normal.
+// zw is the dudv.
+uniform sampler2D normaldudvmap;
 
 uniform vec3 lightDir;
 
@@ -18,23 +20,22 @@ varying vec3 eyeDir; //viewts
 void main(void)
 {
     vec3 viewt = normalize(eyeDir);
-    
-    vec2 rippleEffect = sca2 * texture2D(dudvmap, waterRipple).xy;
-    //rippleEffect = rippleEffect * 2.0 + vec2(-1.0);
-    vec3 normal = texture2D(normalmap, waterFlow + rippleEffect).xzy;
-    normal = normalize(normal - 0.5);
+
+    vec2 rippleEffect = sca2 * texture2D(normaldudvmap, waterRipple).zw;
+    vec4 nuv = texture2D(normaldudvmap, waterFlow + rippleEffect) * 2.0 - 1.0;
+    vec3 normal;
+    normal.xz = nuv.xy;
+    normal.y = sqrt(1.0 - dot(normal.xz, normal.xz));
 
     // Reflection distortion
-    vec2 fdist = texture2D(dudvmap, waterFlow + rippleEffect).xy;
-    fdist = fdist * 2.0 + vec2(-1.0);
-    fdist *= sca;
+    vec2 fdist = sca * nuv.zw;
                  
     //calculate specular highlight
-    vec3 vRef = normalize(reflect(-lightDir, normal));
-    float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
+    //vec3 vRef = normalize(reflect(-lightDir, normal));
+    //float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
     // aproximated specular light
-    //vec3 halfVec = normalize(viewt + lightDir);
-    //float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
+    vec3 halfVec = normalize(viewt + lightDir);
+    float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
     vec4 specular = gl_LightSource[0].specular * pow(stemp, exponent);
 
     //calculate fresnel and inverted fresnel

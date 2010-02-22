@@ -7,5 +7,5 @@ vert: shaders/water/Water.glsl.vert
 frag: shaders/water/Water.glsl.frag
 
 # Textures needed
-text: normalmap|textures/waterNormalmap.tga
-text: dudvmap|textures/waterDistortion.tga
+#tex2D: normalmap|textures/waterNormalmap.tga
+#text: dudvmap|textures/waterDistortion.tga

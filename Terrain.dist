@@ -41,4 +41,4 @@ win32 /libraries http://openengine.dk/data/libraries/dlls-win32.zip
 
 # project data
 
-any /projects/Terrain/data	http://www.openengine.dk/data/projects/Terrain/Terrain.zip
+any /projects/Terrain/data	http://www.openengine.dk/data/projects/Terrain/textures.zip

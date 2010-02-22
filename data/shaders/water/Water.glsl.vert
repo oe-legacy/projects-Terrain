@@ -17,10 +17,10 @@ void main(void)
 
     // texcoords for making the water flow
     vec2 flowDir = center - vec2(gl_Vertex.x, gl_Vertex.z);
-    waterFlow = vec2(gl_MultiTexCoord0) - time * flowDir;
+    waterFlow = gl_MultiTexCoord0.xy - time * flowDir;
 
     // texcoords for making the water ripple
-    waterRipple = (vec2(gl_MultiTexCoord0) + vec2(0.0, time2)) * tscale;
+    waterRipple = (gl_MultiTexCoord0.xy + vec2(0.0, time2)) * tscale;
 
     gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
 	gl_Position = projCoords = gl_ModelViewProjectionMatrix * gl_Vertex;
