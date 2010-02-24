@@ -2,13 +2,10 @@ const vec4 WATER_COLOR = vec4(0.0, 0.0, 0.5, 1.0);
 const float sca = 0.02;
 const float sca2 = 0.02;
 
-const float exponent = 128.0;
+const float exponent = 96.0;
 
 uniform sampler2D reflection;
-// Contains the normalmap and dudv. 
-// xy is xz of the normal.
-// zw is the dudv.
-uniform sampler2D normaldudvmap;
+uniform sampler2D normaldudvmap; //{normal.x, normal.z, dudv.x, dudv.y}
 
 uniform vec3 lightDir;
 
