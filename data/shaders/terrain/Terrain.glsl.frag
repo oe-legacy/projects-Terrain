@@ -1,5 +1,6 @@
 // material pecular, the alpha channel is the shininess
-const vec4 SNOW_SPECULAR = vec4(0.7, 0.7, 1.0, 32.0);
+//const vec4 SNOW_SPECULAR = vec4(0.7, 0.7, 1.0, 32.0);
+const vec4 SNOW_SPECULAR = vec4(0.3, 0.3, 0.4, 32.0);
 const vec4 GRASS_SPECULAR = vec4(0.0, 0.0, 0.0, 1.0);
 const vec4 SAND_SPECULAR = vec4(0.2, 0.2, 0.1, 128.0);
 const vec4 CLIFF_SPECULAR = vec4(0.0, 0.0, 0.0, 1.0);
@@ -45,8 +46,8 @@ void main()
     // Calculate bump
     vec3 sandBump = texture2D(sandBump, gl_TexCoord[0].xy).xzy * 2.0 - 1.0;
     sandBump.y *= 3.0;
+    sandBump = normalize(sandBump);
     vec3 snowBump = sandBump;
-    snowBump.y *= 2.0;
     vec3 grassBump = vec3(0.0, 1.0, 0.0);
     vec3 cliffBump = texture2D(cliffBump, gl_TexCoord[0].xy * cliffScaling).xzy * 2.0 - 1.0;
     vec3 bump = mix(grassBump, snowBump, snowFactor);

@@ -29,7 +29,7 @@ void main()
 
     vec4 vertex = vec4(gl_Vertex.xyz, 1.0);
     float morphValue = gl_Vertex.w;
-    
+
     vec3 patchCenter = vec3(gl_Normal.x, 0, gl_Normal.y);
     float lod = gl_Normal.z;
     float dist = distance(viewPos, patchCenter) - baseDistance;
