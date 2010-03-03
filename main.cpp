@@ -153,8 +153,11 @@ int main(int argc, char** argv) {
 
     // Setup scene
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>::Create("textures/heightmap2.tga");
-    tmap = ChangeChannels(tmap, 1);
+    tmap = ChangeChannels(tmap, 1);    
     FloatTexture2DPtr map = ConvertTex(tmap);
+    BoxBlur(map);
+    BoxBlur(map);
+    BoxBlur(map);
     float widthScale = 2.0;
     Vector<3, float> origo = Vector<3, float>(map->GetHeight() * widthScale / 2, 0, map->GetWidth() * widthScale / 2);
 
