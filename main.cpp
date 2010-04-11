@@ -155,6 +155,7 @@ int main(int argc, char** argv) {
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>::Create("textures/heightmap2.tga");
     tmap = ChangeChannels(tmap, 1);    
     FloatTexture2DPtr map = ConvertTex(tmap);
+    map->SetWrapping(CLAMP_TO_EDGE);
     BoxBlur(map);
     BoxBlur(map);
     BoxBlur(map);
@@ -201,6 +202,8 @@ int main(int argc, char** argv) {
 
     // Renderstate node
     RenderStateNode* state = new RenderStateNode();
+    state->DisableOption(RenderStateNode::BACKFACE);
+    //state->EnableOption(RenderStateNode::LIGHTING);
     keyboard->KeyEvent().Attach(*(new RenderStateHandler(state)));
     
     // Scene setup
