@@ -131,7 +131,6 @@ int main(int argc, char** argv) {
     // add plug-ins
     ResourceManager<ITexture2D>::AddPlugin(new SDLImagePlugin());
     ResourceManager<UCharTexture2D>::AddPlugin(new UCharSDLImagePlugin());
-    //ResourceManager<IShaderResource>::AddPlugin(new GLSLPlugin());
     ResourceManager<IShaderResource>::AddPlugin(new GLShaderPlugin());
     DirectoryManager::AppendPath("projects/Terrain/data/");
 
@@ -175,7 +174,7 @@ int main(int argc, char** argv) {
     }
     land->SetHeightScale(1.5);
     land->SetWidthScale(widthScale);
-    land->SetTextureDetail(1.0f / 16.0f);
+    land->SetOffset(Vector<3, float>(0, -10.75, 0));
     land->SetSun(sun);
     renderer->InitializeEvent().Attach(*land);
     keyboard->KeyEvent().Attach(*(new TerrainHandler(land)));
@@ -203,7 +202,6 @@ int main(int argc, char** argv) {
     // Renderstate node
     RenderStateNode* state = new RenderStateNode();
     state->DisableOption(RenderStateNode::BACKFACE);
-    //state->EnableOption(RenderStateNode::LIGHTING);
     keyboard->KeyEvent().Attach(*(new RenderStateHandler(state)));
     
     // Scene setup
