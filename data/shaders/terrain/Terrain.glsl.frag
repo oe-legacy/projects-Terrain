@@ -27,10 +27,14 @@ varying float grassFactor;
 varying float sandFactor;
 varying vec3 eyeDir;
 
+varying vec2 texCoord;
+
 void main()
 {
+    vec2 srcUV = texCoord * 16.0;
+
     // Extract normal and calculate tangent and binormal
-    vec3 normal = texture2D(normalMap, gl_TexCoord[1].xy).xyz;
+    vec3 normal = texture2D(normalMap, texCoord).xyz;
     vec3 tangent = normalize(vec3(normal.y * -0.5, normal.x, 0.0));
     vec3 binormal = normalize(vec3(0.0, normal.z, normal.y * -0.5));
 
@@ -44,12 +48,12 @@ void main()
     cliffFactor = clamp(cliffFactor, 0.0, 1.0);
 
     // Calculate bump
-    vec3 sandBump = texture2D(sandBump, gl_TexCoord[0].xy).xzy * 2.0 - 1.0;
+    vec3 sandBump = texture2D(sandBump, srcUV).xzy * 2.0 - 1.0;
     sandBump.y *= 3.0;
     sandBump = normalize(sandBump);
     vec3 snowBump = sandBump;
     vec3 grassBump = vec3(0.0, 1.0, 0.0);
-    vec3 cliffBump = texture2D(cliffBump, gl_TexCoord[0].xy * cliffScaling).xzy * 2.0 - 1.0;
+    vec3 cliffBump = texture2D(cliffBump, srcUV * cliffScaling).xzy * 2.0 - 1.0;
     vec3 bump = mix(grassBump, snowBump, snowFactor);
     bump = mix(sandBump, bump, grassFactor);
     bump = mix(cliffBump, bump, cliffFactor);
@@ -72,7 +76,6 @@ void main()
     vec4 specular = matSpecular * pow(stemp, matSpecular.w);
     
     // Looking up the texture values
-    vec2 srcUV = gl_TexCoord[0].xy;
     vec4 grass = texture2D(grassTex, srcUV);
     vec4 snow = texture2D(snowTex, srcUV);
     vec4 sand = texture2D(sandTex, srcUV);
