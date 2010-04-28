@@ -30,8 +30,10 @@
 
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
-#include <Scene/HeightMapNode.h>
+//#include <Scene/HeightMapNode.h>
+#include "Scene/Island.h"
 #include <Scene/SunNode.h>
+#include <Scene/SkySphereNode.h>
 #include <Scene/WaterNode.h>
 #include <Resources/SDLImage.h>
 #include <Utils/TerrainUtils.h>
@@ -49,6 +51,10 @@
 #include <Utils/CameraTool.h>
 #include <Utils/ToolChain.h>
 #include "TerrainHandler.h"
+
+// Mesh stuff
+#include <Utils/MeshCreator.h>
+#include <Scene/MeshNode.h>
 
 // name spaces that we will be using.
 using namespace OpenEngine::Core;
@@ -167,11 +173,13 @@ int main(int argc, char** argv) {
     engine->ProcessEvent().Attach(*sun);
 
     // Setup terrain
+    HeightMapNode* land = new Island(map);
+    /*
     HeightMapNode* land = new HeightMapNode(map);
     if (useShader){
         IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
         land->SetLandscapeShader(landShader);
-    }
+    }*/
     land->SetHeightScale(1.5);
     land->SetWidthScale(widthScale);
     land->SetOffset(Vector<3, float>(0, -10.75, 0));
@@ -199,6 +207,32 @@ int main(int argc, char** argv) {
     renderer->InitializeEvent().Attach(*water);
     engine->ProcessEvent().Attach(*water);
 
+    // Sky sphere node
+    IShaderResourcePtr atmosphere = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/SkyFromAtmosphere/SkyFromAtmosphere.glsl");
+    const Vector<3, float> wavelength = Vector<3, float>(0.65f, 0.57f, 0.475f);
+    const float outerRadius = 1025.0f;
+    const float innerRadius = 1000.0f;
+    const float fScale = 1 / (outerRadius - innerRadius);
+    const float ESun = 20.0f;
+    const float kr = 0.0025f;
+    const float km = 0.001f;
+    const float g = -0.99f; // The Mie phase asymmetry factor
+    atmosphere->SetUniform("v3InvWavelength", Vector<3, float>(1) / (wavelength * wavelength * wavelength * wavelength));
+    atmosphere->SetUniform("fCameraHeight", 1.0f);
+    atmosphere->SetUniform("fInnerRadius", innerRadius);
+    atmosphere->SetUniform("fKrESun", kr * ESun);
+    atmosphere->SetUniform("fKmESun", km * ESun);
+    atmosphere->SetUniform("fKr4PI", kr * 4 * PI);
+    atmosphere->SetUniform("fKm4PI", km * 4 * PI);
+    atmosphere->SetUniform("fScale", fScale);
+    atmosphere->SetUniform("fScaleDepth", 0.25f);
+    atmosphere->SetUniform("fScaleOverScaleDepth", fScale / 0.25f);
+    atmosphere->SetUniform("g", g);
+    atmosphere->SetUniform("g2", g * g);
+    //SkySphereNode* sky = new SkySphereNode(atmosphere, 2500, 80);
+    SkySphereNode* sky = new SkySphereNode(atmosphere, outerRadius, 80);
+    renderer->InitializeEvent().Attach(*sky);
+
     // Renderstate node
     RenderStateNode* state = new RenderStateNode();
     state->DisableOption(RenderStateNode::BACKFACE);
@@ -209,6 +243,12 @@ int main(int argc, char** argv) {
     state->AddNode(land);
     scene->AddNode(sun);
     scene->AddNode(water);
+    //state->AddNode(sky);
+    /*
+    scene->AddNode(state);
+    state->AddNode(new MeshNode(MeshPtr(CreateSphere(innerRadius, 15, Vector<3, float>(0,0,0.7)))));
+    state->AddNode(sky);
+    */
 
     // Setup Edit Tool
     ToolChain* chain = new ToolChain();
@@ -249,6 +289,7 @@ void SetupDisplay(){
     viewport->SetViewingVolume(frustum);
 
     camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
+    //camera->SetPosition(Vector<3, float>(-1010.0, 0.0, 0.0));
     camera->LookAt(0.0, 127.0, 0.0);
     //camera->SetPosition(Vector<3, float>(1056.0, 200.0, 1056.0));
     //camera->LookAt(800.0, 127.0, 800.0);
