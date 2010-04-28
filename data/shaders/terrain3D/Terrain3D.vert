@@ -1,11 +1,8 @@
-const vec3 startHeight = vec3(-10.76, 5.0, 50.0); // {grass, grass, snow}
-const vec3 blend = vec3(10.0, 5.0, 20.0); // {grass, grass, snow}
-
 uniform vec3 viewPos;
 uniform float baseDistance;
 uniform float invIncDistance;
 
-varying vec3 factors; // {sandFactor, grassFactor, snowFactor}
+varying float height;
 
 varying vec3 eyeDir;
 
@@ -28,9 +25,8 @@ void main()
     // Calculate the eyeDir relative to the vertex.
     eyeDir = viewPos - vertex.xyz;
 
-    // Calculating the texture factors
-    factors = (vertex.yyy - startHeight) / blend;
-
+    height = vertex.y;
+    
     // Doing the stuff
     gl_ClipVertex = gl_ModelViewMatrix * vertex;
 	gl_Position = gl_ModelViewProjectionMatrix * vertex;
