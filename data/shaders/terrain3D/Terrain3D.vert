@@ -2,6 +2,8 @@ uniform vec3 viewPos;
 uniform float baseDistance;
 uniform float invIncDistance;
 
+uniform sampler2D normalMap;
+
 varying float height;
 
 varying vec3 eyeDir;
@@ -25,7 +27,7 @@ void main()
     // Calculate the eyeDir relative to the vertex.
     eyeDir = viewPos - vertex.xyz;
 
-    height = vertex.y;
+    height = vertex.y;// + 10.0 * texture2D(normalMap, texCoord).x;
     
     // Doing the stuff
     gl_ClipVertex = gl_ModelViewMatrix * vertex;

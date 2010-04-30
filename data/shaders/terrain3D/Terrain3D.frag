@@ -1,9 +1,9 @@
 #extension GL_EXT_texture_array : require
 
 const vec3 startHeight = vec3(-10.76, 5.0, 50.0); // {grass, grass, snow}
-const vec3 blend = vec3(10.0, 5.0, 20.0); // {grass, grass, snow}
+const vec3 blending = vec3(10.0, 5.0, 20.0); // {grass, grass, snow}
 
-// material pecular, the alpha channel is the shininess
+// material specular, scalar and exponent
 const vec2 SNOW_SPECULAR = vec2(0.7, 32.0);
 const vec2 GRASS_SPECULAR = vec2(0.0, 1.0);
 const vec2 SAND_SPECULAR = vec2(0.2, 128.0);
@@ -28,18 +28,41 @@ varying vec3 eyeDir;
 
 varying vec2 texCoord;
 
+vec4 phongLighting(in vec4 text, in vec3 normal, in vec2 specProp){
+    // Calculate diffuse
+    float ndotl = dot(lightDir, normal);
+    float diffuse = clamp(ndotl, 0.0, 1.0);
+    
+    // Calculate specular
+    vec3 vRef = normalize(reflect(-lightDir, normal));
+    float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
+    float specular = specProp.x * pow(stemp, specProp.y);
+
+    return text * (gl_LightSource[0].ambient + gl_LightSource[0].diffuse * diffuse + gl_LightSource[0].specular * specular);
+}
+
+vec4 blinnLighting(in vec4 text, in vec3 normal, in vec2 specProp){
+    // Calculate diffuse
+    float ndotl = dot(lightDir, normal);
+    float diffuse = clamp(ndotl, 0.0, 1.0);
+    
+    // Calculate specular
+    vec3 vRef = normalize(reflect(-lightDir, normal));
+    float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
+    vec4 specular = text * specProp.x * pow(stemp, specProp.y);
+
+    return text * (gl_LightSource[0].ambient + gl_LightSource[0].diffuse * diffuse) + gl_LightSource[0].specular * specular;
+}
+
 void main()
 {
     vec2 srcUV = texCoord * 16.0;
 
     // Calculating the texture blend factor
-    vec3 factors = (vec3(height, height, height) - startHeight) / blend; // Can be calculated in the vertex shader if need be.
+    vec3 factors = (vec3(height, height, height) - startHeight) / blending; // Can be calculated in the vertex shader if need be.
     factors = clamp(factors, 0.0, 1.0);
-    float waterBlend = clamp(factors.x, 0.0, 1.0);
-    factors.xy -= factors.yz;
 
-    const vec3 layers = vec3(0.0, 1.0, 2.0);
-    float l = dot(layers, factors);
+    float l = factors.y + factors.z;
     float layer = floor(l);
     float blend = l - layer;
 
@@ -69,20 +92,13 @@ void main()
     bumpNormal = vec3(dot(bumpNormal, tangent), dot(bumpNormal, normal), dot(bumpNormal, binormal));
     bumpNormal = normalize(bumpNormal);
 
-    // Calculate diffuse
-    float ndotl = dot(lightDir, bumpNormal);
-    float diffuse = clamp(ndotl, 0.0, 1.0);
-
     // Calculate specular
     vec2 matSpecular = factors.x * SAND_SPECULAR + 
         factors.y * GRASS_SPECULAR + 
         factors.z * SNOW_SPECULAR;
     matSpecular = mix(CLIFF_SPECULAR, matSpecular, cliffFactor);
 
-    vec3 vRef = normalize(reflect(-lightDir, bumpNormal));
-    float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
-    vec4 specular = text * matSpecular.x * pow(stemp, matSpecular.y);
-
-    vec4 color = text * (gl_LightSource[0].ambient + gl_LightSource[0].diffuse * diffuse) + gl_LightSource[0].specular * specular;
-    gl_FragColor = mix(WATER_COLOR, color, waterBlend);
+    vec4 color = phongLighting(text, bumpNormal, matSpecular);
+    
+    gl_FragColor = mix(WATER_COLOR, color, factors.x);
 }
