@@ -30,8 +30,8 @@
 
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
-//#include <Scene/HeightMapNode.h>
 #include "Scene/Island.h"
+#include <Scene/GrassNode.h>
 #include <Scene/SunNode.h>
 #include <Scene/SkySphereNode.h>
 #include <Scene/WaterNode.h>
@@ -158,13 +158,15 @@ int main(int argc, char** argv) {
 
     // Setup scene
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>::Create("textures/heightmap2.tga");
-    tmap = ChangeChannels(tmap, 1);    
+    tmap = ChangeChannels(tmap, 1);
     FloatTexture2DPtr map = ConvertTex(tmap);
     map->SetWrapping(CLAMP_TO_EDGE);
+    map->SetColorFormat(LUMINANCE32F);
     BoxBlur(map);
     BoxBlur(map);
     BoxBlur(map);
-    float widthScale = 2.0;
+    const float widthScale = 1.0;
+    const float heightScale = 1.0;
     Vector<3, float> origo = Vector<3, float>(map->GetHeight() * widthScale / 2, 0, map->GetWidth() * widthScale / 2);
 
     // setup sun
@@ -174,13 +176,12 @@ int main(int argc, char** argv) {
 
     // Setup terrain
     HeightMapNode* land = new Island(map);
-    /*
-    HeightMapNode* land = new HeightMapNode(map);
+    /*HeightMapNode* land = new HeightMapNode(map);
     if (useShader){
         IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
         land->SetLandscapeShader(landShader);
     }*/
-    land->SetHeightScale(1.5);
+    land->SetHeightScale(heightScale);
     land->SetWidthScale(widthScale);
     land->SetOffset(Vector<3, float>(0, -10.75, 0));
     land->SetSun(sun);
@@ -229,9 +230,16 @@ int main(int argc, char** argv) {
     atmosphere->SetUniform("fScaleOverScaleDepth", fScale / 0.25f);
     atmosphere->SetUniform("g", g);
     atmosphere->SetUniform("g2", g * g);
-    //SkySphereNode* sky = new SkySphereNode(atmosphere, 2500, 80);
     SkySphereNode* sky = new SkySphereNode(atmosphere, outerRadius, 80);
     renderer->InitializeEvent().Attach(*sky);
+
+    // Grass node
+    IShaderResourcePtr grassShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
+    grassShader->SetTexture("heightmap", map);
+    grassShader->SetUniform("scale", Vector<3, float>(widthScale, heightScale, widthScale));
+    GrassNode* grass = new GrassNode(grassShader);
+    
+    renderer->InitializeEvent().Attach(*grass);
 
     // Renderstate node
     RenderStateNode* state = new RenderStateNode();
@@ -241,6 +249,7 @@ int main(int argc, char** argv) {
     // Scene setup
     refl->AddNode(state);
     state->AddNode(land);
+    land->AddNode(grass);
     scene->AddNode(sun);
     scene->AddNode(water);
     //state->AddNode(sky);
