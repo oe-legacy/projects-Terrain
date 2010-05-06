@@ -5,3 +5,7 @@ vert: shaders/grass/Grass.vert
 
 # Fragment shader program.
 frag: shaders/grass/Grass.frag
+
+#textures
+
+text: grassTex|textures/grassStraws.png

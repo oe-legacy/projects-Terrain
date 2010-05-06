@@ -65,6 +65,7 @@ using namespace OpenEngine::Renderers::OpenGL;
 using namespace OpenEngine::Resources;
 using namespace OpenEngine::Scene;
 using namespace OpenEngine::Utils;
+using namespace OpenEngine::Utils::MeshCreator;
 
 Engine* engine;
 IEnvironment* env;
@@ -165,8 +166,8 @@ int main(int argc, char** argv) {
     BoxBlur(map);
     BoxBlur(map);
     BoxBlur(map);
-    const float widthScale = 1.0;
-    const float heightScale = 1.0;
+    const float widthScale = 2.0;
+    const float heightScale = 1.5;
     Vector<3, float> origo = Vector<3, float>(map->GetHeight() * widthScale / 2, 0, map->GetWidth() * widthScale / 2);
 
     // setup sun
@@ -237,7 +238,8 @@ int main(int argc, char** argv) {
     IShaderResourcePtr grassShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
     grassShader->SetTexture("heightmap", map);
     grassShader->SetUniform("scale", Vector<3, float>(widthScale, heightScale, widthScale));
-    GrassNode* grass = new GrassNode(grassShader);
+    GrassNode* grass = new GrassNode(land, grassShader);
+    engine->ProcessEvent().Attach(*grass);
     
     renderer->InitializeEvent().Attach(*grass);
 
@@ -248,8 +250,8 @@ int main(int argc, char** argv) {
     
     // Scene setup
     refl->AddNode(state);
-    state->AddNode(land);
-    land->AddNode(grass);
+    state->AddNode(grass);
+    grass->AddNode(land);
     scene->AddNode(sun);
     scene->AddNode(water);
     //state->AddNode(sky);
@@ -263,8 +265,6 @@ int main(int argc, char** argv) {
     ToolChain* chain = new ToolChain();
     CameraTool* ct = new CameraTool(false);
     chain->PushBackTool(ct);    
-    //TerrainEditTool* editTool = new TerrainEditTool(land, frame);
-    //chain->PushBackTool(editTool);
 
     MouseSelection* ms = new MouseSelection(*frame, *mouse, NULL);
     ms->BindTool(viewport, chain);
@@ -298,10 +298,7 @@ void SetupDisplay(){
     viewport->SetViewingVolume(frustum);
 
     camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
-    //camera->SetPosition(Vector<3, float>(-1010.0, 0.0, 0.0));
     camera->LookAt(0.0, 127.0, 0.0);
-    //camera->SetPosition(Vector<3, float>(1056.0, 200.0, 1056.0));
-    //camera->LookAt(800.0, 127.0, 800.0);
 }
 
 
@@ -317,7 +314,6 @@ void SetupRendering(){
     renderer->ProcessEvent().Attach(*renderingview);
     renderer->SetSceneRoot(scene);
     //renderer->InitializeEvent().Attach(*(new TextureLoadOnInit(*textureloader)));
-    renderer->PreProcessEvent().Attach(*textureloader);
 
     renderer->SetBackgroundColor(Vector<4, float>(0.5, 0.5, 1.0, 1.0));
 
