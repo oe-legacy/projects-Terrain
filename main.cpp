@@ -229,7 +229,7 @@ int main(int argc, char** argv) {
     if (useShader){
         IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
         water->SetWaterShader(waterShader, 64.0);
-        UCharTexture2DPtr normalmap = ResourceManager<UCharTexture2D>::Create("textures/waterNormalMap.jpg");
+        UCharTexture2DPtr normalmap = ResourceManager<UCharTexture2D>::Create("textures/waterNormalmap.jpg");
         UCharTexture2DPtr dudvmap = ResourceManager<UCharTexture2D>::Create("textures/waterDistortion.jpg");
         water->SetNormalDudvMap(normalmap, dudvmap);
     }else{
