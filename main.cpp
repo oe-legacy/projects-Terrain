@@ -29,6 +29,10 @@
 // SDL extension
 #include <Display/SDLEnvironment.h>
 
+// Generic handlers
+#include <Utils/MoveHandler.h>
+#include <Utils/QuitHandler.h>
+
 // OpenGL stuff
 #include <Renderers/OpenGL/Renderer.h>
 #include <Resources/OpenGLShader.h>
@@ -128,15 +132,6 @@ public:
     }
 };
 
-class QuitHandler : public IListener<KeyboardEventArg> {
-    IEngine& engine;
-public:
-    QuitHandler(IEngine& engine) : engine(engine) {}
-    void Handle(KeyboardEventArg arg) {
-        if (arg.sym == KEY_ESCAPE) engine.Stop();
-    }
-};
-
 class RenderStateHandler : public IListener<KeyboardEventArg> {
     RenderStateNode* node;
 public:
@@ -185,9 +180,6 @@ int main(int argc, char** argv) {
     HUD::Surface* fpshud = hud->CreateSurface(fps);
     renderer->PostProcessEvent().Attach(*hud);
     fpshud->SetPosition(HUD::Surface::LEFT, HUD::Surface::TOP);
-
-    // bind default keys
-    keyboard->KeyEvent().Attach(*(new QuitHandler(*engine)));
 
     // Setup scene
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>::Create("textures/heightmap2.tga");
@@ -362,6 +354,16 @@ int main(int argc, char** argv) {
     renderer->PostProcessEvent().Attach(*ms);
     */
 
+    // Register the handler as a listener on up and down keyboard events.
+    MoveHandler* move_h = new MoveHandler(*camera, *(env->GetMouse()));
+    keyboard->KeyEvent().Attach(*move_h);
+    engine->InitializeEvent().Attach(*move_h);
+    engine->ProcessEvent().Attach(*move_h);
+    engine->DeinitializeEvent().Attach(*move_h);
+
+    QuitHandler* quit_h = new QuitHandler(*engine);
+    keyboard->KeyEvent().Attach(*quit_h);
+
     engine->Start();
 
     // Return when the engine stops.
@@ -404,6 +406,8 @@ void SetupRendering(){
 
     renderer->InitializeEvent()
         .Attach(*(new TextureLoadOnInit(*textureloader)));
+ 
+    renderer->PreProcessEvent().Attach(*textureloader); // needed by fps
 
     renderer->SetBackgroundColor(Vector<4, float>(0.5, 0.5, 1.0, 1.0));
 }

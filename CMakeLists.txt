@@ -37,4 +37,5 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   Extensions_TGAResource
   Extensions_HUD
   Extensions_OpenGLRenderer
+  Extensions_GenericHandlers
 )
