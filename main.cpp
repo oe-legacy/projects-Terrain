@@ -16,10 +16,15 @@
 #include <Display/Camera.h>
 #include <Display/Frustum.h>
 #include <Display/PerspectiveViewingVolume.h>
+#include <Geometry/Mesh.h>
 #include <Resources/ResourceManager.h>
+#include <Resources/Texture3D.h>
+#include <Scene/BlendingNode.h>
+#include <Scene/MeshNode.h>
 #include <Scene/SceneNode.h>
 #include <Devices/IMouse.h>
 #include <Devices/IKeyboard.h>
+#include <Utils/Timer.h>
 
 // SDL extension
 #include <Display/SDLEnvironment.h>
@@ -30,6 +35,7 @@
 
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
+#include <Display/OpenGL/RenderCanvas.h>
 #include "Scene/Island.h"
 #include <Scene/GrassNode.h>
 #include <Scene/SunNode.h>
@@ -39,17 +45,22 @@
 #include <Utils/TerrainUtils.h>
 #include <Utils/TerrainTexUtils.h>
 #include <Resources/TGAResource.h>
+#include <Utils/PerlinNoise.h>
 
 // Fps stuff
 #include <Display/HUD.h>
 #include <Utils/FPSSurface.h>
 #include <Renderers/TextureLoader.h>
+#include <Renderers/OpenGL/ShaderLoader.h>
 
+/*
 // Edit stuff
 #include <Utils/MouseSelection.h>
 #include <Utils/SelectionSet.h>
 #include <Utils/CameraTool.h>
 #include <Utils/ToolChain.h>
+*/
+#include <Utils/MeshCreator.h>
 #include "TerrainHandler.h"
 
 // Mesh stuff
@@ -57,12 +68,13 @@
 #include <Scene/MeshNode.h>
 
 // name spaces that we will be using.
+using namespace OpenEngine;
 using namespace OpenEngine::Core;
 using namespace OpenEngine::Devices;
 using namespace OpenEngine::Display;
+using namespace OpenEngine::Geometry;
 using namespace OpenEngine::Logging;
 using namespace OpenEngine::Renderers::OpenGL;
-using namespace OpenEngine::Resources;
 using namespace OpenEngine::Scene;
 using namespace OpenEngine::Utils;
 using namespace OpenEngine::Utils::MeshCreator;
@@ -70,6 +82,7 @@ using namespace OpenEngine::Utils::MeshCreator;
 Engine* engine;
 IEnvironment* env;
 IFrame* frame;
+Display::IRenderCanvas* canvas;
 Viewport* viewport;
 Renderer* renderer;
 IMouse* mouse;
@@ -83,18 +96,37 @@ HUD* hud;
 
 bool useShader = true;
 
-/*
+#include <Utils/TextureTool.h>
+
+class ShaderAnimator
+    : public IListener<Core::ProcessEventArg> {
+    IShaderResourcePtr shader;
+    Time cycleTime;
+    Time dt;
+public:
+    ShaderAnimator(IShaderResourcePtr shader, unsigned int cycleTime)
+        : shader(shader), cycleTime(Time(cycleTime)) { }
+    void Handle(Core::ProcessEventArg arg) {
+        dt += Time(arg.approx);
+        while (dt >= cycleTime) {
+            dt -= cycleTime;
+        }
+        float i = ((float)dt.AsInt())/cycleTime.AsInt();
+        shader->SetUniform("interpolator", i);
+    }
+};
+
 class TextureLoadOnInit
     : public IListener<RenderingEventArg> {
     TextureLoader& tl;
 public:
     TextureLoadOnInit(TextureLoader& tl) : tl(tl) { }
     void Handle(RenderingEventArg arg) {
-        if (arg.renderer.GetSceneRoot() != NULL)
-            tl.Load(*arg.renderer.GetSceneRoot());
+        if (arg.canvas.GetScene() != NULL) {
+            tl.Load(*arg.canvas.GetScene());
+        }
     }
 };
-*/
 
 class QuitHandler : public IListener<KeyboardEventArg> {
     IEngine& engine;
@@ -209,6 +241,57 @@ int main(int argc, char** argv) {
     renderer->InitializeEvent().Attach(*water);
     engine->ProcessEvent().Attach(*water);
 
+
+    Utils::Timer timer;
+    timer.Start();
+
+    // Add Cloud quad.
+    IShaderResourcePtr cloudShader = ResourceManager<IShaderResource>::
+        Create("projects/Terrain/data/shaders/clouds/Clouds.glsl");
+    /*
+    FloatTexture2DPtr cloudChannel = 
+        PerlinNoise::Generate(512, 512, 128, 0.5, 1, 10, 5, 0);
+    PerlinNoise::Smooth(cloudChannel,20);
+    PerlinNoise::Normalize(cloudChannel,0,1); 
+    CloudExpCurve(cloudChannel);
+    FloatTexture2DPtr cloudTexture = 
+        ToRGBAinAlphaChannel(cloudChannel);
+    TextureTool::DumpTexture(ToUCharTexture(cloudTexture), "output.png");
+    TextureTool::DumpTexture(cloudTexture, "output.exr");
+
+    cloudTexture->SetColorFormat(RGBA32F);
+    cloudTexture->SetMipmapping(false);
+    cloudTexture->SetCompression(false);
+    */
+
+    FloatTexture3DPtr cloudChannel = 
+        PerlinNoise::Generate3D(128, 128, 64,
+                                128, 0.5, 1, 2, 3, 0);
+    //PerlinNoise::Smooth3D(cloudChannel,20);
+    PerlinNoise::Normalize3D(cloudChannel,0,1); 
+    PerlinNoise::CloudExpCurve3D(cloudChannel);
+    FloatTexture3DPtr cloudTexture = 
+        PerlinNoise::ToRGBAinAlphaChannel3D(cloudChannel);
+
+    TextureTool::DumpTexture(cloudTexture,"output");
+    logger.info << "execution time: " << timer.GetElapsedTime() << logger.end;
+
+    cloudTexture->SetColorFormat(RGBA32F);
+    cloudTexture->SetMipmapping(false);
+    cloudTexture->SetCompression(false);
+
+    cloudShader->SetTexture("clouds", cloudTexture);
+    MeshPtr clouds = CreatePlane(200.0);
+    clouds->GetMaterial()->shad = cloudShader;
+    MeshNode* cloudNode = new MeshNode();
+    cloudNode->SetMesh(clouds);
+    BlendingNode* cloudScene = new BlendingNode();
+    cloudScene->AddNode(cloudNode);
+
+    ShaderAnimator* sAnim = new ShaderAnimator(cloudShader, 1000000);
+    engine->ProcessEvent().Attach(*sAnim);
+
+
     // Sky sphere node
     IShaderResourcePtr atmosphere = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/SkyFromAtmosphere/SkyFromAtmosphere.glsl");
     const Vector<3, float> wavelength = Vector<3, float>(0.65f, 0.57f, 0.475f);
@@ -254,6 +337,9 @@ int main(int argc, char** argv) {
     grass->AddNode(land);
     scene->AddNode(sun);
     scene->AddNode(water);
+
+    scene->AddNode(cloudScene);
+
     //state->AddNode(sky);
     /*
     scene->AddNode(state);
@@ -261,6 +347,7 @@ int main(int argc, char** argv) {
     state->AddNode(sky);
     */
 
+    /*
     // Setup Edit Tool
     ToolChain* chain = new ToolChain();
     CameraTool* ct = new CameraTool(false);
@@ -273,6 +360,7 @@ int main(int argc, char** argv) {
     mouse->MouseMovedEvent().Attach(*ms);
     mouse->MouseButtonEvent().Attach(*ms);
     renderer->PostProcessEvent().Attach(*ms);
+    */
 
     engine->Start();
 
@@ -284,7 +372,7 @@ void SetupDisplay(){
     // setup display and devices
     //env = new SDLEnvironment(1440,900,32,FRAME_FULLSCREEN);
     env = new SDLEnvironment(800,600);
-    frame    = &env->GetFrame();
+    frame    = &env->CreateFrame();
     mouse    = env->GetMouse();
     keyboard = env->GetKeyboard();
     engine->InitializeEvent().Attach(*env);
@@ -303,20 +391,19 @@ void SetupDisplay(){
 
 
 void SetupRendering(){
-    renderer = new Renderer(viewport);
+    renderer = new Renderer();
     textureloader = new TextureLoader(*renderer);
     renderingview = new TerrainRenderingView(*viewport);
 
-    engine->InitializeEvent().Attach(*renderer);
-    engine->ProcessEvent().Attach(*renderer);
-    engine->DeinitializeEvent().Attach(*renderer);
-
     renderer->ProcessEvent().Attach(*renderingview);
-    renderer->SetSceneRoot(scene);
-    //renderer->InitializeEvent().Attach(*(new TextureLoadOnInit(*textureloader)));
+    canvas = new Display::OpenGL::RenderCanvas();
+    canvas->SetViewingVolume(camera);
+    canvas->SetRenderer(renderer);
+    canvas->SetScene(scene);
+    frame->SetCanvas(canvas);
+
+    renderer->InitializeEvent()
+        .Attach(*(new TextureLoadOnInit(*textureloader)));
 
     renderer->SetBackgroundColor(Vector<4, float>(0.5, 0.5, 1.0, 1.0));
-
-
-
 }

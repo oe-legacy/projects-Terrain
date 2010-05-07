@@ -29,6 +29,7 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   OpenEngine_Devices
   OpenEngine_Scene
   # Extension dependencies
+  Extensions_FreeImage
   Extensions_SDL
   Extensions_HeightMap
   Extensions_CairoResource
@@ -36,5 +37,4 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   Extensions_TGAResource
   Extensions_HUD
   Extensions_OpenGLRenderer
-  Extensions_OpenGLSelection
 )

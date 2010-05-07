@@ -19,18 +19,20 @@ darcs /extensions/SDL                    http://openengine.dk/code/extensions/SD
 darcs /extensions/TGAResource               http://openengine.dk/code/extensions/TGAResource
 darcs /extensions/SDLImage               http://openengine.dk/code/extensions/SDLImage
 darcs /extensions/OpenGLRenderer         http://openengine.dk/code/extensions/OpenGLRenderer
-darcs /extensions/OpenGLSelection        http://openengine.dk/code/extensions/OpenGLSelection
 darcs /extensions/CairoResource 	 http://openengine.dk/code/extensions/CairoResource
 darcs /extensions/GenericHandlers 	 http://openengine.dk/code/extensions/GenericHandlers
+darcs /extensions/TexUtils      	 http://openengine.dk/code/extensions/TexUtils
+darcs /extensions/FreeImage       	 http://openengine.dk/code/extensions/FreeImage
 
 darcs-dev /extensions/HUD                    fh.daimi.au.dk:/users/cgd/code/extensions/HUD
 darcs-dev /extensions/SDL                    fh.daimi.au.dk:/users/cgd/code/extensions/SDL
 darcs-dev /extensions/TGAResource               fh.daimi.au.dk:/users/cgd/code/extensions/TGAResource
 darcs-dev /extensions/SDLImage               fh.daimi.au.dk:/users/cgd/code/extensions/SDLImage
 darcs-dev /extensions/OpenGLRenderer         fh.daimi.au.dk:/users/cgd/code/extensions/OpenGLRenderer
-darcs-dev /extensions/OpenGLSelection        fh.daimi.au.dk:/users/cgd/code/extensions/OpenGLSelection
 darcs-dev /extensions/CairoResource 	     fh.daimi.au.dk:/users/cgd/code/extensions/CairoResource
 darcs-dev /extensions/GenericHandlers 	     fh.daimi.au.dk:/users/cgd/code/extensions/GenericHandlers
+darcs-dev /extensions/TexUtils  	     fh.daimi.au.dk:/users/cgd/code/extensions/TexUtils
+darcs-dev /extensions/FreeImage  	     fh.daimi.au.dk:/users/cgd/code/extensions/FreeImage
 
 # windows libraries
 win32 /libraries http://openengine.dk/data/libraries/boost-win32.zip
