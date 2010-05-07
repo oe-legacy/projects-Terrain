@@ -256,6 +256,23 @@ int main(int argc, char** argv) {
     cloudTexture->SetCompression(false);
     */
 
+    std::string foldername = "output";
+
+    char buffer[255];
+    getcwd(buffer,255);
+    std::string back = buffer;
+    if (chdir(foldername.c_str()) != 0) {
+        logger.info << "mkdir: " << foldername << logger.end;
+        if (mkdir(foldername.c_str(),0777) != 0) {
+            throw Core::Exception("could not create directory: " +
+                                  foldername);
+        }
+    } else {
+        logger.info << "dir allready exists: " << foldername << logger.end;
+        chdir(back.c_str());
+    }
+
+
     FloatTexture3DPtr cloudChannel = 
         PerlinNoise::Generate3D(128, 128, 64,
                                 128, 0.5, 1, 2, 3, 0);
