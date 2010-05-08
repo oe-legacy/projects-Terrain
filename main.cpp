@@ -412,7 +412,7 @@ void SetupDisplay(){
 void SetupRendering(){
     renderer = new Renderer();
     textureloader = new TextureLoader(*renderer);
-    renderingview = new TerrainRenderingView(*viewport);
+    renderingview = new TerrainRenderingView();
 
     renderer->ProcessEvent().Attach(*renderingview);
     canvas = new Display::OpenGL::RenderCanvas();
