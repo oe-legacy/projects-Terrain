@@ -37,21 +37,23 @@ void main() {
     float centerHeight = texture2D(heightmap, centerCoord).x * scale.y;
     normal = texture2D(normalmap, normalmapCoord).xyz;
 
-    vertex.y += height;
-    vertex += offset;
-    
     center.y += centerHeight;
     center += offset;
 
     // Discard the foliage if the slope is too steep
     if (normal.y < 0.6 || center.y < 8.0 || 60.0 < center.y){
-        vertex.xyz = center;
-    }else if (texCoord.y > 0.9){
+        gl_Position = vec4(0.0,0.0,0.0,0.0);
+    }else {
+        vertex.y += height;
+        vertex += offset;
+        
         // Let the grass wave
-        vec2 wave = vec2(cos(time / 1000.0 + center));
-        wave *= 0.5;
-        vertex.xz += wave;
+        if (texCoord.y > 0.9){
+            vec2 wave = vec2(cos(time / 1000.0 + center));
+            wave *= 0.5;
+            vertex.xz += wave;
+        }
+        gl_Position = gl_ModelViewProjectionMatrix * vec4(vertex, 1.0);
     }
 
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(vertex, 1.0);
 }
