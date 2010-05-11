@@ -1,0 +1,62 @@
+\def\documentstate{final} % Lav om til FINAL når vi er done!
+\usepackage[utf8]{inputenc}
+\usepackage[\documentstate]{fixme} % kræver at folk er smarte nok til at installere FiXme
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+%\usepackage{lmodern} % vector font, ikke bitmap!!
+% ^- kun interessant med latex, pdflatex er vector i forvejen
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[plainpages=false]{hyperref}
+\usepackage{verbatim}
+\usepackage{tikz}
+%\usepackage{subfig}
+%\usepackage{slashbox}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{listing}
+\usepackage[round]{natbib}
+%\renewcommand{\danishhyphenmins}{22} % fuck lorte orddeling!
+\usepackage[\documentstate]{ifdraft}
+\ifdraft{
+  \usepackage{draftwatermark}
+  \SetWatermarkScale{4.0}
+}{}
+
+%% default lst options
+
+%% Special environments
+
+\newenvironment{shcode}%
+{\verbatim}{\endverbatim}
+
+% use a TT font with bold 
+\renewcommand{\ttdefault}{pcr}
+
+\lstset{basicstyle=\ttfamily \footnotesize}
+\lstset{keywordstyle=\textbf}
+\lstset{commentstyle=\normalfont \textit}
+\lstset{stringstyle=\bfseries}
+\lstset{showstringspaces=false}
+
+\lstset{frameround=tttt}
+\lstset{frame=tLBr}
+
+\lstnewenvironment{pythoncode}{\lstset{language=Python}}{}
+\lstnewenvironment{cppcode}{\lstset{language=C++}}{}
+% \lstnewenvironment{shcode}{\lstset{language=sh}}{}
+
+%% Some commands
+\newcommand{\todo}[1]{\textcolor{red}{#1}\fixme{#1}}
+
+\newcommand{\class}[1]{\texttt{#1}}
+\newcommand{\method}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "master"
+%%% TeX-PDF-mode: t
+%%% End: 

@@ -1,0 +1,54 @@
+\chapter{Grass}
+
+% GPU gems 1 chapter 7
+
+% Doesn't work when viewed from above.
+
+\section{Creating the grass}
+
+\section{Rendering}
+
+\subsection{Vertex Shader}
+
+% Moving the grass up to the camera
+
+\begin{displaymath}
+  (0, 0) \le vertex + gridDim * n - (eye - halfDim) \le (gridDim, gridDim)
+\end{displaymath}
+
+\begin{displaymath}
+  n = \lceil (eye - halfDim - vertex) / gridDim \rceil
+\end{displaymath}
+
+\begin{displaymath}
+  n = \lfloor (eye - halfDim - vertex) / gridDim + 1 \rfloor
+\end{displaymath}
+
+\begin{displaymath}
+  newVert = vertex + gridDim * n
+\end{displaymath}
+
+
+% Placing it on the heightmap
+
+% not on sand or snow.
+
+% Making it wave in the wind
+
+% Normal lookup
+
+\subsection{Fragment Shader}
+
+% Discarding seethrough texture (how to avoid z sorting and rendering
+% everything with one draw call)
+
+% Simple diffuse lighting, no specular.
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% TeX-PDF-mode: t
+%%% End:
