@@ -229,7 +229,6 @@ int main(int argc, char** argv) {
         water->SetSurfaceTexture(waterSurface, 64.0);
     }
     water->SetReflectionScene(refl);
-    water->SetSun(sun);
     renderer->InitializeEvent().Attach(*water);
     engine->ProcessEvent().Attach(*water);
 
@@ -329,7 +328,6 @@ int main(int argc, char** argv) {
     // Grass node
     IShaderResourcePtr grassShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
     grassShader->SetTexture("heightmap", map);
-    grassShader->SetUniform("scale", Vector<3, float>(widthScale, heightScale, widthScale));
     GrassNode* grass = new GrassNode(land, grassShader);
     engine->ProcessEvent().Attach(*grass);
     
@@ -354,21 +352,6 @@ int main(int argc, char** argv) {
     scene->AddNode(state);
     state->AddNode(new MeshNode(MeshPtr(CreateSphere(innerRadius, 15, Vector<3, float>(0,0,0.7)))));
     state->AddNode(sky);
-    */
-
-    /*
-    // Setup Edit Tool
-    ToolChain* chain = new ToolChain();
-    CameraTool* ct = new CameraTool(false);
-    chain->PushBackTool(ct);    
-
-    MouseSelection* ms = new MouseSelection(*frame, *mouse, NULL);
-    ms->BindTool(viewport, chain);
-    
-    keyboard->KeyEvent().Attach(*ms);
-    mouse->MouseMovedEvent().Attach(*ms);
-    mouse->MouseButtonEvent().Attach(*ms);
-    renderer->PostProcessEvent().Attach(*ms);
     */
 
     // Register the handler as a listener on up and down keyboard events.
