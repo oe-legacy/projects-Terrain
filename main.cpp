@@ -245,9 +245,6 @@ int main(int argc, char** argv) {
     renderer->InitializeEvent().Attach(*land);
     keyboard->KeyEvent().Attach(*(new TerrainHandler(land)));
 
-    // Reflection scene for water
-    ISceneNode* refl = new SceneNode();
-
     // Setup water
     WaterNode* water = new WaterNode(Vector<3, float>(origo), 2048);
     if (useShader){
@@ -264,7 +261,6 @@ int main(int argc, char** argv) {
             ::Create("textures/water.tga");
         water->SetSurfaceTexture(waterSurface, 64.0);
     }
-    water->SetReflectionScene(refl);
     renderer->InitializeEvent().Attach(*water);
     engine->ProcessEvent().Attach(*water);
 
@@ -385,13 +381,13 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new RenderStateHandler(state)));
     
     // Scene setup
-    refl->AddNode(state);
+    water->AddNode(state);
     state->AddNode(grass);
     grass->AddNode(land);
     scene->AddNode(sun);
     scene->AddNode(water);
 
-    scene->AddNode(cloudScene);
+    state->AddNode(cloudScene);
 
     //state->AddNode(sky);
     /*
