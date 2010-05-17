@@ -43,7 +43,7 @@ void main(void)
     vec2 projCoord = projCoords.xy / projCoords.w;
     projCoord = projCoord * 0.5 + 0.5;
     fdist.y = -abs(fdist.y);
-    projCoord.x += fdist.x;
+    projCoord.xy += fdist.xy;
 
     //load and calculate reflection
     vec4 refl = texture2D(reflection, projCoord);
