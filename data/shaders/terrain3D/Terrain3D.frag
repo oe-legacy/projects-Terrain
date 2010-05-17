@@ -45,8 +45,8 @@ vec3 blinnLighting(in vec3 text, in vec3 normal, in vec2 specProp){
     float diffuse = clamp(ndotl, 0.0, 1.0);
     
     // Calculate specular
-    vec3 vRef = normalize(reflect(-lightDir, normal));
-    float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
+    vec3 halfVec = normalize(normalize(eyeDir) + lightDir);
+    float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
     float specular = specProp.x * pow(stemp, specProp.y);
 
     return text * (gl_LightSource[0].ambient.rgb + 
@@ -99,6 +99,7 @@ void main()
     matSpecular = mix(spec[3], matSpecular, cliffFactor);
 
     vec3 color = phongLighting(text, bumpNormal, matSpecular);
+    //vec3 color = blinnLighting(text, bumpNormal, matSpecular);
     
     gl_FragColor.rgb = mix(WATER_COLOR, color, factors.x);
     gl_FragColor.a = 1.0;
