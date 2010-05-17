@@ -34,27 +34,44 @@ namespace OpenEngine {
 
                 // Create the textures and place them in a 3d texture
                 vector<UCharTexture2DPtr> texList;
-                UCharTexture2DPtr sand = ResourceManager<UCharTexture2D>::Create("textures/sand.jpg");
+                UCharTexture2DPtr sand = ResourceManager<UCharTexture2D>
+                    ::Create("textures/sand.jpg");
                 texList.push_back(sand);
-                UCharTexture2DPtr grass = ResourceManager<UCharTexture2D>::Create("textures/grass.tga");
+                UCharTexture2DPtr grass = ResourceManager<UCharTexture2D>
+                    ::Create("textures/grass.tga");
                 texList.push_back(grass);
-                UCharTexture2DPtr snow = ResourceManager<UCharTexture2D>::Create("textures/snow.tga");
+                UCharTexture2DPtr snow = ResourceManager<UCharTexture2D>
+                    ::Create("textures/snow.tga");
                 texList.push_back(snow);
-                UCharTexture2DPtr cliff = ResourceManager<UCharTexture2D>::Create("textures/rockface.jpg");
+                UCharTexture2DPtr cliff = ResourceManager<UCharTexture2D>
+                    ::Create("textures/rockface.jpg");
                 texList.push_back(cliff);
                 groundTex = UCharTexture3DPtr(new Texture3D<unsigned char>(texList));
 
                 texList.clear();
-                UCharTexture2DPtr sandNormal = ResourceManager<UCharTexture2D>::Create("textures/sandBump.jpg");
+                UCharTexture2DPtr sandNormal = ResourceManager<UCharTexture2D>
+                    ::Create("textures/sandBump.jpg");
                 texList.push_back(sandNormal);
-                UCharTexture2DPtr grassNormal = UCharTexture2DPtr(new Texture2D<unsigned char>(1,1,4));
+                UCharTexture2DPtr grassNormal =
+                    UCharTexture2DPtr(new Texture2D<unsigned char>(1,1,3));
+
+                //#define useSDLIMAGE
+#ifdef useSDLIMAGE
                 grassNormal->GetData()[0] = 127;
                 grassNormal->GetData()[1] = 127;
                 grassNormal->GetData()[2] = 255;
                 grassNormal->GetData()[3] = 0;
+                grassNormal->SetColorFormat(RGBA);
+#else
+                grassNormal->GetData()[0] = 255;
+                grassNormal->GetData()[1] = 127;
+                grassNormal->GetData()[2] = 127;
+                grassNormal->SetColorFormat(BGR);
+#endif
                 texList.push_back(grassNormal);
                 texList.push_back(sandNormal);
-                UCharTexture2DPtr cliffNormal = ResourceManager<UCharTexture2D>::Create("textures/rockfaceBump.jpg");
+                UCharTexture2DPtr cliffNormal = ResourceManager<UCharTexture2D>
+                    ::Create("textures/rockfaceBump.jpg");
                 texList.push_back(cliffNormal);
 
                 normalTex = UCharTexture3DPtr(new Texture3D<unsigned char>(texList));

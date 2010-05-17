@@ -18,7 +18,9 @@
 #include <Display/PerspectiveViewingVolume.h>
 #include <Geometry/Mesh.h>
 #include <Resources/ResourceManager.h>
+#include <Resources/Directory.h>
 #include <Resources/Texture3D.h>
+#include <Resources/Texture3DFileListResource.h>
 #include <Scene/BlendingNode.h>
 #include <Scene/MeshNode.h>
 #include <Scene/SceneNode.h>
@@ -46,9 +48,10 @@
 #include <Scene/SkySphereNode.h>
 #include <Scene/WaterNode.h>
 #include <Resources/SDLImage.h>
+#include <Resources/FreeImage.h>
 #include <Utils/TerrainUtils.h>
 #include <Utils/TerrainTexUtils.h>
-#include <Resources/TGAResource.h>
+//#include <Resources/TGAResource.h>
 #include <Utils/PerlinNoise.h>
 
 // Fps stuff
@@ -109,7 +112,7 @@ class ShaderAnimator
     Time dt;
 public:
     ShaderAnimator(IShaderResourcePtr shader, unsigned int cycleTime)
-        : shader(shader), cycleTime(Time(cycleTime)) { }
+        : shader(shader), cycleTime(Time(cycleTime,0)) { }
     void Handle(Core::ProcessEventArg arg) {
         dt += Time(arg.approx);
         while (dt >= cycleTime) {
@@ -117,6 +120,18 @@ public:
         }
         float i = ((float)dt.AsInt())/cycleTime.AsInt();
         shader->SetUniform("interpolator", i);
+        //logger.info << "interpolator: " << i << logger.end;
+    }
+};
+
+class Delayed3dTextureLoader 
+    : public IListener<Renderers::RenderingEventArg> {
+private:
+    ITexture3DPtr tex;
+public:
+    Delayed3dTextureLoader(ITexture3DPtr tex) : tex(tex) {}
+    void Handle(RenderingEventArg arg){
+        arg.renderer.LoadTexture(tex);
     }
 };
 
@@ -156,6 +171,10 @@ void SetupRendering();
 int main(int argc, char** argv) {
     // create a logger to std out    
     Logger::AddLogger(new StreamLogger(&std::cout));
+    logger.info << "execution binary: " << argv[0] << logger.end;
+    logger.info << "current working directory: " 
+                << Directory::GetCWD()<< logger.end;
+
 
     // setup the engine
     engine = new Engine;
@@ -163,9 +182,19 @@ int main(int argc, char** argv) {
     SetupDisplay();
 
     // add plug-ins
+#ifdef useSDLIMAGE
     ResourceManager<ITexture2D>::AddPlugin(new SDLImagePlugin());
     ResourceManager<UCharTexture2D>::AddPlugin(new UCharSDLImagePlugin());
+#else
+    ResourceManager<ITexture2D>::AddPlugin(new FreeImagePlugin());
+    ResourceManager<UCharTexture2D>::AddPlugin(new UCharFreeImagePlugin());
+#endif
+    ResourceManager<FloatTexture2D>::AddPlugin(new FloatFreeImagePlugin());
     ResourceManager<IShaderResource>::AddPlugin(new GLShaderPlugin());
+    //Texture3DFileListResourcePlugin<float>* irp =
+    //    new Texture3DFileListResourcePlugin<float>();
+    //ResourceManager< Texture3D<float> >::AddPlugin(irp);
+
     DirectoryManager::AppendPath("projects/Terrain/data/");
 
     scene = new SceneNode();
@@ -182,7 +211,8 @@ int main(int argc, char** argv) {
     fpshud->SetPosition(HUD::Surface::LEFT, HUD::Surface::TOP);
 
     // Setup scene
-    UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>::Create("textures/heightmap2.tga");
+    UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>
+        ::Create("textures/heightmap2.tga");
     tmap = ChangeChannels(tmap, 1);
     FloatTexture2DPtr map = ConvertTex(tmap);
     map->SetWrapping(CLAMP_TO_EDGE);
@@ -192,7 +222,9 @@ int main(int argc, char** argv) {
     BoxBlur(map);
     const float widthScale = 2.0;
     const float heightScale = 1.5;
-    Vector<3, float> origo = Vector<3, float>(map->GetHeight() * widthScale / 2, 0, map->GetWidth() * widthScale / 2);
+    Vector<3, float> origo(map->GetHeight() * widthScale / 2,
+                           0,
+                           map->GetWidth() * widthScale / 2);
 
     // setup sun
     Vector<3, float> sunDir = Vector<3, float>(1448, 2048, 1448);
@@ -219,13 +251,17 @@ int main(int argc, char** argv) {
     // Setup water
     WaterNode* water = new WaterNode(Vector<3, float>(origo), 2048);
     if (useShader){
-        IShaderResourcePtr waterShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/water/Water.glsl");
+        IShaderResourcePtr waterShader = ResourceManager<IShaderResource>
+            ::Create("projects/Terrain/data/shaders/water/Water.glsl");
         water->SetWaterShader(waterShader, 64.0);
-        UCharTexture2DPtr normalmap = ResourceManager<UCharTexture2D>::Create("textures/waterNormalmap.jpg");
-        UCharTexture2DPtr dudvmap = ResourceManager<UCharTexture2D>::Create("textures/waterDistortion.jpg");
+        UCharTexture2DPtr normalmap = ResourceManager<UCharTexture2D>
+            ::Create("textures/waterNormalmap.jpg");
+        UCharTexture2DPtr dudvmap = ResourceManager<UCharTexture2D>
+            ::Create("textures/waterDistortion.jpg");
         water->SetNormalDudvMap(normalmap, dudvmap);
     }else{
-        ITexture2DPtr waterSurface = ResourceManager<ITexture2D>::Create("textures/water.tga");
+        ITexture2DPtr waterSurface = ResourceManager<ITexture2D>
+            ::Create("textures/water.tga");
         water->SetSurfaceTexture(waterSurface, 64.0);
     }
     water->SetReflectionScene(refl);
@@ -244,59 +280,69 @@ int main(int argc, char** argv) {
         PerlinNoise::Generate(512, 512, 128, 0.5, 1, 10, 5, 0);
     PerlinNoise::Smooth(cloudChannel,20);
     PerlinNoise::Normalize(cloudChannel,0,1); 
-    CloudExpCurve(cloudChannel);
+    PerlinNoise::CloudExpCurve(cloudChannel);
     FloatTexture2DPtr cloudTexture = 
-        ToRGBAinAlphaChannel(cloudChannel);
+        PerlinNoise::ToRGBAinAlphaChannel(cloudChannel);
     TextureTool::DumpTexture(ToUCharTexture(cloudTexture), "output.png");
     TextureTool::DumpTexture(cloudTexture, "output.exr");
-
     cloudTexture->SetColorFormat(RGBA32F);
     cloudTexture->SetMipmapping(false);
     cloudTexture->SetCompression(false);
-    */
+*/
 
-    std::string foldername = "output";
-
-    char buffer[255];
-    getcwd(buffer,255);
-    std::string back = buffer;
-    if (chdir(foldername.c_str()) != 0) {
-        logger.info << "mkdir: " << foldername << logger.end;
-        if (mkdir(foldername.c_str(),0777) != 0) {
-            throw Core::Exception("could not create directory: " +
-                                  foldername);
-        }
-    } else {
+    std::string foldername = "clouds.3d.exr";
+    FloatTexture3DPtr cloudTexture;
+    if (Directory::Exists(foldername)) {
         logger.info << "dir allready exists: " << foldername << logger.end;
-        chdir(back.c_str());
+        cloudTexture = Texture3DFileListResource<float>::Create(foldername);
+    } else {
+        FloatTexture3DPtr cloudChannel = 
+            PerlinNoise::Generate3D(128, 128, 64,
+                                    128, 0.5, 1, 3, 3, 0);
+        //PerlinNoise::Smooth3D(cloudChannel,20);
+        PerlinNoise::Normalize3D(cloudChannel,0,1); 
+        PerlinNoise::CloudExpCurve3D(cloudChannel);
+        cloudTexture = 
+            PerlinNoise::ToRGBAinAlphaChannel3D(cloudChannel);
+        
+        logger.info << "mkdir: " << foldername << logger.end;
+        Directory::Make(foldername);
+        TextureTool::DumpTexture(cloudTexture, foldername);
     }
 
-
-    FloatTexture3DPtr cloudChannel = 
-        PerlinNoise::Generate3D(128, 128, 64,
-                                128, 0.5, 1, 2, 3, 0);
-    //PerlinNoise::Smooth3D(cloudChannel,20);
-    PerlinNoise::Normalize3D(cloudChannel,0,1); 
-    PerlinNoise::CloudExpCurve3D(cloudChannel);
-    FloatTexture3DPtr cloudTexture = 
-        PerlinNoise::ToRGBAinAlphaChannel3D(cloudChannel);
-
-    TextureTool::DumpTexture(cloudTexture,"output");
-    logger.info << "execution time: " << timer.GetElapsedTime() << logger.end;
-
     cloudTexture->SetColorFormat(RGBA32F);
     cloudTexture->SetMipmapping(false);
     cloudTexture->SetCompression(false);
-
     cloudShader->SetTexture("clouds", cloudTexture);
-    MeshPtr clouds = CreatePlane(200.0);
+
+    logger.info << "execution time: "
+                << timer.GetElapsedTime() << logger.end;
+
+    //from: http://geography.about.com/library/faq/blqzdiameter.htm
+    float earth_diameter = 12756.32; //m
+    float earth_radius = earth_diameter / 2;
+    //from: http://da.wikipedia.org/wiki/Sky_(meteorologi)
+    float cloud_radius = earth_radius + 1000;
+    //MeshPtr clouds = CreatePlane(20000.0);
+    MeshPtr clouds = 
+        CreateGeodesicSphere(cloud_radius, 2, false, Vector<3,float>(1.0f));
+
     clouds->GetMaterial()->shad = cloudShader;
     MeshNode* cloudNode = new MeshNode();
     cloudNode->SetMesh(clouds);
-    BlendingNode* cloudScene = new BlendingNode();
-    cloudScene->AddNode(cloudNode);
+    RenderStateNode* cloudScene = new RenderStateNode();
+    //cloudScene->EnableOption(RenderStateNode::WIREFRAME);
+    ISceneNode* bn = new BlendingNode();
+    TransformationNode* cloudPos = new TransformationNode();
+    cloudPos->SetPosition(Vector<3,float>(0,-earth_radius,0));
+    cloudPos->AddNode(cloudNode);
+    bn->AddNode(cloudPos);
+    cloudScene->AddNode(bn);
 
-    ShaderAnimator* sAnim = new ShaderAnimator(cloudShader, 1000000);
+    Delayed3dTextureLoader* d3dtl = new Delayed3dTextureLoader(cloudTexture);
+    renderer->InitializeEvent().Attach(*d3dtl);
+
+    ShaderAnimator* sAnim = new ShaderAnimator(cloudShader, 20);
     engine->ProcessEvent().Attach(*sAnim);
 
 
