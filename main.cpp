@@ -233,15 +233,9 @@ int main(int argc, char** argv) {
 
     // Setup terrain
     HeightMapNode* land = new Island(map);
-    /*HeightMapNode* land = new HeightMapNode(map);
-    if (useShader){
-        IShaderResourcePtr landShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain/Terrain.glsl");
-        land->SetLandscapeShader(landShader);
-    }*/
     land->SetHeightScale(heightScale);
     land->SetWidthScale(widthScale);
     land->SetOffset(Vector<3, float>(0, -10.75, 0));
-    land->SetSun(sun);
     renderer->InitializeEvent().Attach(*land);
     keyboard->KeyEvent().Attach(*(new TerrainHandler(land)));
 
