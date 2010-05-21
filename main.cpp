@@ -298,9 +298,10 @@ int main(int argc, char** argv) {
     std::string foldername = "projects/Terrain/data/generated/clouds.3d.exr";
     FloatTexture3DPtr cloudTexture;
     if (Directory::Exists(foldername)) {
-        logger.info << "dir allready exists: " << foldername << logger.end;
+        logger.info << "loading 3d texture: " << foldername << logger.end;
         cloudTexture = Texture3DFileListResource<float>::Create(foldername);
     } else {
+        logger.info << "generating 3d texture: " << foldername << logger.end;
         FloatTexture3DPtr cloudChannel = 
             PerlinNoise::Generate3D(128, 128, 64,
                                     128, 0.5, 1, 3, 3, 0);
@@ -315,14 +316,16 @@ int main(int argc, char** argv) {
     cloudTexture->SetCompression(false);
     cloudShader->SetTexture("clouds", cloudTexture);
 
-    logger.info << "execution time: "
+    logger.info << "time elapsed: "
                 << timer.GetElapsedTime() << logger.end;
 
+    /*
     //from: http://geography.about.com/library/faq/blqzdiameter.htm
     float earth_diameter = 12756.32; //m
     float earth_radius = earth_diameter / 2;
     //from: http://da.wikipedia.org/wiki/Sky_(meteorologi)
     float cloud_radius = earth_radius + 1000;
+    */
     //MeshPtr clouds = CreatePlane(200.0);
     MeshPtr clouds = 
         //CreateGeodesicSphere(cloud_radius, 2, false, Vector<3,float>(1.0f));
