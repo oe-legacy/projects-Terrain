@@ -5,8 +5,11 @@ uniform float interpolator;
 void main(void) {
     // for 3d
     vec3 coords = vec3(gl_TexCoord[0].xy, interpolator);
+    coords = gl_TexCoord[0].xyz;
+    coords += interpolator;
     vec4 rgba = texture3D(clouds, coords);
     gl_FragColor = rgba;
+    //gl_FragColor = vec4(coords.xy,1.0,1.0);
 
     //vec3 rgba2 = vec3(gl_TexCoord[0].x,gl_TexCoord[0].y,interpolator);
     //vec4 color = vec4(rgba2.rgb, 1.0);

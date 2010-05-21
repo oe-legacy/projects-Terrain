@@ -105,6 +105,10 @@ bool useShader = true;
 
 #include <Utils/TextureTool.h>
 
+static float multiplier = 1.0;
+static Vector<3,float> center(0,300,0);
+//static Vector<3,float> center(0,-2000,0);
+
 class ShaderAnimator
     : public IListener<Core::ProcessEventArg> {
     IShaderResourcePtr shader;
@@ -120,6 +124,8 @@ public:
         }
         float i = ((float)dt.AsInt())/cycleTime.AsInt();
         shader->SetUniform("interpolator", i);
+        shader->SetUniform("multiplier", multiplier);
+        shader->SetUniform("center", center);
         //logger.info << "interpolator: " << i << logger.end;
     }
 };
@@ -160,6 +166,15 @@ public:
         }
         if (arg.type == EVENT_PRESS && arg.sym == KEY_b){
             node->ToggleOption(RenderStateNode::TANGENT);
+        }
+
+        if (arg.type == EVENT_PRESS && arg.sym == KEY_n){
+            multiplier += 0.025;
+            if (multiplier > 1.0) multiplier = 1.0;
+        }
+        if (arg.type == EVENT_PRESS && arg.sym == KEY_m){
+            multiplier -= 0.025;
+            if (multiplier < 0.0) multiplier = 0.0;
         }
     }
 };
@@ -280,7 +295,7 @@ int main(int argc, char** argv) {
     cloudTexture->SetCompression(false);
 */
 
-    std::string foldername = "clouds.3d.exr";
+    std::string foldername = "projects/Terrain/data/generated/clouds.3d.exr";
     FloatTexture3DPtr cloudTexture;
     if (Directory::Exists(foldername)) {
         logger.info << "dir allready exists: " << foldername << logger.end;
@@ -294,13 +309,8 @@ int main(int argc, char** argv) {
         PerlinNoise::CloudExpCurve3D(cloudChannel);
         cloudTexture = 
             PerlinNoise::ToRGBAinAlphaChannel3D(cloudChannel);
-        
-        logger.info << "mkdir: " << foldername << logger.end;
-        Directory::Make(foldername);
         TextureTool::DumpTexture(cloudTexture, foldername);
     }
-
-    cloudTexture->SetColorFormat(RGBA32F);
     cloudTexture->SetMipmapping(false);
     cloudTexture->SetCompression(false);
     cloudShader->SetTexture("clouds", cloudTexture);
@@ -313,9 +323,11 @@ int main(int argc, char** argv) {
     float earth_radius = earth_diameter / 2;
     //from: http://da.wikipedia.org/wiki/Sky_(meteorologi)
     float cloud_radius = earth_radius + 1000;
-    //MeshPtr clouds = CreatePlane(20000.0);
+    //MeshPtr clouds = CreatePlane(200.0);
     MeshPtr clouds = 
-        CreateGeodesicSphere(cloud_radius, 2, false, Vector<3,float>(1.0f));
+        //CreateGeodesicSphere(cloud_radius, 2, false, Vector<3,float>(1.0f));
+        //CreateGeodesicSphere(4000, 2, false, Vector<3,float>(1.0f));
+        CreateGeodesicSphere(1000, 2, false, Vector<3,float>(1.0f));
 
     clouds->GetMaterial()->shad = cloudShader;
     MeshNode* cloudNode = new MeshNode();
@@ -324,7 +336,11 @@ int main(int argc, char** argv) {
     //cloudScene->EnableOption(RenderStateNode::WIREFRAME);
     ISceneNode* bn = new BlendingNode();
     TransformationNode* cloudPos = new TransformationNode();
-    cloudPos->SetPosition(Vector<3,float>(0,-earth_radius,0));
+
+    //cloudPos->SetPosition(Vector<3,float>(0,-earth_radius,0));
+    //cloudPos->Rotate(PI/2,0,0);
+    cloudPos->SetPosition(center);
+    //cloudPos->SetPosition(Vector<3,float>(0,100,0));
     cloudPos->AddNode(cloudNode);
     bn->AddNode(cloudPos);
     cloudScene->AddNode(bn);
