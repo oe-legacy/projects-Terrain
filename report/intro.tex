@@ -3,8 +3,25 @@
 
 \section{Extensions}
 % Antager opengl 2.1 som core så brugte extensions
-% GL_EXT_texture_array
-% GL_ARB_framebuffer_object
+
+Since every new version of OpenGL is composed of a set of extension,
+OpenGL now consists of quite a large number of extensions. Therefore
+instead of listing every extension we're using, which would be quite a
+long list, we will instead assume OpenGL 2.1 and only list extensions
+not in this version.
+
+\subsection{GL\_EXT\_texture\_array}
+
+
+\subsection{GL\_ARB\_framebuffer\_object}
+
+FrameBuffers allow programmers to render colors or depth directly to
+textures, instead of rendering to the backbuffer and then performing
+an expensive copy to texture. This is useful when creating post
+processing effects such as depth of field or motion blur, since the
+effect is a shader applied to the rendered image.
+
+% OE implementation
 
 
 %%% Local Variables:

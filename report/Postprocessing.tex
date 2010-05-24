@@ -1,14 +1,90 @@
-\chapter{Postprocessing}
+\chapter{Post Processing}
 
-\section{Atmospheric scattering}
+% Why post processing? Cool effects that can easily be applied to any
+% project and reused.
 
-% GPU gems 2
+In the previous sections we've had to use geometry to help us create the
+landscape, sky and rendering it to the screen. Now we will turn to
+screen space effects that requires no geometry, but will instead use
+the final color image and the depth buffer to create the
+effects. Depth of field, motion blur and a screenwide glow are all
+effects that can easily be produced through post processing and there
+are many more.
+
+% Easy to use important. Should handle most of the setup
+
+We will try to create a general framework inside OpenEngine that can
+handle most effects with the programmer having to do as little setup
+as possible. It should also be possible to layer post processing
+effects on top of each other, for example to combine a cel shader with
+edge detection or optimizing blurring by using a technique called
+separable convolution.
+
+\section{Structure}
+
+In this section we will first outline the new scene node called post
+process node and how it will help the programmer setup post
+processing. Then we will discuss the specifics of rendering the scene,
+applying the post process effect to it and how we eventually chose to
+structure the rendering.
+
+\subsection*{Post Process Node}
+
+The post process node will apply a fragment program to manipulate the
+image rendered while visiting subnodes. Therefore it of course
+contains an IShaderResourcePtr that points to the effect. It also
+contains a pointer to an OpenEngine FrameBuffer, which the scene is
+rendered to, and another FrameBuffer where the scene with the effect
+is rendered into. Why the effect is not simply rendered directly to
+the backbuffer (or previous frame buffer in case of chained effects)
+is explained in the Rendering subsection. The postprocess node also
+has a list of ITexture2DPtr's where the final image can be stored
+after the effect has been applied, this is useful for some
+implementations of motion blur, that relies on the previous image
+being availible.
+
+In order to allow users of the PostProcessNode to focus on writing
+their effects, the node will handle most of the setup as long as a few
+naming conventions are followed. If a uniform named \textit{depth} is
+detected then the subscenes depth texture will be bound to this
+uniform. Similarly if \textit{imageN}, where \textit{N} is any
+integer, is seen, then the FrameBuffer's \textit{N}'th color
+attachment will be bound to that uniform. The same goes for the final
+image and the uniform name \textit{finalImageN}. Additionally the node
+can decide to improve performance by not copying the final image, if
+this isn't needed. And finally the node will pass the time since the
+Renderer was created to the shader, if it is needed.
+
+All of this has allowed us to cut back on doing setup and spend our
+time writing cool and fun effects.
+
+\subsection*{Rendering}
+
+% render to a framebuffer
+
+% Apply the effect with depth testing set to always
+
+% Store the final image
+
+% Render to the final framebuffer
+
+% Allows multiple postprocess nodes
+
+
+\section{Glow}
+
+
+
+\section{Motion Blur?}
+
 
 \section{Depth of field}
 
 % GPU gems X
 
 \section{Underwater}
+
+
 
 %%% Local Variables:
 %%% mode: latex

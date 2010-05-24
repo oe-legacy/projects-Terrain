@@ -8,6 +8,8 @@
 
 \section{Rendering}
 
+% One draw call
+
 \subsection{Vertex Shader}
 
 % Moving the grass up to the camera
@@ -17,16 +19,14 @@
 \end{displaymath}
 
 \begin{displaymath}
-  n = \lceil (eye - halfDim - vertex) / gridDim \rceil
-\end{displaymath}
-
-\begin{displaymath}
   n = \lfloor (eye - halfDim - vertex) / gridDim + 1 \rfloor
 \end{displaymath}
 
 \begin{displaymath}
   newVert = vertex + gridDim * n
 \end{displaymath}
+
+% and placing it in front of the camera
 
 
 % Placing it on the heightmap
