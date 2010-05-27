@@ -50,10 +50,13 @@ detected then the subscenes depth texture will be bound to this
 uniform. Similarly if \textit{imageN}, where \textit{N} is any
 integer, is seen, then the FrameBuffer's \textit{N}'th color
 attachment will be bound to that uniform. The same goes for the final
-image and the uniform name \textit{finalImageN}. Additionally the node
-can decide to improve performance by not copying the final image, if
-this isn't needed. And finally the node will pass the time since the
-Renderer was created to the shader, if it is needed.
+image and the uniform name \textit{finalImageN}. The node can also
+decide to improve performance by not copying the final image, if this
+isn't needed. Of course the previous image doesn't make sense in the
+very first rendering, so when initialized the node binds the
+not-processed scene image as the final image, and then after the first
+frame it switches to the final image. And finally, if neededm the node will pass
+the time to the shader.
 
 All of this has allowed us to cut back on doing setup and spend our
 time writing cool and fun effects.
@@ -62,28 +65,64 @@ time writing cool and fun effects.
 
 % render to a framebuffer
 
+The first thing that needs to be done before switching to the new
+framebuffer is to save the old state. 
+
+% TODO can this be done with glPushAttrib?
+
+
+
+Once the state has been saved we set the viewport size to the one
+specified in the nodes framebuffer and proceed to bind the framebuffer
+and clear the color and depth. The subscene is then rendered to the
+framebuffer.
+
 % Apply the effect with depth testing set to always
+
+When the scene has been rendered we bind the effect frame buffer and
+set OpenGL's depth function to always let fragments pass. We can do
+this since we're applying a post process to the entire image and it's
+cheaper performance wise than clearing the depth buffer each pass. The
+depth test couldn't simply be disabled as that would disable writes to
+the depth buffer aswell, and we are interested in keeping the depth
+values or modifying them through a post process.
+
+With the effect frame buffer bound, the effect shader and it's
+textures can now be applied and rendered onto a square on the entire
+screen.
 
 % Store the final image
 
+
+
 % Render to the final framebuffer
 
+
+
 % Allows multiple postprocess nodes
+
+
+% Explain the scene frame buffer
+
+
+
+\section{Motion Blur}
+
 
 
 \section{Glow}
 
 
 
-\section{Motion Blur?}
-
-
 \section{Depth of field}
 
 % GPU gems X
 
-\section{Underwater}
+\section{Under Water}
 
+% Combines the previous effects and a wobble
+
+% Create it as several layered effects? Should be possible.
 
 
 %%% Local Variables:
