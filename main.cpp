@@ -12,7 +12,6 @@
 #include <Logging/Logger.h>
 #include <Logging/StreamLogger.h>
 #include <Core/Engine.h>
-#include <Display/Viewport.h>
 #include <Display/Camera.h>
 #include <Display/Frustum.h>
 #include <Display/PerspectiveViewingVolume.h>
@@ -74,6 +73,11 @@
 #include <Utils/MeshCreator.h>
 #include <Scene/MeshNode.h>
 
+// PostProcess
+#include <Scene/PostProcessNode.h>
+#include <Scene/ChainPostProcessNode.h>
+#include <Scene/UnderwaterPostProcessNode.h>
+
 // name spaces that we will be using.
 using namespace OpenEngine;
 using namespace OpenEngine::Core;
@@ -90,7 +94,6 @@ Engine* engine;
 IEnvironment* env;
 IFrame* frame;
 Display::IRenderCanvas* canvas;
-Viewport* viewport;
 Renderer* renderer;
 IMouse* mouse;
 IKeyboard* keyboard;
@@ -226,6 +229,23 @@ int main(int argc, char** argv) {
     fpshud->SetPosition(HUD::Surface::LEFT, HUD::Surface::TOP);
 
     // Setup scene
+    Vector<2, int> dimension(800, 600);
+    //Vector<2, int> dimension(1440, 900);
+    /*
+    IShaderResourcePtr underwater = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/Underwater.glsl");
+    UnderwaterPostProcessNode* pp = new UnderwaterPostProcessNode(underwater, dimension);
+    renderer->InitializeEvent().Attach(*pp);
+    */
+    std::list<IShaderResourcePtr> effects;
+    //effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/DepthOfField.glsl"));
+    IShaderResourcePtr glow = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/Glow.glsl");
+    effects.push_back(glow);
+    effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/HorizontalBoxBlur.glsl"));
+    effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/VerticalBoxBlur.glsl"));
+    ChainPostProcessNode* pp = new ChainPostProcessNode(effects, dimension, 1, true);
+    glow->SetTexture("scene", pp->GetPostProcessNode(2)->GetSceneFrameBuffer()->GetTexAttachment(0));
+    renderer->InitializeEvent().Attach(*pp);
+
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>
         ::Create("textures/heightmap2.tga");
     tmap = ChangeChannels(tmap, 1);
@@ -394,11 +414,12 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new RenderStateHandler(state)));
     
     // Scene setup
+    scene->AddNode(pp);
+    pp->AddNode(water);
     water->AddNode(state);
     state->AddNode(grass);
     grass->AddNode(land);
     scene->AddNode(sun);
-    scene->AddNode(water);
 
     state->AddNode(cloudScene);
 
@@ -436,11 +457,9 @@ void SetupDisplay(){
     engine->ProcessEvent().Attach(*env);
     engine->DeinitializeEvent().Attach(*env);
 
-    // setup a default viewport and camera
-    viewport = new Viewport(*frame);
+    // setup camera
     camera  = new Camera(*(new PerspectiveViewingVolume(1, 4000)));
     frustum = new Frustum(*camera);
-    viewport->SetViewingVolume(frustum);
 
     camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
     camera->LookAt(0.0, 127.0, 0.0);
@@ -452,9 +471,10 @@ void SetupRendering(){
     textureloader = new TextureLoader(*renderer);
     renderingview = new TerrainRenderingView();
 
+    renderer->InitializeEvent().Attach(*renderingview);
     renderer->ProcessEvent().Attach(*renderingview);
     canvas = new Display::OpenGL::RenderCanvas();
-    canvas->SetViewingVolume(camera);
+    canvas->SetViewingVolume(frustum);
     canvas->SetRenderer(renderer);
     canvas->SetScene(scene);
     frame->SetCanvas(canvas);
