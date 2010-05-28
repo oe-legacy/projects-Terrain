@@ -330,7 +330,7 @@ int main(int argc, char** argv) {
         PerlinNoise::CloudExpCurve3D(cloudChannel);
         cloudTexture = 
             PerlinNoise::ToRGBAinAlphaChannel3D(cloudChannel);
-        TextureTool::DumpTexture(cloudTexture, foldername);
+        TextureTool<float>::DumpTexture(cloudTexture, foldername);
     }
     cloudTexture->SetMipmapping(false);
     cloudTexture->SetCompression(false);

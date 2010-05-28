@@ -15,9 +15,12 @@
 #include <Resources/IShaderResource.h>
 #include <Resources/Texture2D.h>
 #include <Resources/Texture3D.h>
+#include <Utils/TextureTool.h>
 
 #include <vector>
 using std::vector;
+
+string datadir = "projects/Terrain/data/";
 
 namespace OpenEngine {
     namespace Scene {
@@ -30,25 +33,55 @@ namespace OpenEngine {
         public:
             Island(FloatTexture2DPtr tex)
                 : HeightMapNode(tex){
-                this->landscapeShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/terrain3D/Terrain3D.glsl");
+                this->landscapeShader = ResourceManager<IShaderResource>
+                    ::Create(datadir+"shaders/terrain3D/Terrain3D.glsl");
 
-                // Create the textures and place them in a 3d texture
+
                 vector<UCharTexture2DPtr> texList;
-                UCharTexture2DPtr sand = ResourceManager<UCharTexture2D>
-                    ::Create("textures/sand.jpg");
-                texList.push_back(sand);
-                UCharTexture2DPtr grass = ResourceManager<UCharTexture2D>
-                    ::Create("textures/grass.tga");
-                texList.push_back(grass);
-                UCharTexture2DPtr snow = ResourceManager<UCharTexture2D>
-                    ::Create("textures/snow.tga");
-                texList.push_back(snow);
-                UCharTexture2DPtr cliff = ResourceManager<UCharTexture2D>
-                    ::Create("textures/rockface.jpg");
-                texList.push_back(cliff);
-                groundTex = UCharTexture3DPtr(new Texture3D<unsigned char>(texList));
+                std::string foldername = datadir + 
+                    "generated/island/colormap.3d.png";
+                if (Directory::Exists(foldername)) {
+                    logger.info << "loading island coloring textures: "
+                                << foldername << logger.end;
+                    groundTex = Texture3DFileListResource<unsigned char>
+                        ::Create(foldername);
+                } else {
+                    logger.info << "constructing island coloring texture: " 
+                                << foldername << logger.end;
+
+                    // Create the textures and place them in a 3d texture
+                    UCharTexture2DPtr sand = ResourceManager<UCharTexture2D>
+                        ::Create("textures/sand.jpg");
+                    texList.push_back(sand);
+                    UCharTexture2DPtr grass = ResourceManager<UCharTexture2D>
+                        ::Create("textures/grass.tga");
+                    texList.push_back(grass);
+                    UCharTexture2DPtr snow = ResourceManager<UCharTexture2D>
+                        ::Create("textures/snow.tga");
+                    texList.push_back(snow);
+                    UCharTexture2DPtr cliff = ResourceManager<UCharTexture2D>
+                        ::Create("textures/rockface.jpg");
+                    texList.push_back(cliff);
+                    groundTex = UCharTexture3DPtr(new Texture3D<unsigned char>
+                                                  (texList));
+                    
+                    TextureTool<unsigned char>::DumpTexture(groundTex,
+                                                            foldername);
+                }
 
                 texList.clear();
+                foldername = datadir +
+                    "generated/island/normalmap.3d.png";
+                if (Directory::Exists(foldername)) {
+                    logger.info << "loading island normal maps: "
+                                << foldername << logger.end;
+                    normalTex = Texture3DFileListResource<unsigned char>
+                        ::Create(foldername);
+                } else {
+                    logger.info << "constructing island normal maps: " 
+                                << foldername << logger.end;
+
+
                 UCharTexture2DPtr sandNormal = ResourceManager<UCharTexture2D>
                     ::Create("textures/sandBump.jpg");
                 texList.push_back(sandNormal);
@@ -74,7 +107,12 @@ namespace OpenEngine {
                     ::Create("textures/rockfaceBump.jpg");
                 texList.push_back(cliffNormal);
 
-                normalTex = UCharTexture3DPtr(new Texture3D<unsigned char>(texList));
+                normalTex = UCharTexture3DPtr(new Texture3D<unsigned char>
+                                              (texList));
+
+                TextureTool<unsigned char>::DumpTexture(normalTex,
+                                                        foldername);
+                }
             }
 
             void Initialize(RenderingEventArg arg) {
