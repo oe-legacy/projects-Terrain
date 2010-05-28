@@ -2,15 +2,70 @@
 
 % GPU gems 1 chapter 7
 
-% Doesn't work when viewed from above.
+Now that we have our heightmap rendered, it's time to place some
+grass on it. 
+
+Some rendering techniques for grass that where considered were
+
+\begin{itemize}
+\item Rendering grass straw textures unto quads. This allows us to
+  render several grass straws while only having to process 4
+  vertices. Letting it wave in the wind is also easy as that only
+  means moving the 2 top vertices. A problem however is that the
+  illusion breaks down when viewed form above or on steep cliffs.
+\item Modeling each grass straw. This technigue allows for very
+  flexible grass with correct lighting. It is however very expensive
+  to process all the vertices, so it's ususally used in conjunction
+  with the above method for far away grass.
+\item Rendering a volume texture containing the grass straws.
+\end{itemize}
+
+We opted for grass drawn onto quads, since it's easy to
+draw a quad of grass on the screen and grass textures are easy to come
+by. 
+
+However we can't simply cover the entire landscape with quads of
+grass, as that would be extremely expensive to render, so there are
+some design desicions to be made. Another problem with this technique
+is that part of the grass texture is transparent, and transparency
+isn't easy in the OpenGL 2.1 pipeline. A solution would be depth
+peeling or z-sorting the straws, but for our purpose we propose a much
+simpler method.
+
+% @TODO reference
+
+The basis of our grass implementation is Chapter 7 in GPU Gems 1. Here
+they propose to draw the quads in objects with star patterns, to
+achieve a grass effect independent of the cameras line of sight. Our
+implementation does the same, but allows the user to specify how many
+quads should be used used pr. star object. Setting this to 1
+effectively disables the star pattern and simply renders one quad of
+grass straws pr. object instead.
+
+Our animation algorithm is the same as the one proposed in section
+7.4.4, where the grass objects center is used to create 'locel
+chaos'. This means that we only need one draw call at the moment, we
+get minimal texture distortion since the vertices always have the same
+distance to their neighbours and we the local chaos creates a more
+natural wave effect. Of the two cons to the approach only one of them
+really applies to our implementation. The first con, which is that
+extra uniform data is required to hold the center of the grass object,
+doesn't apply to our case, since we needed the center anyway. We will
+explain why in the \hyperref[sec:grassVert]{vertex shader
+  subsection}. The second con does apply to our shader, namely that
+the complexity of our animation algorithm is limited in order to
+minimize the cost of the shader. Our wave therefore is just a simple
+cosine function.
 
 \section{Creating the grass}
+
+
 
 \section{Rendering}
 
 % One draw call
 
-\subsection{Vertex Shader}
+\subsection{Vertex Shader}\label{sec:grassVert}
 
 % Moving the grass up to the camera
 
