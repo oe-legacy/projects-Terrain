@@ -30,9 +30,10 @@ some design desicions to be made. Another problem with this technique
 is that part of the grass texture is transparent, and transparency
 isn't easy in the OpenGL 2.1 pipeline. A solution would be depth
 peeling or z-sorting the straws, but for our purpose we propose a much
-simpler method.
+simpler method in the \hyperref[sec:grassFrag]{fragment shader
+  subsection}.
 
-% @TODO reference
+% @TODO reference GPU Gems 1
 
 The basis of our grass implementation is Chapter 7 in GPU Gems 1. Here
 they propose to draw the quads in objects with star patterns, to
@@ -57,6 +58,10 @@ the complexity of our animation algorithm is limited in order to
 minimize the cost of the shader. Our wave therefore is just a simple
 cosine function.
 
+As stated earlier we cannot simply draw the grass everywhere without
+incurring a huge fps penalty, so instead we focus on drawing the grass
+around the camera.
+
 \section{Creating the grass}
 
 
@@ -70,7 +75,11 @@ cosine function.
 % Moving the grass up to the camera
 
 \begin{displaymath}
-  (0, 0) \le vertex + gridDim * n - (eye - halfDim) \le (gridDim, gridDim)
+  (-halfDim, -halfDim) \le vertex + gridDim * n - eye \le (halfDim, halfDim)
+\end{displaymath}
+
+\begin{displaymath}
+  (0, 0) \le vertex + gridDim * n - eye + halfDim \le (gridDim, gridDim)
 \end{displaymath}
 
 \begin{displaymath}
@@ -92,7 +101,7 @@ cosine function.
 
 % Normal lookup
 
-\subsection{Fragment Shader}
+\subsection{Fragment Shader}\label{sec:grassFrag}
 
 % Discarding seethrough texture (how to avoid z sorting and rendering
 % everything with one draw call)
