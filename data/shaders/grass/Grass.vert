@@ -24,7 +24,6 @@ void main() {
     vec3 vertex = gl_Vertex.xyz;
     vec3 center = gl_Normal.xyz;
 
-    // division can be precomputed? Would require 2 center coords
     vec2 n = ceil((viewPos - center.xz) * invGridDim - 0.5);
     vec2 translate = gridDim * n;
     vertex.xz += translate;

@@ -230,21 +230,21 @@ int main(int argc, char** argv) {
 
     // Setup scene
     Vector<2, int> dimension(800, 600);
-    //Vector<2, int> dimension(1440, 900);
     /*
     IShaderResourcePtr underwater = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/Underwater.glsl");
     UnderwaterPostProcessNode* pp = new UnderwaterPostProcessNode(underwater, dimension);
-    renderer->InitializeEvent().Attach(*pp);
     */
     std::list<IShaderResourcePtr> effects;
-    //effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/DepthOfField.glsl"));
-    IShaderResourcePtr glow = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/Glow.glsl");
+    IShaderResourcePtr glow = ResourceManager<IShaderResource>::Create("shaders/glow.glsl");
     effects.push_back(glow);
     effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/HorizontalBoxBlur.glsl"));
-    effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/VerticalBoxBlur.glsl"));
-    ChainPostProcessNode* pp = new ChainPostProcessNode(effects, dimension, 1, true);
-    glow->SetTexture("scene", pp->GetPostProcessNode(2)->GetSceneFrameBuffer()->GetTexAttachment(0));
-    renderer->InitializeEvent().Attach(*pp);
+    ChainPostProcessNode* glowNode = new ChainPostProcessNode(effects, dimension, 1, true);
+    glow->SetTexture("scene", glowNode->GetPostProcessNode(1)->GetSceneFrameBuffer()->GetTexAttachment(0));
+    renderer->InitializeEvent().Attach(*glowNode);
+    /*
+    IShaderResourcePtr motionBlur = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/MotionBlur.glsl");
+    PostProcessNode* motionblur = new PostProcessNode(motionBlur, dimension);
+    */
 
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>
         ::Create("textures/heightmap2.tga");
@@ -299,7 +299,7 @@ int main(int argc, char** argv) {
 
     // Add Cloud quad.
     IShaderResourcePtr cloudShader = ResourceManager<IShaderResource>::
-        Create("projects/Terrain/data/shaders/clouds/Clouds.glsl");
+    Create("projects/Terrain/data/shaders/clouds/Clouds.glsl");
     /*
     FloatTexture2DPtr cloudChannel = 
         PerlinNoise::Generate(512, 512, 128, 0.5, 1, 10, 5, 0);
@@ -376,6 +376,7 @@ int main(int argc, char** argv) {
 
 
     // Sky sphere node
+    /*
     IShaderResourcePtr atmosphere = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/SkyFromAtmosphere/SkyFromAtmosphere.glsl");
     const Vector<3, float> wavelength = Vector<3, float>(0.65f, 0.57f, 0.475f);
     const float outerRadius = 1025.0f;
@@ -399,13 +400,12 @@ int main(int argc, char** argv) {
     atmosphere->SetUniform("g2", g * g);
     SkySphereNode* sky = new SkySphereNode(atmosphere, outerRadius, 80);
     renderer->InitializeEvent().Attach(*sky);
-
+    */
     // Grass node
     IShaderResourcePtr grassShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
     grassShader->SetTexture("heightmap", map);
     GrassNode* grass = new GrassNode(land, grassShader);
     engine->ProcessEvent().Attach(*grass);
-    
     renderer->InitializeEvent().Attach(*grass);
 
     // Renderstate node
@@ -414,8 +414,8 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new RenderStateHandler(state)));
     
     // Scene setup
-    scene->AddNode(pp);
-    pp->AddNode(water);
+    scene->AddNode(glowNode);
+    glowNode->AddNode(water);
     water->AddNode(state);
     state->AddNode(grass);
     grass->AddNode(land);
