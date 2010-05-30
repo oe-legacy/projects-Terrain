@@ -4,6 +4,7 @@ uniform sampler2DShadow depth;
 
 uniform vec2 coefficients;
 uniform float halfSamples;
+uniform float samples;
 uniform float offset;
 
 varying vec2 texCoord;
@@ -12,7 +13,7 @@ void main () {
     vec4 blur = vec4(.0, .0, .0, .0);
     for (float y = -halfSamples; y <= halfSamples; ++y)
         blur += texture2D(color0, texCoord + vec2(0.0, y * offset));
-    blur /= (halfSamples * 2.0 + 1.0);
+    blur /= samples;
 
     vec4 orig = texture2D(scene, texCoord);
 

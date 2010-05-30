@@ -9,6 +9,7 @@ frag: shaders/glow.frag
 # Uniform values
 
 # The coefficients for the original image and the blurred image
-unif: coefficients = 0.6 0.6
-unif: halfSamples = 5.0
+unif: coefficients = 0.7 0.3
+unif: halfSamples = 5
+unif: samples = 11 # halfSamples * 2 + 1
 unif: offset = 0.003
