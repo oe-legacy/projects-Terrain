@@ -55,8 +55,8 @@ decide to improve performance by not copying the final image, if this
 isn't needed. Of course the previous image doesn't make sense in the
 very first rendering, so when initialized the node binds the
 not-processed scene image as the final image, and then after the first
-frame it switches to the final image. And finally, if neededm the node will pass
-the time to the shader.
+frame it switches to the final image. And finally, if needed the node
+will pass the time to the shader.
 
 All of this has allowed us to cut back on doing setup and spend our
 time writing cool and fun effects.
@@ -66,11 +66,8 @@ time writing cool and fun effects.
 % render to a framebuffer
 
 The first thing that needs to be done before switching to the new
-framebuffer is to save the old state. 
-
-% TODO can this be done with glPushAttrib?
-
-
+framebuffer is to save the old state. This means saving the name of
+the old framebuffer and the dimensions of the viewport.
 
 Once the state has been saved we set the viewport size to the one
 specified in the nodes framebuffer and proceed to bind the framebuffer
@@ -79,50 +76,116 @@ framebuffer.
 
 % Apply the effect with depth testing set to always
 
-When the scene has been rendered we bind the effect frame buffer and
+When the scene has been rendered we bind the previous frame buffer and
 set OpenGL's depth function to always let fragments pass. We can do
 this since we're applying a post process to the entire image and it's
 cheaper performance wise than clearing the depth buffer each pass. The
 depth test couldn't simply be disabled as that would disable writes to
 the depth buffer aswell, and we are interested in keeping the depth
-values or modifying them through a post process.
+values or maybe modifying them through a post process.
 
-With the effect frame buffer bound, the effect shader and it's
-textures can now be applied and rendered onto a square on the entire
-screen.
+With the previous framebuffer bound, we apply the post process shader
+and render a rectangle to the screen. The rectangle is simply drawn
+from (-1,-1) to (1,1). If no matrices are applied to these vertices,
+then the rectangle will cover the screen.
 
 % Store the final image
 
-
-
-% Render to the final framebuffer
-
-
+If our post process effect relies on the final image from the last
+rendering, then now is the time to save it. However first we have to
+initialize the final framebuffer and attach the final color images to
+the post process shader. Then we blit the image with it's effect into
+the final image framebuffer, rescaling the image if the source and
+destination rectangles are not of the same size.
 
 % Allows multiple postprocess nodes
 
+\section{Post Pocess Effect}
 
-% Explain the scene frame buffer
+In this section we will take a closer look at some of the post process
+effects that we have created.
 
+\subsection{Motion Blur}
 
+While motion blurring may not be critical to outdoor environments,
+many projects still benifit from it. Therefore one of the criteria
+to the post process node was that it would allow an easy motion blur
+implementation for existing and future open engine projects.
 
-\section{Motion Blur}
+Motion blurring can be done in several ways. The simplest way
+conceptually is to store the last $n$ images and then blend them
+together. This creates a nice blurring effect across the last few
+frames. The problem is that we then need to store the last few frames
+in memory, giving us a memory overhead of 8-16 textures. Another
+problem is that the blurring is framerate dependent, so low framerates
+will make the blurring excessive, while high framerates will make it
+non existent.
 
+Another approach was proposed in GPU Gems 3, where the previous
+ViewProjection matrix is used to calculate the previous position of a
+fragment and then accumulate the colors between the current and
+previous position. This approach however only creates blurring if the
+camera is moved. A car that drives past the camera will crystal
+clear. Another problem is that the shader becomes quite complex and
+timeconsuming.
 
+The algorithm that we settled on combines a low memory footprint with
+a fast shader. We simply store the previous image, which contain all
+the previous images blended together, and then blend them together
+with the current image. That way the effect from old images will tend
+toward 0 and the motion blurring will produce nice looking blurred
+'tails' on moving objects.
 
-\section{Glow}
+% @TODO shader in appendix
 
+\subsection{Glow}
 
+When looking at natural outdoor environments in bright sunlight,
+colors seem to blur of smeer together. We would like to reproduce this
+effect using a fullscreen glow post process. Initally we created the
+effect with just a single shader. This shader first did a box blur on
+the surrounding fragments and then blended that result with the
+original fragment. This produced the results we where after, but at a
+huge performance overhead. The problem was texture lookups. To blur
+the surrounding fragments of an $N \times N$ rectangle, we required
+$N^2$ texture lookups. We solved this by applying the separable
+convolution technique. In the first post process pass a horizontal
+blurring is performed, then in the second pass a vertical blurring is
+performed on the resulting image of the previous pass and this is then
+blended together with the original non-blurred scene. For an $N \times
+N$ rectangle we've now reduced $N^2$ texture lookups to $2N$, while
+achieving the same effect.
 
-\section{Depth of field}
+% @TODO show the non blurred + blurred = glow images
 
-% GPU gems X
+% @TODO shader in appendix
 
-\section{Under Water}
+\subsection{Depth of field}
+
+% GPU gems 3
+
+% @TODO shader in appendix
+
+\subsection{Under Water}
 
 % Combines the previous effects and a wobble
 
 % Create it as several layered effects? Should be possible.
+
+% @TODO shader in appendix
+
+\subsection{Conclusion}
+
+Storing and rebinding the previous framebuffer means that we can chain
+several post process nodes together to form complex effects or
+minimize the cost of applying an effect by using for example separable
+convolution.
+
+% One/two fbos pr node is a waste but makes it easy to setup and they
+% can be configured individually
+
+% Next step is merge
+
 
 
 %%% Local Variables:
