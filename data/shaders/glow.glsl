@@ -1,4 +1,4 @@
-# Terrain shader resource.
+# Glow shader resource.
 
 # Vertext shader program.
 vert: shaders/default.vert

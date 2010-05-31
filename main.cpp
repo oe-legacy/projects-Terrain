@@ -246,6 +246,13 @@ int main(int argc, char** argv) {
     PostProcessNode* motionblur = new PostProcessNode(motionBlur, dimension);
     */
 
+    std::list<IShaderResourcePtr> dof;
+    dof.push_back(ResourceManager<IShaderResource>::Create("shaders/VerticalDepthOfField.glsl"));
+    dof.push_back(ResourceManager<IShaderResource>::Create("shaders/HorizontalDepthOfField.glsl"));
+    ChainPostProcessNode* depthOfFieldNode = new ChainPostProcessNode(dof, dimension, 1, true);
+    renderer->InitializeEvent().Attach(*depthOfFieldNode);
+
+    
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>
         ::Create("textures/heightmap2.tga");
     tmap = ChangeChannels(tmap, 1);
@@ -414,7 +421,8 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new RenderStateHandler(state)));
     
     // Scene setup
-    scene->AddNode(glowNode);
+    scene->AddNode(depthOfFieldNode);
+    depthOfFieldNode->AddNode(glowNode);
     glowNode->AddNode(water);
     water->AddNode(state);
     state->AddNode(grass);
