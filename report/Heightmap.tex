@@ -1,18 +1,130 @@
 \chapter{Heightmap}
 
-\section{Level of detail}
+% A few lines about heightmaps
 
-% Patches, easy to understand and implement. 
-% Seams
-% Alternative is mipmapping
+The terrain itself in our demo is generated from a heightmap and is a
+continuating on the work that we did in the first quarter (which
+itself was based on earlier work). How a heightmap is loaded from a
+texture and converted to geometry is pretty straight forward, and thus
+won't be our focus here. Instead we will focus on our lighting model
+and how it was derived from the generel lightmodel presented in
+Real-time Rendering. We will talk about how we give the illusion of
+more detailed geometry by implementing bump maps, which requires us
+move the bumped normal in tangent space. Finally we will explain how
+texture arrays where used to cut back on texture unit usage and
+texture lookups when rendering.\\
 
-% Geomorphing
+% Geomorphing because it is in the vertex shader
+However before we start on all the cool visuel effect, we must briefly
+touch upon the subject of geomorphing to understand part of what is
+going on in the vertex shader.\\
 
-% A few easy instructions in the vertex shader for the vertex. But
-% doesn't scale well
 
-% Alternative is alpha blending, scales nicely but could transparency
-% is non triviel.
+
+\section{Lighting}
+
+Because we're using shaders for rendering the heightmap, we need to
+implement our own lighting effects. Since we're outside and rendering
+natural environment our only lightsource is the sun, which is a
+directional light. This allows us to ignore several aspects of the
+lighting equation for one light source, equation 4.19 in Real-time
+Rendering. 
+
+\begin{displaymath}
+  \mathbf{i}_{tot} = \mathbf{a}_{glob} \otimes \mathbf{m}_{amb} +
+  \mathbf{m}_{emi} + c_{spot}(\mathbf{i}_{amb} + d(\mathbf{i}_{diff} + \mathbf{i}_{spec}))
+\end{displaymath}
+
+First of since we only have one lightsource in our entire
+scene, the global ambience can be taken into account in the
+lightsource's ambience, removing that expression from the
+equation.
+
+\begin{displaymath}
+  \mathbf{i}_{tot} = \mathbf{m}_{emi} + c_{spot}(\mathbf{i}_{amb} + d(\mathbf{i}_{diff} + \mathbf{i}_{spec}))
+\end{displaymath}
+
+Also our lightsource is a directional light, so the spotlight factor,
+$c_{spot}$, and attenuation, $d$, can safely be removed.
+
+\begin{displaymath}
+  \mathbf{i}_{tot} = \mathbf{m}_{emi} + \mathbf{i}_{amb} + \mathbf{i}_{diff} + \mathbf{i}_{spec}
+\end{displaymath}
+
+Lastly our emission factor is 0, so we end up with
+
+\begin{displaymath}
+  \begin{array}{rl}
+    \mathbf{i}_{tot} &= \mathbf{i}_{amb} + \mathbf{i}_{diff} +
+    \mathbf{i}_{spec}\\
+    &= \mathbf{m}_{amb} \otimes \mathbf{s}_{amb} + (\mathbf{n} \cdot
+    \mathbf{l}) \mathbf{m}_{diff} \otimes \mathbf{s}_{diff} +
+    (\mathbf{v} \cdot \mathbf{r})^{m_{shi}} \mathbf{m}_{spec} \otimes
+    \mathbf{s}_{spec} 
+  \end{array}
+\end{displaymath}
+
+where we have used the following three formulas for ambient, diffuse
+and specular lighting.
+
+\begin{displaymath}
+  \mathbf{i}_{amb} = \mathbf{m}_{amb} \otimes \mathbf{s}_{amb} 
+\end{displaymath}
+
+\begin{displaymath}
+  \mathbf{i}_{diff} = (\mathbf{n} \cdot \mathbf{l}) \mathbf{m}_{diff} \otimes \mathbf{s}_{diff} 
+\end{displaymath}
+
+\begin{displaymath}
+  \mathbf{i}_{spec} = (\mathbf{v} \cdot \mathbf{r})^{m_{shi}} \mathbf{m}_{spec} \otimes \mathbf{s}_{spec} 
+\end{displaymath}
+
+where $\mathbf{n}$ is the surface normal, $\mathbf{l}$ is the
+direction of the light, $\mathbf{v}$ is the vector pointing from the
+camera to the surface point and $\mathbf{r}$ is the reflection of the
+light around the normal. All the vectors are assummed to be normalized
+and can be seen on figure ??
+
+% @TODO add vector figure
+
+% @TODO add images
+The contribution of each factor to the final image can be seen in figure ??
+
+Now if we restrict our material to only specify one color instead of a
+seperat color for ambient, diffuse and specular, we can reduce the
+equation to 
+
+\begin{displaymath}
+  \begin{array}{rl}
+    \mathbf{i}_{tot} &= \mathbf{m}_{color} \otimes \mathbf{s}_{amb} + (\mathbf{n} \cdot
+    \mathbf{l}) \mathbf{m}_{color} \otimes \mathbf{s}_{diff} +
+    (\mathbf{v} \cdot \mathbf{r})^{m_{shi}} \mathbf{m}_{color} \otimes
+    \mathbf{s}_{spec} \\
+    &= \mathbf{m}_{color} \otimes (\mathbf{s}_{amb} + (\mathbf{n} \cdot
+    \mathbf{l}) \mathbf{s}_{diff} + (\mathbf{v} \cdot
+    \mathbf{r})^{m_{shi}} \mathbf{s}_{spec}) \\
+  \end{array}
+\end{displaymath}
+
+This restriction is more physically correct, in the sense that only
+the color of the material is now shaded with respect to the different
+light components, but is also more restrictive to artists.\\
+
+In the above formulas the specular lighting has been given by the
+Phong lighting equation, $\mathbf{i}_{spec} = (\mathbf{v} \cdot
+\mathbf{r})^{m_{shi}} \mathbf{m}_{spec} \otimes \mathbf{s}_{spec}$,
+where $\mathbf{m}_{spec} = \mathbf{m}_{color}$ and $\mathbf{r} = 2
+(\mathbf{n} \cdot \ \mathbf{l}) - \mathbf{l}$.
+
+A faster approximation was proposed by Blinn, where
+
+
+\section{Bump mapping}
+
+
+
+\section{Ground layers}
+
 
 
 \section{Vertex shader}
@@ -34,9 +146,18 @@
 % Bump mapping (rotating the normal in tangent space)
 
 % Optimized texture lookup (saving 2 normals in 4 channels and
-% blending them)
+% blending them, not implemented)
 
-% Parallax, parallaxocclusion?
+\section{Summary}
+
+
+
+
+% Place future work here or after the conclusion?
+
+% Clip mapping, will make it easy to use LOD shaders (out with bump
+% and specular) Also simply geometry LOD using alpha blending (take
+% care to render geometry in the correct order)
 
 
 %%% Local Variables:
