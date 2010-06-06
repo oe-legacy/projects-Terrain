@@ -19,7 +19,29 @@ However before we start on all the cool visuel effect, we must briefly
 touch upon the subject of geomorphing to understand part of what is
 going on in the vertex shader.\\
 
+% Geomorphing removes terrain popping
+The heightmap uses clustered level of detail, CLOD, to minimize vertex
+processing overhead. An example can be seen in figure ?? where a mound
+is rendered with three different levels of detail, LOD. Vertex popping will
+occur when switching between the different levels of detail, as the
+geometry is suddenly deformed. Geomorphing can be used to remove this
+popping by gently morphing in the new vertices. The technique is
+rather simple. Instead of letting a verte pop into it's actual
+position when changing LOD, the vertex is created between on the line
+between it's to existing neighbours and then morphed into its actual
+position. Because our terrain is a heightmap, geomorphing only needs
+to be done along the y-axis.
 
+% We remove normal popping by using a normal map
+
+Vertex popping has now been removed, but all other vertex attributes
+must be morphed aswell to remove texture popping og normal
+popping. Our heightmap texture coordinates are proportional to the
+vertex positions so special attention needs to be taken to them. But
+the normals will cause popping in the lighting. We could fix this by
+morphing the normals, but instead we've used a normalmap to store the
+normals in and retain our shading, even when the geometric detail is
+reduced.
 
 \section{Lighting}
 
@@ -116,16 +138,56 @@ Phong lighting equation, $\mathbf{i}_{spec} = (\mathbf{v} \cdot
 where $\mathbf{m}_{spec} = \mathbf{m}_{color}$ and $\mathbf{r} = 2
 (\mathbf{n} \cdot \ \mathbf{l}) - \mathbf{l}$.
 
-A faster approximation was proposed by Blinn, where
+A faster approximation was proposed by Blinn. Instead of basing the
+specular highlight on the angle between the view direction and
+reflection vector, He proposed to base it on the angle between the
+halfvector, a vector halfway between the view vector and light vector
+given by $\mathbf{h} = (\mathbf{l} + \mathbf{v}) / \|\mathbf{l} +
+\mathbf{v}\|$, and the normal. An approximate relationship between the
+two is given in Real-time Rendering as
+
+\begin{displaymath}
+  (\mathbf{r} \cdot \mathbf{v})^{m_{shi}} \approx (\mathbf{n} \cdot \mathbf{h})^{4m_{shi}} 
+\end{displaymath}
+
+Both specular light models have been implemented in the terrain
+fragment shader and the results can be seen in figure ??
+
+% @TODO specular images
 
 
 \section{Bump mapping}
 
+With the terrain shaded by the sun, it's time to improve on the detail
+of the lighting by adding 'bumps' to the surface, or more precisely
+manipulating the normal to create a bumpy feel. We do this by storing
+the normals of a surface in a texture, then instead of using the
+interpolated geometric normal for light calculations, we transform the
+texture normal into tangent space and use that for lighting.
+
+In order to do that we need the interpolated normal, tangent and
+bitangent as the axes of our tangent space coordinate system. Since
+we're using the y-axis as up, the normal will be our y-axis in the
+tangent space coordinate system. The tangent and bitangent are
+normalized vectors perpendicular to the normal and lie along the bump
+maps texture coordinate axes. Normally calculating them is done as a
+preprocess and they are stored as vertex attributes or in our case a
+tangent- and bitangentmap. However due to the heightmap being a 2D
+array of vertices with texture coordinates proportinal to the x- and
+z-coordinates, we can calculate the tangents directly in the shader.
+
+Since our texture coordinates are axis-aligned, the tangent will lie
+in the xy-plane and the bitangent is placed in the yz-plane. 
+
+% Focus on tangent and show a vector diagram
 
 
 \section{Ground layers}
 
+% No blending between layers
 
+% We could have used a 3d texture instead but then we would loose
+% mipmapping and we want our mipmapping!
 
 \section{Vertex shader}
 
@@ -145,9 +207,6 @@ A faster approximation was proposed by Blinn, where
 
 % Bump mapping (rotating the normal in tangent space)
 
-% Optimized texture lookup (saving 2 normals in 4 channels and
-% blending them, not implemented)
-
 \section{Summary}
 
 
@@ -158,6 +217,9 @@ A faster approximation was proposed by Blinn, where
 % Clip mapping, will make it easy to use LOD shaders (out with bump
 % and specular) Also simply geometry LOD using alpha blending (take
 % care to render geometry in the correct order)
+
+% Optimized texture lookup (saving 2 normals in 4 channels and
+% blending them, not implemented)
 
 
 %%% Local Variables:

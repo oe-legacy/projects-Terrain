@@ -136,12 +136,14 @@ with the current image. That way the effect from old images will tend
 toward 0 and the motion blurring will produce nice looking blurred
 'tails' on moving objects.
 
+% @TODO image to show the effect
+
 % @TODO shader in appendix
 
 \subsection{Glow}
 
 When looking at natural outdoor environments in bright sunlight,
-colors seem to blur of smeer together. We would like to reproduce this
+colors seem to blur or smeer together. We would like to reproduce this
 effect using a fullscreen glow post process. Initally we created the
 effect with just a single shader. This shader first did a box blur on
 the surrounding fragments and then blended that result with the
@@ -162,7 +164,8 @@ achieving the same effect.
 
 \subsection{Depth of field}
 
-% GPU gems 3
+When filming or photografing through a lens an effect called depth of
+field occurs.
 
 % @TODO shader in appendix
 
