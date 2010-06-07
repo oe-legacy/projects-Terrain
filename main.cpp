@@ -12,6 +12,7 @@
 #include <Logging/Logger.h>
 #include <Logging/StreamLogger.h>
 #include <Core/Engine.h>
+#include <Core/EngineEvents.h>
 #include <Display/Camera.h>
 #include <Display/Frustum.h>
 #include <Display/PerspectiveViewingVolume.h>
@@ -109,7 +110,8 @@ bool useShader = true;
 #include <Utils/TextureTool.h>
 
 static float multiplier = 1.0;
-static Vector<3,float> center(0,300,0);
+static bool showTexCoords = false;
+static Vector<3,float> center(0,0,0);
 //static Vector<3,float> center(0,-2000,0);
 
 class ShaderAnimator
@@ -117,19 +119,74 @@ class ShaderAnimator
     IShaderResourcePtr shader;
     Time cycleTime;
     Time dt;
+    RandomGenerator r;
+    float lastI;
+    float windAngle, distAngle;
+    Vector<3,float> currentPosition;
+    Vector<3,float> oldHeadding;
+    Vector<3,float> newHeadding;
+
 public:
     ShaderAnimator(IShaderResourcePtr shader, unsigned int cycleTime)
-        : shader(shader), cycleTime(Time(cycleTime,0)) { }
+        : shader(shader), cycleTime(Time(cycleTime,0)) {
+        lastI = 0.0;
+        windAngle = 0.0;
+        currentPosition = Vector<3,float>(0,0,0);
+
+        distAngle = PI/3;
+        Vector<3,float> w(1,0,0);
+        windAngle = r.Normal(windAngle, distAngle);
+        Quaternion<float> q1(0.0, windAngle, 0.0);
+        oldHeadding = q1.RotateVector(w);
+
+        windAngle = r.Normal(windAngle, distAngle);
+        Quaternion<float> q2(0.0, windAngle, 0.0);
+        newHeadding = q2.RotateVector(w);
+    }
+
     void Handle(Core::ProcessEventArg arg) {
         dt += Time(arg.approx);
         while (dt >= cycleTime) {
             dt -= cycleTime;
         }
         float i = ((float)dt.AsInt())/cycleTime.AsInt();
-        shader->SetUniform("interpolator", i);
+        //shader->SetUniform("interpolator", i);
         shader->SetUniform("multiplier", multiplier);
+
         shader->SetUniform("center", center);
-        //logger.info << "interpolator: " << i << logger.end;
+
+        shader->SetUniform("showTexCoords", showTexCoords);
+
+        if (lastI > i) {
+
+            oldHeadding = newHeadding;
+
+            windAngle = r.Normal(windAngle, distAngle);        
+            Vector<3,float> w(1,0,0);
+            Quaternion<float> q(0.0, windAngle, 0.0);
+            newHeadding = q.RotateVector(w);
+
+            /* old methos
+              newHeadding = Vector<3,float>(r.Normal(0.0, 0.025),
+                                        0,
+                                       r.Normal(0.05, 0.01));
+            newHeadding.Normalize();
+            */
+
+            //logger.info << "new headding: " << headding << logger.end;
+            //logger.info << "new wind angle: " << windAngle << logger.end;
+            lastI = i = 0.0;            
+        }
+
+        Vector<3,float> headding = (1-i) * oldHeadding + i * newHeadding;
+        currentPosition += (i-lastI) * headding;
+
+        // clamp
+        currentPosition[0] -= floor(currentPosition[0]);
+        currentPosition[2] -= floor(currentPosition[2]);
+
+        shader->SetUniform("wind", currentPosition);
+        lastI = i;
     }
 };
 
@@ -139,7 +196,7 @@ private:
     ITexture3DPtr tex;
 public:
     Delayed3dTextureLoader(ITexture3DPtr tex) : tex(tex) {}
-    void Handle(RenderingEventArg arg){
+    void Handle(RenderingEventArg arg) {
         arg.renderer.LoadTexture(tex);
     }
 };
@@ -153,6 +210,19 @@ public:
         if (arg.canvas.GetScene() != NULL) {
             tl.Load(*arg.canvas.GetScene());
         }
+    }
+};
+
+class CloudDomeMover
+    : public IListener<Core::ProcessEventArg> {
+private:
+    IViewingVolume& vv;
+    TransformationNode& tNode;
+public:
+    CloudDomeMover(IViewingVolume& vv, TransformationNode& tNode) 
+        : vv(vv), tNode(tNode) {}
+    void Handle(Core::ProcessEventArg arg) {
+        tNode.SetPosition( vv.GetPosition() );
     }
 };
 
@@ -178,6 +248,9 @@ public:
         if (arg.type == EVENT_PRESS && arg.sym == KEY_m){
             multiplier -= 0.025;
             if (multiplier < 0.0) multiplier = 0.0;
+        }
+        if (arg.type == EVENT_PRESS && arg.sym == KEY_t){
+            showTexCoords = !showTexCoords;
         }
     }
 };
@@ -351,24 +424,27 @@ int main(int argc, char** argv) {
     //MeshPtr clouds = CreatePlane(200.0);
     MeshPtr clouds = 
         //CreateGeodesicSphere(cloud_radius, 2, false, Vector<3,float>(1.0f));
-        //CreateGeodesicSphere(4000, 2, false, Vector<3,float>(1.0f));
-        CreateGeodesicSphere(1000, 2, false, Vector<3,float>(1.0f));
+        CreateGeodesicSphere(1000, 3, false, Vector<3,float>(1.0f));
+        //CreateGeodesicSphere(1000, 2, false, Vector<3,float>(1.0f));
+        //CreateGeodesicSphere(300, 5, false, Vector<3,float>(1.0f));
 
     clouds->GetMaterial()->shad = cloudShader;
     MeshNode* cloudNode = new MeshNode();
     cloudNode->SetMesh(clouds);
     RenderStateNode* cloudScene = new RenderStateNode();
-    //cloudScene->EnableOption(RenderStateNode::WIREFRAME);
+    cloudScene->DisableOption(RenderStateNode::DEPTH_TEST);
     ISceneNode* bn = new BlendingNode();
     TransformationNode* cloudPos = new TransformationNode();
 
     //cloudPos->SetPosition(Vector<3,float>(0,-earth_radius,0));
     //cloudPos->Rotate(PI/2,0,0);
     cloudPos->SetPosition(center);
-    //cloudPos->SetPosition(Vector<3,float>(0,100,0));
     cloudPos->AddNode(cloudNode);
     bn->AddNode(cloudPos);
     cloudScene->AddNode(bn);
+
+    CloudDomeMover* cdm = new CloudDomeMover(*camera, *cloudPos);
+    engine->ProcessEvent().Attach(*cdm);    
 
     Delayed3dTextureLoader* d3dtl = new Delayed3dTextureLoader(cloudTexture);
     renderer->InitializeEvent().Attach(*d3dtl);
