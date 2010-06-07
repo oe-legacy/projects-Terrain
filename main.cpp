@@ -46,7 +46,7 @@
 #include <Scene/SunNode.h>
 #include <Scene/SkySphereNode.h>
 #include <Scene/WaterNode.h>
-#include <Resources/SDLImage.h>
+//#include <Resources/SDLImage.h>
 #include <Resources/FreeImage.h>
 #include <Utils/TerrainUtils.h>
 #include <Utils/TerrainTexUtils.h>
@@ -200,13 +200,8 @@ int main(int argc, char** argv) {
     SetupDisplay();
 
     // add plug-ins
-#ifdef useSDLIMAGE
-    ResourceManager<ITexture2D>::AddPlugin(new SDLImagePlugin());
-    ResourceManager<UCharTexture2D>::AddPlugin(new UCharSDLImagePlugin());
-#else
     ResourceManager<ITexture2D>::AddPlugin(new FreeImagePlugin());
     ResourceManager<UCharTexture2D>::AddPlugin(new UCharFreeImagePlugin());
-#endif
     ResourceManager<FloatTexture2D>::AddPlugin(new FloatFreeImagePlugin());
     ResourceManager<IShaderResource>::AddPlugin(new GLShaderPlugin());
     //Texture3DFileListResourcePlugin<float>* irp =

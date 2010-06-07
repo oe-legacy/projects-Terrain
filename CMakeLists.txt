@@ -7,7 +7,7 @@ SET( PROJECT_SOURCES
   # Add all the cpp source files here
   main.cpp
   TerrainHandler.cpp
-  scene/Island.h
+  Scene/Island.h
 )
 
 # Include needed to use SDL under Mac OS X
@@ -33,7 +33,6 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   Extensions_SDL
   Extensions_HeightMap
   Extensions_CairoResource
-  Extensions_SDLImage
   Extensions_TGAResource
   Extensions_HUD
   Extensions_OpenGLRenderer
