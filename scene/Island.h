@@ -16,6 +16,7 @@
 #include <Resources/Texture2D.h>
 #include <Resources/Texture3D.h>
 #include <Utils/TextureTool.h>
+#include <Math/RandomGenerator.h>
 
 #include <vector>
 using std::vector;
@@ -102,7 +103,27 @@ namespace OpenEngine {
                 grassNormal->SetColorFormat(BGR);
 #endif
                 texList.push_back(grassNormal);
-                texList.push_back(sandNormal);
+
+                unsigned int w = 512;
+                unsigned int h = 512;
+                UCharTexture2DPtr snowNormal =
+                    UCharTexture2DPtr(new Texture2D<unsigned char>(w,h,3));
+                snowNormal->SetColorFormat(BGR);
+                unsigned char* data = snowNormal->GetData();
+                RandomGenerator r;
+                for (unsigned int x=0; x<w; x++) {
+                    for (unsigned int y=0; y<h; y++) {
+                        Vector<3,float> v(1, r.Normal(0, 0.05),
+                                          r.Normal(0, 0.05));
+                        v.Normalize();
+                        
+                        data[(x+y*w)*3 + 0] = (v[0] * 0.5 + 0.5) * 256;
+                        data[(x+y*w)*3 + 1] = (v[1] * 0.5 + 0.5) * 256;
+                        data[(x+y*w)*3 + 2] = (v[2] * 0.5 + 0.5) * 256;
+                    }
+                }
+                texList.push_back(snowNormal);
+
                 UCharTexture2DPtr cliffNormal = ResourceManager<UCharTexture2D>
                     ::Create("textures/rockfaceBump.jpg");
                 texList.push_back(cliffNormal);
