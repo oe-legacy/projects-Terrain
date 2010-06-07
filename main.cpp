@@ -496,11 +496,11 @@ int main(int argc, char** argv) {
     depthOfFieldNode->AddNode(glowNode);
     glowNode->AddNode(water);
     water->AddNode(state);
+    state->AddNode(cloudScene);
     state->AddNode(grass);
     grass->AddNode(land);
     scene->AddNode(sun);
 
-    state->AddNode(cloudScene);
 
     //state->AddNode(sky);
     /*
