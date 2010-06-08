@@ -47,7 +47,7 @@ vec3 blinnLighting(in vec3 text, in vec3 normal, in vec2 specProp){
     // Calculate specular
     vec3 halfVec = normalize(normalize(eyeDir) + lightDir);
     float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
-    float specular = specProp.x * pow(stemp, specProp.y);
+    float specular = specProp.x * pow(stemp, 4.0 * specProp.y);
 
     return text * (gl_LightSource[0].ambient.rgb + 
                    gl_LightSource[0].diffuse.rgb * diffuse + 
@@ -68,9 +68,7 @@ void main()
 
     // Extract normal and calculate tangent and binormal
     vec3 normal = texture2D(normalMap, texCoord).xyz;
-    //vec3 tangent = vec3(1.0 - normal.x * normal.x, normal.x, 0.0);
     vec3 tangent = normalize(vec3(normal.y, -normal.x, 0.0));
-    //vec3 binormal = vec3(0.0, normal.z, 1.0 - normal.z * normal.z);
     vec3 bitangent = normalize(vec3(0.0, -normal.z, normal.y));
 
     mat3 tangentSpace = mat3(tangent, normal, bitangent);
@@ -92,9 +90,7 @@ void main()
     bumpNormal = mix(bumpNormal, blendBump, blend);
     bumpNormal = mix(texture2DArray(normalTex, vec3(srcUV * 2.0, 3.0)).xzy, bumpNormal, cliffFactor);
     bumpNormal = bumpNormal * 2.0 - 1.0;
-    //bumpNormal = vec3(dot(bumpNormal, tangent), dot(bumpNormal, normal), dot(bumpNormal, binormal));
-    //bumpNormal = normalize(bumpNormal);
-    bumpNormal = normalize(transpose(tangentSpace) * bumpNormal);
+    bumpNormal = normalize(tangentSpace * bumpNormal);
 
     // Calculate specular
     vec2 specular = spec[int(layer)];
