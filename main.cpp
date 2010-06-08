@@ -315,8 +315,8 @@ int main(int argc, char** argv) {
     */
 
     std::list<IShaderResourcePtr> dof;
-    dof.push_back(ResourceManager<IShaderResource>::Create("shaders/VerticalDepthOfField.glsl"));
-    dof.push_back(ResourceManager<IShaderResource>::Create("shaders/HorizontalDepthOfField.glsl"));
+    dof.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/VerticalDepthOfField.glsl"));
+    dof.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/HorizontalDepthOfField.glsl"));
     ChainPostProcessNode* depthOfFieldNode = new ChainPostProcessNode(dof, dimension, 1, true);
     renderer->InitializeEvent().Attach(*depthOfFieldNode);
 
@@ -452,7 +452,6 @@ int main(int argc, char** argv) {
     ShaderAnimator* sAnim = new ShaderAnimator(cloudShader, 20);
     engine->ProcessEvent().Attach(*sAnim);
 
-
     // Sky sphere node
     /*
     IShaderResourcePtr atmosphere = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/SkyFromAtmosphere/SkyFromAtmosphere.glsl");
@@ -482,7 +481,7 @@ int main(int argc, char** argv) {
     // Grass node
     IShaderResourcePtr grassShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
     grassShader->SetTexture("heightmap", map);
-    GrassNode* grass = new GrassNode(land, grassShader);
+    GrassNode* grass = new GrassNode(land, grassShader, 12000, 64, 1);
     engine->ProcessEvent().Attach(*grass);
     renderer->InitializeEvent().Attach(*grass);
 
