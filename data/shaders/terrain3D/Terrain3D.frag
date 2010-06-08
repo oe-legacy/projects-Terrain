@@ -68,8 +68,12 @@ void main()
 
     // Extract normal and calculate tangent and binormal
     vec3 normal = texture2D(normalMap, texCoord).xyz;
-    vec3 tangent = vec3(1.0 - normal.x * normal.x, normal.x, 0.0);
-    vec3 binormal = vec3(0.0, normal.z, 1.0 - normal.z * normal.z);
+    //vec3 tangent = vec3(1.0 - normal.x * normal.x, normal.x, 0.0);
+    vec3 tangent = normalize(vec3(normal.y, -normal.x, 0.0));
+    //vec3 binormal = vec3(0.0, normal.z, 1.0 - normal.z * normal.z);
+    vec3 bitangent = normalize(vec3(0.0, -normal.z, normal.y));
+
+    mat3 tangentSpace = mat3(tangent, normal, bitangent);
 
     // Calculate the cliff factor
     float cliffFactor = (normal.y - cliffStartSlope) / cliffBlend;
@@ -86,11 +90,11 @@ void main()
     vec3 bumpNormal = texture2DArray(normalTex, vec3(srcUV, layer)).xzy;
     vec3 blendBump = texture2DArray(normalTex, vec3(srcUV, layer + 1.0)).xzy;
     bumpNormal = mix(bumpNormal, blendBump, blend);
-
     bumpNormal = mix(texture2DArray(normalTex, vec3(srcUV * 2.0, 3.0)).xzy, bumpNormal, cliffFactor);
     bumpNormal = bumpNormal * 2.0 - 1.0;
-    bumpNormal = vec3(dot(bumpNormal, tangent), dot(bumpNormal, normal), dot(bumpNormal, binormal));
-    bumpNormal = normalize(bumpNormal);
+    //bumpNormal = vec3(dot(bumpNormal, tangent), dot(bumpNormal, normal), dot(bumpNormal, binormal));
+    //bumpNormal = normalize(bumpNormal);
+    bumpNormal = normalize(transpose(tangentSpace) * bumpNormal);
 
     // Calculate specular
     vec2 specular = spec[int(layer)];
