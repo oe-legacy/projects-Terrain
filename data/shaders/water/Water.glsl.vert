@@ -11,8 +11,6 @@ varying vec3 eyeDir;
 
 void main(void)
 {
-    // Eyedir should be transformed because the normalmaps upvector is
-    // z, where ours is y.
     eyeDir = viewpos - gl_Vertex.xyz;
 
     // texcoords for making the water flow
@@ -22,6 +20,6 @@ void main(void)
     // texcoords for making the water ripple
     waterRipple = (gl_MultiTexCoord0.xy + vec2(0.0, time2)) * tscale;
 
-    gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
+    //gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
 	gl_Position = projCoords = gl_ModelViewProjectionMatrix * gl_Vertex;
 }

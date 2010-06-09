@@ -1,14 +1,14 @@
 #extension GL_EXT_texture_array : require
 
-const vec3 startHeight = vec3(-10.76, 5.0, 50.0); // {grass, grass, snow}
-const vec3 blending = vec3(10.0, 5.0, 20.0); // {grass, grass, snow}
+const vec3 startHeight = vec3(-10.76, 5.0, 50.0); // {sand, grass, snow}
+const vec3 blending = vec3(10.0, 5.0, 20.0); // {sand, grass, snow}
 
 const vec3 WATER_COLOR = vec3(0.0, 0.5, 0.0);
 
 const float cliffStartSlope = 0.5;
 const float cliffBlend = 0.3;
 
-const float cliffScaling = 4.0;
+const float cliffScaling = 2.0;
 
 uniform vec2 spec[4];
 
@@ -57,12 +57,15 @@ vec3 blinnLighting(in vec3 text, in vec3 normal, in vec2 specProp){
 void main()
 {
     vec2 srcUV = texCoord * 32.0;
-
-    // Calculating the texture blend factor
-    vec3 factors = (vec3(height, height, height) - startHeight) / blending; // Can be calculated in the vertex shader if need be.
+    
+    // Use the normalmap to produce a little randomness in the height.
+    float heightBump = texture2D(normalMap, srcUV).x * 5.0;
+    // Calculating the texture layer factors
+    vec3 factors = (vec3(height, height - heightBump, height - heightBump) - startHeight) / blending; // Can be calculated in the vertex shader if need be.
     factors = clamp(factors, 0.0, 1.0);
 
-    float l = factors.y + factors.z;
+    // Calculate the layer and it's blend factor with the next layer
+    float l = factors.x + factors.y + factors.z - 1.0;
     float layer = floor(l);
     float blend = l - layer;
 
@@ -70,7 +73,6 @@ void main()
     vec3 normal = texture2D(normalMap, texCoord).xyz;
     vec3 tangent = normalize(vec3(normal.y, -normal.x, 0.0));
     vec3 bitangent = normalize(vec3(0.0, -normal.z, normal.y));
-
     mat3 tangentSpace = mat3(tangent, normal, bitangent);
 
     // Calculate the cliff factor
@@ -82,13 +84,13 @@ void main()
     vec3 blendText = texture2DArray(groundTex, vec3(srcUV, layer + 1.0)).xyz;
     text = mix(text, blendText, blend);
 
-    text = mix(texture2DArray(groundTex, vec3(srcUV * 2.0, 3.0)).xyz, text, cliffFactor);
+    text = mix(texture2DArray(groundTex, vec3(srcUV * cliffScaling, 3.0)).xyz, text, cliffFactor);
 
     // Extract normals and transform them into tangent space
     vec3 bumpNormal = texture2DArray(normalTex, vec3(srcUV, layer)).xzy;
     vec3 blendBump = texture2DArray(normalTex, vec3(srcUV, layer + 1.0)).xzy;
     bumpNormal = mix(bumpNormal, blendBump, blend);
-    bumpNormal = mix(texture2DArray(normalTex, vec3(srcUV * 2.0, 3.0)).xzy, bumpNormal, cliffFactor);
+    bumpNormal = mix(texture2DArray(normalTex, vec3(srcUV * cliffScaling, 3.0)).xzy, bumpNormal, cliffFactor);
     bumpNormal = bumpNormal * 2.0 - 1.0;
     bumpNormal = normalize(tangentSpace * bumpNormal);
 
