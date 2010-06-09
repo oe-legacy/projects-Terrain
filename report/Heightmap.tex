@@ -174,13 +174,45 @@ maps texture coordinate axes. Normally calculating them is done as a
 preprocess and they are stored as vertex attributes or in our case a
 tangent- and bitangentmap. However due to the heightmap being a 2D
 array of vertices with texture coordinates proportinal to the x- and
-z-coordinates, we can calculate the tangents directly in the shader.
+z-coordinates, we can calculate the tangents directly in the
+shader. This saves us 2 texture lookup and the need to bind additional
+textures.
 
 Since our texture coordinates are axis-aligned, the tangent will lie
-in the xy-plane and the bitangent is placed in the yz-plane. 
+in the xy-plane and the bitangent is placed in the yz-plane. Here we
+will focus on calculating the tangent, but the same principle can be
+applied to calculate the bitangent.
 
-% Focus on tangent and show a vector diagram
+The interpolated normal is our approximation of a vector perpendicular
+to the terrain surface. It can therefore also be used to calculate
+vectors along that surface, specifically the tangent along the
+xy-plane. This can be done by taking the cross product between the
+normal, $n$, and the unit vector along the z-axis, $z_i = (0,0,1)$, which
+will ensure that the tangent is both perpendicular to the normal, ie.
+lying in the plane, and perpendicular to the z-axis, which places it
+in the xy-plane. The calculations are
 
+\begin{displaymath}
+  \begin{array}{rl}
+  n \times z_i &= (n_x, n_y, n_z) \times (0,0,1)\\
+  &= (n_y 1 - n_z 0, n_z 0 - n_x 1, n_1 0 - n_2 0) \\
+  &= (n_y, - n_x, 0) \\
+  \end{array}
+\end{displaymath}
+
+which is the direction of the tangent. All that is left is to
+normalize the vector to get the tangent.
+
+The tangent, bitangent and normal now make up the axes in tangent
+space and can be used to either move the direction of the light from
+global space to tangent space or move the bumped normal from tangent
+space to global space. For this project the latter was chosen to
+easier incorperate the shaders into a deferred lighting pipeline in
+the future.
+
+The glsl code can bee seen here
+
+%TODO reference code in appendix or here
 
 \section{Ground layers}
 
