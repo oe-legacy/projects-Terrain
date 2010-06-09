@@ -43,6 +43,11 @@ morphing the normals, but instead we've used a normalmap to store the
 normals in and retain our shading, even when the geometric detail is
 reduced.
 
+We assume that the terrain is not rotated, scaled or translated, so
+all our vertices and normals are given directly in world/model
+space. This is done to simplify some of our calculations and save a
+normal transformation in the fragment shader.
+
 \section{Lighting}
 
 Because we're using shaders for rendering the heightmap, we need to
@@ -210,25 +215,84 @@ space to global space. For this project the latter was chosen to
 easier incorperate the shaders into a deferred lighting pipeline in
 the future.
 
-The glsl code can bee seen here
+The glsl code can be seen here
 
 %TODO reference code in appendix or here
 
 \section{Ground layers}
 
+Several layers of ground textures have been added to the heightmap for
+a more diverse terrain. There is a sand layer, a grass layer and a
+snow layer. Rocks have also been added where slopes are steep enough,
+but the focus is on layered texturing.
+
 % No blending between layers
+
+For our layered textures we chose to use the GL\_EXT\_texture\_array
+extension, which allows us to create an array of textures that are
+mipmapped individually. Unfortunately the texture array does not blend
+across the different layers, so this has to be handled by the fragment
+shader.
 
 % We could have used a 3d texture instead but then we would loose
 % mipmapping and we want our mipmapping!
 
-\section{Vertex shader}
+An alternative would be placing all the layers in a 3D texture, which
+could then blend between the different layers upon texture lookup in
+the shader. The downside to this is that using mipmapping on a 3D
+texture, will 'blend' the different layers together, creating a
+brownish looking texture in the second mipmap level and onwards. The
+only solution to this would be to disable mipmapping, which results in
+a performance penalty and creates flickering textures.
+
+So in the end we opted for texture arrays over 3D textures and
+implemented the blending ourselves.
+
+For each layer several parameters can be chosen
+
+\newcommand{\layerProp}[2]{\item \textbf{#1} - #2}
+\begin{itemize}
+  \layerProp{startHeight}{When the layer should start to blend in.}
+  \layerProp{blending}{How many units of height it takes the layer to
+    become completely opaque.}
+  \layerProp{spec[i]}{The specular factor of the i'th layer, where the
+    x-component specifies a specular intensity scalar and the
+    y-component is the shininess}
+\end{itemize}
+
+How much of the i'th layer should be visible, $factor_i$ is then
+trivially calculated by
+
+\begin{displaymath}
+  factor_i = (height - startHeight_i) / blending_i
+\end{displaymath}
+
+Since it doesn't make sense for a layer to be more than completely
+transparent or opaque , ie. a factor of 0 or 1, we clamp the factor
+between these values. The actual index of the layer to be used in the
+texture array is then quite easy to calculate. We simply add all the
+factors. 
+
+And example could be layer 2 is completely opaque and layer 3 is 40\%
+visible. At that height layer 1 will also think it should be
+completely opaque. The layer height is then $1 + 1 + 0.4 = 2.4$, which
+means that the base layer is 2 and that has be blended with 40\% of
+the 3'rd layer.
+
+% TODO ref appendix or show layer code
+
+When specifying the height or the terrain a little randomness is added
+to it from the normalmap. This is done to avoid smooth transitions
+between the layers and give the terrain a more natural feel.
+
+%\section{Vertex shader}
 
 % Geomorphing, fordele/ulemper, alternativer
 
 % Terrain skal placeres i worldspace, acceptabel antagelse og spare os
 % for matrix multiplicationer.
 
-\section{Fragment shader}
+%\section{Fragment shader}
 
 % Light calculations (blinn/phong)
 
@@ -252,6 +316,7 @@ The glsl code can bee seen here
 
 % Optimized texture lookup (saving 2 normals in 4 channels and
 % blending them, not implemented)
+
 
 
 %%% Local Variables:
