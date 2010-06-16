@@ -60,13 +60,6 @@
 #include <Renderers/TextureLoader.h>
 #include <Renderers/OpenGL/ShaderLoader.h>
 
-/*
-// Edit stuff
-#include <Utils/MouseSelection.h>
-#include <Utils/SelectionSet.h>
-#include <Utils/CameraTool.h>
-#include <Utils/ToolChain.h>
-*/
 #include <Utils/MeshCreator.h>
 #include "TerrainHandler.h"
 
@@ -421,7 +414,6 @@ int main(int argc, char** argv) {
     //from: http://da.wikipedia.org/wiki/Sky_(meteorologi)
     float cloud_radius = earth_radius + 1000;
     */
-    //MeshPtr clouds = CreatePlane(200.0);
     MeshPtr clouds = 
         //CreateGeodesicSphere(cloud_radius, 2, false, Vector<3,float>(1.0f));
         CreateGeodesicSphere(1000, 3, false, Vector<3,float>(1.0f));

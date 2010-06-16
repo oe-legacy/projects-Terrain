@@ -33,7 +33,6 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   Extensions_SDL
   Extensions_HeightMap
   Extensions_CairoResource
-  Extensions_TGAResource
   Extensions_HUD
   Extensions_OpenGLRenderer
   Extensions_GenericHandlers
