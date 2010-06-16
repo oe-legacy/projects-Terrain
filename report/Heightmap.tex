@@ -15,22 +15,34 @@ texture arrays where used to cut back on texture unit usage and
 texture lookups when rendering.\\
 
 % Geomorphing because it is in the vertex shader
+
 However before we start on all the cool visuel effect, we must briefly
 touch upon the subject of geomorphing to understand part of what is
 going on in the vertex shader.\\
 
 % Geomorphing removes terrain popping
+
 The heightmap uses clustered level of detail, CLOD, to minimize vertex
-processing overhead. An example can be seen in figure ?? where a mound
-is rendered with three different levels of detail, LOD. Vertex popping will
-occur when switching between the different levels of detail, as the
-geometry is suddenly deformed. Geomorphing can be used to remove this
-popping by gently morphing in the new vertices. The technique is
-rather simple. Instead of letting a verte pop into it's actual
-position when changing LOD, the vertex is created between on the line
-between it's to existing neighbours and then morphed into its actual
+processing overhead. An example can be seen in
+\reffig{fig:tesselation} where a mound is rendered with three
+different levels of detail, LOD. Vertex popping will occur when
+switching between the different levels of detail, as the geometry is
+suddenly deformed. Geomorphing can be used to remove this popping by
+gently morphing in the new vertices. The technique is rather
+simple. Instead of letting a verte pop into it's actual position when
+changing LOD, the vertex is created between on the line between it's
+to existing neighbours and then morphed into its actual
 position. Because our terrain is a heightmap, geomorphing only needs
 to be done along the y-axis.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=5cm]{tesselation}
+  \caption{A wireframe mound rendered with 3 different levels of detail.}
+  \label{fig:tesselation}
+\end{figure}
+
+% TODO Reference Geomorphing article
 
 % We remove normal popping by using a normal map
 
@@ -110,9 +122,14 @@ where $\mathbf{n}$ is the surface normal, $\mathbf{l}$ is the
 direction of the light, $\mathbf{v}$ is the vector pointing from the
 camera to the surface point and $\mathbf{r}$ is the reflection of the
 light around the normal. All the vectors are assummed to be normalized
-and can be seen on figure ??
+and can be seen on \reffig{fig:lightVectors}.
 
-% @TODO add vector figure
+\begin{figure}
+  \centering
+  \label{fig:lightVectors}
+  \includegraphics[width=5cm]{lightVectors}
+  \caption{The vectors used in lighting calculations}
+\end{figure}
 
 % @TODO add images
 The contribution of each factor to the final image can be seen in figure ??
