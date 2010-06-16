@@ -15,6 +15,6 @@ void main(void) {
     // to tex coords 0 <-> 1
     vec3 texCoords = coords * 0.5;
 
-    gl_TexCoord[0] = vec4(texCoords * multiplier, 0.0);
+    gl_TexCoord[0].xyz = texCoords * multiplier;
     //gl_TexCoord[0] = gl_MultiTexCoord0;
 }
