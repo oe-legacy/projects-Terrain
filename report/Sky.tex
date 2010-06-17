@@ -1,10 +1,136 @@
+% -*- mode: latex; mode: auto-fill; coding: utf-8; -*-
+
 \chapter{Sky}
+An essential part of an outdoor environment is the sky, whether it is
+night, day, cloudy or clear sky plays an important roll in setting the
+mood of the scene. The sky is an ever changing part of any outdoor scene
+and depends on many things including both the time of the day and on the
+weather conditions.
+%
+This makes it a hard effect to simulate and visualize, but because it
+is such a central part of an outdoor setting, it must be included in
+the rendering.
 
-\section{Skydome}
+Historically, skies in computer graphics, like many other visual
+effects, started of as a simple thing. For a long time, the sky way
+simulated by a simple light blue background color, which works fine
+when used together with simple scene. But as the other objects in the
+scene has become more complex and detailed this simple approach makes the
+sky stand out. Therefore developers have started to use sky boxes,
+which is a technique that maps images of the sky onto a box. This box
+then surrounds the entire scene and the camera is inside the box at
+all times, making the illusion of fare stretching planes by using
+simple images.
+%
+One problem with using a box when doing this, is that the edges between the
+images on different sides of the box are apparent as artifacts when
+looking directly at them. To get around this problem, developers
+instead use a sphere or dome as the basic geometry, and hence the name
+sky dome, when rendering the sky. The main difference between these
+two approaches is the texture mapping of the images. When mapping
+images onto a box a straight forward approach can be used, but when
+using a dome this step becomes much more tricky.
 
-\section{Clouds}
+Returning to the images used when mapping a sky box or dome. When
+using stills the sky seams static and dull. By animating ...
 
-\section{Atmospheric scattering}
+\section{Sky domes}
+We have chosen to using two sky spheres, one inner sphere for
+rendering white clouds with alpha transparency, and an out sphere to
+render a background color which can change based on the time of day.
+We also include cloud animation based on a simple model for wind, so
+the clouds change over time.
+
+\subsection{Geometry}
+We have tried two different ways on generating the sphere
+geometry. The first method used was the traditional longitudinal/latitude
+sphere commonly used for geographical maps. This
+however gave very obvious image stretching artifact at the poles
+because of oversampling in these regions. Instead we now use geodesic
+spheres which consist of equilateral triangles and are beautifully
+constructed by recursively subdivision of an icosahedron until the
+required LOD is attained.
+
+\subsection{Atmospheric dome}
+What phenomena drives the coloring of the sky, making it so beautiful
+with it shades of blue and red?
+This is the questing ask by researchers studying 
+\emph{atmospheric scattering}. This subject has been studied in great detail,
+an lots of complex theories and models has been developed within the
+field.
+We however have chosen not dig deep into this subject because it could
+be an entire subject of its own.
+
+However, to color our sky we use a simple model based on color
+gradients as described in ref:\footnote{A fast, simple method to
+  render sky color using gradients maps, by Jesús Alonso Abad.}
+Where the atmospheric dome is colored based on time, height, and the
+location of the sun.
+We use a color gradient e.g from light to medium blue as a function of
+the height and dividing the time into four periods: day, night,
+sunrise and sunset, and use the location of the sun the make a
+beautiful sunrise and sunset.
+
+\subsection{Cloud Dome}
+
+\subsubsection{Cloud texture}
+We have chosen to use a procedural generated image to visualize the
+clouds. By take this approach we can change their appearance and
+generate very different looking clouds by only altering a few
+parameters that is supplied to the generation algorithm.
+
+We have furthermore chosen a three dimensional image because this
+eases texture mapping when the image is to be mapped onto the sphere.
+
+\subsubsection{Procedural generated images}
+To generate the cloud image we have been inspired by an Internet
+homepage\footnote{\url{http://freespace.virgin.net/hugo.elias/models/m_clouds.htm}
+  \\(Be want though, this homepage does not use Perlin noise as they
+  say but value lattice noise)}
+describing how to use procedural generation and
+image layering/composition in combination to produce texture that
+looks like real clouds.
+
+Procedural generation, is a very fuzzy term, which covers quite a
+large area.
+--> ref. PG 3rd edition
+
+But boils down to, using some kind of algorithm to produce data, where
+a number of parameters can be specified to control the
+generation process in a way that alters the result in a intuitive way
+based on the parameters.
+
+The basic building block when generating procedural data are noise
+functions. A noise function is a function e.g. $f(x)$ which for 
+---> ref. PG3rd edition
+
+There are many noise functions, with different properties. But general
+they are divide into categories based on how they generation the
+noise.
+
+Value lattice noise.
+
+Gradient noise which is the category the includes the most 
+now famous noise function known as Perlin noise, first described by Ken
+Perlin in famous 1985 paper: Making Noise. 
+
+
+\subsubsection{Texture mapping - animation}
+The basic texture mapping scheme, is to put the three dimensional
+texture into a unit cube, and use texture coordinates based on the
+unit sphere to make a direct mapping which avoids texture stretching.
+
+If we only did this, the a large portion of the generated texture
+would not be used.
+
+So besides the basic texture mapping scheme, we have introduced
+texture coordinate animation. This has been done by modeling the wind.
+
+
+
+
+
+
 
 %%% Local Variables:
 %%% mode: latex
