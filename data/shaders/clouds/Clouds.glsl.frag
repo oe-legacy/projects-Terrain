@@ -1,8 +1,6 @@
 //uniform sampler2D clouds;
 uniform sampler3D clouds;
-uniform float interpolator;
 uniform bool showTexCoords;
-varying vec3 pos;
 uniform vec3 wind;
 
 void main(void) {

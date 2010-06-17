@@ -143,11 +143,8 @@ public:
             dt -= cycleTime;
         }
         float i = ((float)dt.AsInt())/cycleTime.AsInt();
-        //shader->SetUniform("interpolator", i);
+
         shader->SetUniform("multiplier", multiplier);
-
-        shader->SetUniform("center", center);
-
         shader->SetUniform("showTexCoords", showTexCoords);
 
         if (lastI > i) {
