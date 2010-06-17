@@ -107,7 +107,7 @@ static bool showTexCoords = false;
 static Vector<3,float> center(0,0,0);
 //static Vector<3,float> center(0,-2000,0);
 
-class ShaderAnimator
+class CloudAnimator
     : public IListener<Core::ProcessEventArg> {
     IShaderResourcePtr shader;
     Time cycleTime;
@@ -120,7 +120,7 @@ class ShaderAnimator
     Vector<3,float> newHeadding;
 
 public:
-    ShaderAnimator(IShaderResourcePtr shader, unsigned int cycleTime)
+    CloudAnimator(IShaderResourcePtr shader, unsigned int cycleTime)
         : shader(shader), cycleTime(Time(cycleTime,0)) {
         lastI = 0.0;
         windAngle = 0.0;
@@ -143,28 +143,12 @@ public:
             dt -= cycleTime;
         }
         float i = ((float)dt.AsInt())/cycleTime.AsInt();
-
-        shader->SetUniform("multiplier", multiplier);
-        shader->SetUniform("showTexCoords", showTexCoords);
-
         if (lastI > i) {
-
             oldHeadding = newHeadding;
-
             windAngle = r.Normal(windAngle, distAngle);        
             Vector<3,float> w(1,0,0);
             Quaternion<float> q(0.0, windAngle, 0.0);
             newHeadding = q.RotateVector(w);
-
-            /* old methos
-              newHeadding = Vector<3,float>(r.Normal(0.0, 0.025),
-                                        0,
-                                       r.Normal(0.05, 0.01));
-            newHeadding.Normalize();
-            */
-
-            //logger.info << "new headding: " << headding << logger.end;
-            //logger.info << "new wind angle: " << windAngle << logger.end;
             lastI = i = 0.0;            
         }
 
@@ -176,7 +160,37 @@ public:
         currentPosition[2] -= floor(currentPosition[2]);
 
         shader->SetUniform("wind", currentPosition);
+        shader->SetUniform("multiplier", multiplier);
+        shader->SetUniform("showTexCoords", showTexCoords);
         lastI = i;
+    }
+};
+
+class GradientAnimator
+    : public IListener<Core::ProcessEventArg> {
+    IShaderResourcePtr shader;
+    Time cycleTime;
+    Time dt;
+    RandomGenerator r;
+    float lastI;
+    float windAngle, distAngle;
+    Vector<3,float> currentPosition;
+    Vector<3,float> oldHeadding;
+    Vector<3,float> newHeadding;
+
+public:
+    GradientAnimator(IShaderResourcePtr shader, unsigned int cycleTime)
+        : shader(shader), cycleTime(Time(cycleTime,0)) {
+    }
+
+    void Handle(Core::ProcessEventArg arg) {
+        dt += Time(arg.approx);
+        while (dt >= cycleTime) {
+            dt -= cycleTime;
+        }
+        float i = ((float)dt.AsInt())/cycleTime.AsInt();
+
+        shader->SetUniform("interpolator", i);
     }
 };
 
@@ -212,7 +226,9 @@ public:
     CloudDomeMover(IViewingVolume& vv, TransformationNode& tNode) 
         : vv(vv), tNode(tNode) {}
     void Handle(Core::ProcessEventArg arg) {
-        tNode.SetPosition( vv.GetPosition() );
+        Vector<3,float> position = vv.GetPosition();
+        position[1] = 0; // clamp height
+        tNode.SetPosition(position);
     }
 };
 
@@ -438,8 +454,34 @@ int main(int argc, char** argv) {
     Delayed3dTextureLoader* d3dtl = new Delayed3dTextureLoader(cloudTexture);
     renderer->InitializeEvent().Attach(*d3dtl);
 
-    ShaderAnimator* sAnim = new ShaderAnimator(cloudShader, 20);
-    engine->ProcessEvent().Attach(*sAnim);
+    CloudAnimator* cAnim = new CloudAnimator(cloudShader, 20);
+    engine->ProcessEvent().Attach(*cAnim);
+
+    // gradient dome
+    MeshPtr atmosphericDome = 
+        CreateGeodesicSphere(2000, 3, false, Vector<3,float>(1.0f));
+    IShaderResourcePtr gradientShader = ResourceManager<IShaderResource>::
+    Create("projects/Terrain/data/shaders/gradient/Gradient.glsl");
+    UCharTexture2DPtr gradient = ResourceManager<UCharTexture2D>
+        ::Create("textures/EarthClearSky2.png");
+    gradientShader->SetTexture("gradientMap", gradient);
+    atmosphericDome->GetMaterial()->shad = gradientShader;
+    
+    MeshNode* atmosphericNode = new MeshNode();
+    atmosphericNode->SetMesh(atmosphericDome);
+    RenderStateNode* atmosphericScene = new RenderStateNode();
+    //cloudScene->DisableOption(RenderStateNode::DEPTH_TEST);
+    //ISceneNode* bn = new BlendingNode();
+    TransformationNode* atmosphericDomePosition = new TransformationNode();
+
+    //cloudPos->SetPosition(Vector<3,float>(0,-earth_radius,0));
+    //cloudPos->Rotate(PI/2,0,0);
+    //cloudPos->SetPosition(center);
+
+    atmosphericDomePosition->AddNode(atmosphericNode);
+    atmosphericScene->AddNode(atmosphericDomePosition);
+    GradientAnimator* gAnim = new GradientAnimator(gradientShader, 50);
+    engine->ProcessEvent().Attach(*gAnim);
 
     // Sky sphere node
     /*
@@ -484,6 +526,7 @@ int main(int argc, char** argv) {
     depthOfFieldNode->AddNode(glowNode);
     glowNode->AddNode(water);
     water->AddNode(state);
+    state->AddNode(atmosphericScene);
     state->AddNode(cloudScene);
     state->AddNode(grass);
     grass->AddNode(land);
