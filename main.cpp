@@ -506,7 +506,21 @@ int main(int argc, char** argv) {
     gradient->SetWrapping(CLAMP_TO_EDGE);
     gradientShader->SetTexture("gradient", gradient);
     atmosphericDome->GetMaterial()->shad = gradientShader;
-    
+
+    // stars
+    UCharTexture2DPtr stars =
+        UCharTexture2DPtr(new Texture2D<unsigned char>(512,512,1));
+    unsigned char* data = stars->GetData();
+    RandomGenerator r;
+    for (unsigned int n=0; n<200; n++) {
+        float dist = r.UniformFloat(0.05, 0.9);
+        float angle = r.UniformFloat(0, 2*PI);
+        unsigned int x = (unsigned int)(256 + cos(angle) * dist * 256);
+        unsigned int y = (unsigned int)(256 + sin(angle) * dist * 256);
+        data[x+y*512] = (unsigned char)(256 * r.UniformFloat(0.5, 0.9));
+    }
+    gradientShader->SetTexture("stars", stars);
+
     MeshNode* atmosphericNode = new MeshNode();
     atmosphericNode->SetMesh(atmosphericDome);
     RenderStateNode* atmosphericScene = new RenderStateNode();
@@ -526,7 +540,7 @@ int main(int argc, char** argv) {
     /*
     // test texture
     MeshPtr testPlane = CreatePlane(100); 
-    testPlane->GetMaterial()->AddTexture(gradient);
+    testPlane->GetMaterial()->AddTexture(stars);
     MeshNode* testNode = new MeshNode();
     testNode->SetMesh(testPlane);
     TransformationNode* tTestNode = new TransformationNode();
