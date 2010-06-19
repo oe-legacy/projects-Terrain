@@ -153,7 +153,7 @@ namespace OpenEngine {
 
                 unsigned int width = groundTex->GetWidth();
                 unsigned int height = groundTex->GetHeight();
-                for (unsigned int l = 0; l < 3; ++l){                    
+                for (unsigned int l = 0; l < 2; ++l){                    
                     dirtTex = Utils::TexUtils::Scale(dirtTex, width, height);
                     
                     glTexSubImage3D(GL_TEXTURE_2D_ARRAY_EXT,
@@ -181,7 +181,7 @@ namespace OpenEngine {
 
                 width = groundTex->GetWidth();
                 height = groundTex->GetHeight();
-                for (unsigned int l = 0; l < 3; ++l){                    
+                for (unsigned int l = 0; l < 2; ++l){                    
                     dirtNormalTex = Utils::TexUtils::Scale(dirtNormalTex, width, height);
                     
                     glTexSubImage3D(GL_TEXTURE_2D_ARRAY_EXT,

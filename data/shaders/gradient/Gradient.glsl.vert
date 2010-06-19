@@ -1,7 +1,7 @@
-uniform vec3 sunDirection;
+uniform vec3 viewPos;
 
-varying float sunAngle;
 varying vec3 normal;
+varying vec3 eyeDir;
 
 void main(void) {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
@@ -9,6 +9,5 @@ void main(void) {
     
     normal = gl_Normal;
 
-	float cosine = dot (-sunDirection, gl_Normal);
-	sunAngle = -cosine;
+    eyeDir = gl_Vertex.xyz - viewPos;
 }

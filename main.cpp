@@ -193,51 +193,21 @@ class GradientAnimator
     Vector<3,float> oldHeadding;
     Vector<3,float> newHeadding;
     SunNode& sun;
+    IViewingVolume& view;
 
 public:
-    GradientAnimator(IShaderResourcePtr shader, unsigned int cycleTime, SunNode& sun)
-        : shader(shader), cycleTime(Time(cycleTime,0)), sun(sun) {
+    GradientAnimator(IShaderResourcePtr shader, unsigned int cycleTime, 
+                     SunNode& sun, IViewingVolume& view)
+        : shader(shader), cycleTime(Time(cycleTime,0)), sun(sun), view(view) {
     }
 
     void Handle(Core::ProcessEventArg arg) {
-        /*
-        dt += Time(arg.approx);
-        while (dt >= cycleTime) {
-            dt -= cycleTime;
-        }
-        shader->SetUniform("interpolator", GetI());
-        */
-        //shader->SetUniform("sunDirection", sun.GetPos().GetNormalize());
         shader->SetUniform("timeOfDayRatio", sun.GetTimeofDayRatio());
-        //logger.info << "time of day ratio:" << sun.GetTimeofDayRatio() << logger.end;
-        //logger.info << "sun position:" << sun.GetPos() << logger.end;
-        //logger.info << "sun position length:" << sun.GetPos().GetLength() << logger.end;
+        shader->SetUniform("lightDir", sun.GetPos().GetNormalize());
+        shader->SetUniform("viewPos", view.GetPosition());
     }
-    /*
-    void SetI(float i) {
-        dt = Time(cycleTime.AsInt()*i);
-    }
-    float GetI() {
-        float i = ((float)dt.AsInt())/cycleTime.AsInt();
-        return i;
-    }
-    */
 };
 
-class SunPosPasser : public IListener<Core::ProcessEventArg> {
-private:
-    SunNode* sun;
-    IShaderResourcePtr shader;
-public:
-    SunPosPasser(SunNode* sun,
-                 IShaderResourcePtr shader){
-        this->sun = sun;
-        this->shader = shader;
-    }
-    void Handle(Core::ProcessEventArg arg) {
-        shader->SetUniform("lightDir", sun->GetPos().GetNormalize());
-    }
-};
 
 class Delayed3dTextureLoader 
     : public IListener<Renderers::RenderingEventArg> {
@@ -561,8 +531,6 @@ int main(int argc, char** argv) {
         ::Create("textures/EarthClearSky2.png");
     gradient->SetWrapping(CLAMP_TO_EDGE);
     gradientShader->SetTexture("gradient", gradient);
-    SunPosPasser spp = SunPosPasser(sun, gradientShader);
-    engine->ProcessEvent().Attach(spp);
     atmosphericDome->GetMaterial()->shad = gradientShader;
 
     // stars
@@ -592,46 +560,9 @@ int main(int argc, char** argv) {
 
     atmosphericDomePosition->AddNode(atmosphericNode);
     atmosphericScene->AddNode(atmosphericDomePosition);
-    GradientAnimator* gAnim = new GradientAnimator(gradientShader, 50, *sun);
+    GradientAnimator* gAnim = new GradientAnimator(gradientShader, 50, *sun, *frustum);
     engine->ProcessEvent().Attach(*gAnim);
 
-    /*
-    // test texture
-    MeshPtr testPlane = CreatePlane(100); 
-    testPlane->GetMaterial()->AddTexture(stars);
-    MeshNode* testNode = new MeshNode();
-    testNode->SetMesh(testPlane);
-    TransformationNode* tTestNode = new TransformationNode();
-    tTestNode->SetPosition(Vector<3,float>(0,3,0));
-    tTestNode->AddNode(testNode);
-    */
-
-    // Sky sphere node
-    /*
-    IShaderResourcePtr atmosphere = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/SkyFromAtmosphere/SkyFromAtmosphere.glsl");
-    const Vector<3, float> wavelength = Vector<3, float>(0.65f, 0.57f, 0.475f);
-    const float outerRadius = 1025.0f;
-    const float innerRadius = 1000.0f;
-    const float fScale = 1 / (outerRadius - innerRadius);
-    const float ESun = 20.0f;
-    const float kr = 0.0025f;
-    const float km = 0.001f;
-    const float g = -0.99f; // The Mie phase asymmetry factor
-    atmosphere->SetUniform("v3InvWavelength", Vector<3, float>(1) / (wavelength * wavelength * wavelength * wavelength));
-    atmosphere->SetUniform("fCameraHeight", 1.0f);
-    atmosphere->SetUniform("fInnerRadius", innerRadius);
-    atmosphere->SetUniform("fKrESun", kr * ESun);
-    atmosphere->SetUniform("fKmESun", km * ESun);
-    atmosphere->SetUniform("fKr4PI", kr * 4 * PI);
-    atmosphere->SetUniform("fKm4PI", km * 4 * PI);
-    atmosphere->SetUniform("fScale", fScale);
-    atmosphere->SetUniform("fScaleDepth", 0.25f);
-    atmosphere->SetUniform("fScaleOverScaleDepth", fScale / 0.25f);
-    atmosphere->SetUniform("g", g);
-    atmosphere->SetUniform("g2", g * g);
-    SkySphereNode* sky = new SkySphereNode(atmosphere, outerRadius, 80);
-    renderer->InitializeEvent().Attach(*sky);
-    */
     // Grass node
     IShaderResourcePtr grassShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
     grassShader->SetTexture("heightmap", map);
