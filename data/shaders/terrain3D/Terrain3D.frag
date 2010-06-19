@@ -3,7 +3,7 @@
 const vec3 startHeight = vec3(-10.76, 5.0, 50.0); // {sand, grass, snow}
 const vec3 blending = vec3(10.0, 5.0, 20.0); // {sand, grass, snow}
 
-const vec3 WATER_COLOR = vec3(0.0, 0.5, 0.0);
+const vec3 WATER_COLOR = vec3(0.36, 0.48, 0.9);
 
 const float cliffStartSlope = 0.5;
 const float cliffBlend = 0.3;

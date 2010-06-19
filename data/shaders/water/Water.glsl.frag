@@ -1,4 +1,5 @@
-const vec4 WATER_COLOR = vec4(0.0, 0.0, 0.5, 1.0);
+//const vec4 WATER_COLOR = vec4(0.0, 0.0, 0.5, 1.0);
+const vec4 WATER_COLOR = vec4(.36, 0.48, 0.9, 1.0);
 const float sca = 0.02;
 const float sca2 = 0.02;
 
