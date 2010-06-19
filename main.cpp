@@ -503,6 +503,7 @@ int main(int argc, char** argv) {
     Create("projects/Terrain/data/shaders/gradient/Gradient.glsl");
     UCharTexture2DPtr gradient = ResourceManager<UCharTexture2D>
         ::Create("textures/EarthClearSky2.png");
+    gradient->SetWrapping(CLAMP_TO_EDGE);
     gradientShader->SetTexture("gradient", gradient);
     atmosphericDome->GetMaterial()->shad = gradientShader;
     
@@ -521,6 +522,17 @@ int main(int argc, char** argv) {
     atmosphericScene->AddNode(atmosphericDomePosition);
     GradientAnimator* gAnim = new GradientAnimator(gradientShader, 50, *sun);
     engine->ProcessEvent().Attach(*gAnim);
+
+    /*
+    // test texture
+    MeshPtr testPlane = CreatePlane(100); 
+    testPlane->GetMaterial()->AddTexture(gradient);
+    MeshNode* testNode = new MeshNode();
+    testNode->SetMesh(testPlane);
+    TransformationNode* tTestNode = new TransformationNode();
+    tTestNode->SetPosition(Vector<3,float>(0,3,0));
+    tTestNode->AddNode(testNode);
+    */
 
     // Sky sphere node
     /*
@@ -571,6 +583,7 @@ int main(int argc, char** argv) {
     grass->AddNode(land);
     scene->AddNode(sun);
 
+    //scene->AddNode(tTestNode);
 
     //state->AddNode(sky);
     /*
