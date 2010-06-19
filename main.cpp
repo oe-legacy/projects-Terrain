@@ -170,7 +170,16 @@ public:
         shader->SetUniform("timeOfDayRatio", sun.GetTimeofDayRatio());
         lastI = i;
     }
+
+    void SetWindCycleTime(float sec) {
+        cycleTime = Time((unsigned int)sec,0);
+    }
+
+    float GetWindCycleTime() {
+        return cycleTime.sec;
+    }
 };
+
 
 class GradientAnimator
     : public IListener<Core::ProcessEventArg> {
@@ -214,26 +223,6 @@ public:
     }
     */
 };
-
-namespace OpenEngine {
-namespace Utils {
-namespace Inspection {
-ValueList Inspect(SunNode *sun) {
-    ValueList values;
-
-    RWValueCall<SunNode, float > *v
-        = new RWValueCall<SunNode, float >
-        (*sun,
-         &SunNode::GetTimeOfDay,
-         &SunNode::SetTimeOfDay);
-    v->name = "time of day";
-    v->properties[MIN] = 0.0;
-    v->properties[MAX] = 24.0;
-    v->properties[STEP] = 1/64.0;
-    values.push_back(v);
-    return values;    
-}
-}}}
 
 class Delayed3dTextureLoader 
     : public IListener<Renderers::RenderingEventArg> {
@@ -301,6 +290,53 @@ public:
         }
     }
 };
+
+namespace OpenEngine {
+namespace Utils {
+namespace Inspection {
+
+ValueList Inspect(SunNode *sun, CloudAnimator *ca) {
+    ValueList values;
+    {
+        RWValueCall<CloudAnimator, float > *v
+            = new RWValueCall<CloudAnimator, float >
+            (*ca,
+             &CloudAnimator::GetWindCycleTime,
+             &CloudAnimator::SetWindCycleTime);
+        v->name = "wind cycle time";
+        v->properties[MIN] = 1;
+        v->properties[MAX] = 120;
+        v->properties[STEP] = 1;
+        values.push_back(v);
+    }
+    {
+        RWValueCall<SunNode, float > *v
+            = new RWValueCall<SunNode, float >
+            (*sun,
+             &SunNode::GetTimeOfDay,
+             &SunNode::SetTimeOfDay);
+        v->name = "time of day";
+        v->properties[MIN] = 0.0;
+        v->properties[MAX] = 24.0;
+        v->properties[STEP] = 1/64.0;
+        values.push_back(v);
+    }
+    {
+        RWValueCall<SunNode, float > *v
+            = new RWValueCall<SunNode, float >
+            (*sun,
+             &SunNode::GetDayLength,
+             &SunNode::SetDayLength);
+        v->name = "day length";
+        v->properties[MIN] = 1.0;
+        v->properties[MAX] = 120.0;
+        v->properties[STEP] = 1.0;
+        values.push_back(v);
+    }
+    return values;    
+}
+
+}}}
 
 // Forward declarations ... ffs c++
 void SetupDisplay();
@@ -611,7 +647,7 @@ int main(int argc, char** argv) {
     // ant tweak bar
     AntTweakBar *atb = new AntTweakBar();
     atb->AttachTo(*renderer);
-    atb->AddBar(new InspectionBar("time of day",Inspect(sun)));
+    atb->AddBar(new InspectionBar("debug variables",Inspect(sun,cAnim)));
     keyboard->KeyEvent().Attach(*atb);
     mouse->MouseMovedEvent().Attach(*atb);
     mouse->MouseButtonEvent().Attach(*atb);
