@@ -60,7 +60,11 @@
 #include <Renderers/TextureLoader.h>
 #include <Renderers/OpenGL/ShaderLoader.h>
 
-#include <Utils/MeshCreator.h>
+#include <Display/AntTweakBar.h>
+#include <Utils/BetterMoveHandler.h>
+#include <Utils/IInspector.h>
+#include <Utils/InspectionBar.h>
+
 #include "TerrainHandler.h"
 
 // Mesh stuff
@@ -177,22 +181,57 @@ class GradientAnimator
     Vector<3,float> currentPosition;
     Vector<3,float> oldHeadding;
     Vector<3,float> newHeadding;
+    SunNode& sun;
 
 public:
-    GradientAnimator(IShaderResourcePtr shader, unsigned int cycleTime)
-        : shader(shader), cycleTime(Time(cycleTime,0)) {
+    GradientAnimator(IShaderResourcePtr shader, unsigned int cycleTime, SunNode& sun)
+        : shader(shader), cycleTime(Time(cycleTime,0)), sun(sun) {
     }
 
     void Handle(Core::ProcessEventArg arg) {
+        /*
         dt += Time(arg.approx);
         while (dt >= cycleTime) {
             dt -= cycleTime;
         }
-        float i = ((float)dt.AsInt())/cycleTime.AsInt();
-
-        shader->SetUniform("interpolator", i);
+        shader->SetUniform("interpolator", GetI());
+        */
+        //shader->SetUniform("sunDirection", sun.GetPos().GetNormalize());
+        shader->SetUniform("timeOfDayRatio", sun.GetTimeofDayRatio());
+        //logger.info << "time of day ratio:" << sun.GetTimeofDayRatio() << logger.end;
+        //logger.info << "sun position:" << sun.GetPos() << logger.end;
+        //logger.info << "sun position length:" << sun.GetPos().GetLength() << logger.end;
     }
+    /*
+    void SetI(float i) {
+        dt = Time(cycleTime.AsInt()*i);
+    }
+    float GetI() {
+        float i = ((float)dt.AsInt())/cycleTime.AsInt();
+        return i;
+    }
+    */
 };
+
+namespace OpenEngine {
+namespace Utils {
+namespace Inspection {
+ValueList Inspect(SunNode *sun) {
+    ValueList values;
+
+    RWValueCall<SunNode, float > *v
+        = new RWValueCall<SunNode, float >
+        (*sun,
+         &SunNode::GetTimeOfDay,
+         &SunNode::SetTimeOfDay);
+    v->name = "time of day";
+    v->properties[MIN] = 0.0;
+    v->properties[MAX] = 24.0;
+    v->properties[STEP] = 1/64.0;
+    values.push_back(v);
+    return values;    
+}
+}}}
 
 class Delayed3dTextureLoader 
     : public IListener<Renderers::RenderingEventArg> {
@@ -227,7 +266,7 @@ public:
         : vv(vv), tNode(tNode) {}
     void Handle(Core::ProcessEventArg arg) {
         Vector<3,float> position = vv.GetPosition();
-        position[1] = 0; // clamp height
+        //position[1] = 0; // clamp height
         tNode.SetPosition(position);
     }
 };
@@ -459,12 +498,12 @@ int main(int argc, char** argv) {
 
     // gradient dome
     MeshPtr atmosphericDome = 
-        CreateGeodesicSphere(2000, 3, false, Vector<3,float>(1.0f));
+        CreateGeodesicSphere(3000, 2, false, Vector<3,float>(1.0f));
     IShaderResourcePtr gradientShader = ResourceManager<IShaderResource>::
     Create("projects/Terrain/data/shaders/gradient/Gradient.glsl");
     UCharTexture2DPtr gradient = ResourceManager<UCharTexture2D>
         ::Create("textures/EarthClearSky2.png");
-    gradientShader->SetTexture("gradientMap", gradient);
+    gradientShader->SetTexture("gradient", gradient);
     atmosphericDome->GetMaterial()->shad = gradientShader;
     
     MeshNode* atmosphericNode = new MeshNode();
@@ -480,7 +519,7 @@ int main(int argc, char** argv) {
 
     atmosphericDomePosition->AddNode(atmosphericNode);
     atmosphericScene->AddNode(atmosphericDomePosition);
-    GradientAnimator* gAnim = new GradientAnimator(gradientShader, 50);
+    GradientAnimator* gAnim = new GradientAnimator(gradientShader, 50, *sun);
     engine->ProcessEvent().Attach(*gAnim);
 
     // Sky sphere node
@@ -540,13 +579,35 @@ int main(int argc, char** argv) {
     state->AddNode(sky);
     */
 
+    // ant tweak bar
+    AntTweakBar *atb = new AntTweakBar();
+    atb->AttachTo(*renderer);
+    atb->AddBar(new InspectionBar("time of day",Inspect(sun)));
+    keyboard->KeyEvent().Attach(*atb);
+    mouse->MouseMovedEvent().Attach(*atb);
+    mouse->MouseButtonEvent().Attach(*atb);
+    
+
+    // handlers
+    BetterMoveHandler *move = new BetterMoveHandler(*camera,
+                                                    *mouse,
+                                                    true);
+    // move->nodes.push_back(lightTrans);
+
+    engine->InitializeEvent().Attach(*move);
+    engine->ProcessEvent().Attach(*move);
+    atb->KeyEvent().Attach(*move);   
+    atb->MouseButtonEvent().Attach(*move);
+    atb->MouseMovedEvent().Attach(*move);
+
+    /*     
     // Register the handler as a listener on up and down keyboard events.
     MoveHandler* move_h = new MoveHandler(*camera, *(env->GetMouse()));
     keyboard->KeyEvent().Attach(*move_h);
     engine->InitializeEvent().Attach(*move_h);
     engine->ProcessEvent().Attach(*move_h);
     engine->DeinitializeEvent().Attach(*move_h);
-
+    */
     QuitHandler* quit_h = new QuitHandler(*engine);
     keyboard->KeyEvent().Attach(*quit_h);
 

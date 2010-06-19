@@ -37,4 +37,7 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   Extensions_OpenGLRenderer
   Extensions_GenericHandlers
   Extensions_OpenGLPostProcessEffects
+  Extensions_AntTweakBar
+  Extensions_Inspection
+  Extensions_InspectionBar
 )

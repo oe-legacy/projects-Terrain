@@ -12,6 +12,8 @@ darcs-dev /projects/Terrain fh.daimi.au.dk:/users/cgd/code/projects/Terrain
 
 # dist dependencies
 dist /extensions/HeightMap/HeightMap.dist http://openengine.dk/code/extensions/HeightMap/HeightMap.dist
+dist /extensions/Inspection/Inspection.dist       http://www.openengine.dk/code/extensions/Inspection/Inspection.dist
+dist /extensions/InspectionBar/InspectionBar.dist       http://www.openengine.dk/code/extensions/InspectionBar/InspectionBar.dist
 
 # required extensions
 darcs /extensions/HUD                    http://openengine.dk/code/extensions/HUD
@@ -22,6 +24,7 @@ darcs /extensions/GenericHandlers 	 http://openengine.dk/code/extensions/Generic
 darcs /extensions/TexUtils      	 http://openengine.dk/code/extensions/TexUtils
 darcs /extensions/FreeImage       	 http://openengine.dk/code/extensions/FreeImage
 darcs /extensions/OpenGLPostProcessEffects       	http://openengine.dk/code/extensions/OpenGLPostProcessEffects
+darcs /extensions/AntTweakBar       	http://openengine.dk/code/extensions/AntTweakBar
 
 darcs-dev /extensions/HUD                    fh.daimi.au.dk:/users/cgd/code/extensions/HUD
 darcs-dev /extensions/SDL                    fh.daimi.au.dk:/users/cgd/code/extensions/SDL
@@ -31,6 +34,7 @@ darcs-dev /extensions/GenericHandlers 	     fh.daimi.au.dk:/users/cgd/code/exten
 darcs-dev /extensions/TexUtils  	     fh.daimi.au.dk:/users/cgd/code/extensions/TexUtils
 darcs-dev /extensions/FreeImage  	     fh.daimi.au.dk:/users/cgd/code/extensions/FreeImage
 darcs-dev /extensions/OpenGLPostProcessEffects fh.daimi.au.dk:/users/cgd/code/extensions/OpenGLPostProcessEffects
+darcs-dev /extensions/AntTweakBar 	       fh.daimi.au.dk:/users/cgd/code/extensions/AntTweakBar
 
 # windows libraries
 win32 /libraries http://openengine.dk/data/libraries/boost-win32.zip
