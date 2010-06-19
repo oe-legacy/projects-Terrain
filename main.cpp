@@ -224,6 +224,21 @@ public:
     */
 };
 
+class SunPosPasser : public IListener<Core::ProcessEventArg> {
+private:
+    SunNode* sun;
+    IShaderResourcePtr shader;
+public:
+    SunPosPasser(SunNode* sun,
+                 IShaderResourcePtr shader){
+        this->sun = sun;
+        this->shader = shader;
+    }
+    void Handle(Core::ProcessEventArg arg) {
+        shader->SetUniform("lightDir", sun->GetPos().GetNormalize());
+    }
+};
+
 class Delayed3dTextureLoader 
     : public IListener<Renderers::RenderingEventArg> {
 private:
@@ -422,6 +437,9 @@ int main(int argc, char** argv) {
     // setup sun
     Vector<3, float> sunDir = Vector<3, float>(1448, 2048, 1448);
     SunNode* sun = new SunNode(sunDir, origo);
+    sun->SetRenderGeometry(false);
+    sun->SetTimeOfDay(6.0f);
+    //sun->SetDayLength(0.0f);
     engine->ProcessEvent().Attach(*sun);
 
     // Setup terrain
@@ -543,6 +561,8 @@ int main(int argc, char** argv) {
         ::Create("textures/EarthClearSky2.png");
     gradient->SetWrapping(CLAMP_TO_EDGE);
     gradientShader->SetTexture("gradient", gradient);
+    SunPosPasser spp = SunPosPasser(sun, gradientShader);
+    engine->ProcessEvent().Attach(spp);
     atmosphericDome->GetMaterial()->shad = gradientShader;
 
     // stars
