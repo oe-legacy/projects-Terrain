@@ -12,8 +12,8 @@ void main(void) {
     //coords -= floor(coords);
 
     vec4 rgba = texture3D(clouds, coords);
-
-    gl_FragColor = rgba * max(1.0-timeOfDayRatio, 0.7);
+    rgba.rgb *= max(1.0-timeOfDayRatio, 0.2);
+    gl_FragColor = rgba;
     float hlim = 0.55;
     float llim = 0.50;
     //float hlim = 0.75;
