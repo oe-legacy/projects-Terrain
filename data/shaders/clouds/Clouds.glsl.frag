@@ -2,6 +2,7 @@
 uniform sampler3D clouds;
 uniform bool showTexCoords;
 uniform vec3 wind;
+uniform float timeOfDayRatio;
 
 void main(void) {
     // for 3d
@@ -12,7 +13,7 @@ void main(void) {
 
     vec4 rgba = texture3D(clouds, coords);
 
-    gl_FragColor = rgba;
+    gl_FragColor = rgba * max(1.0-timeOfDayRatio, 0.7);
     float hlim = 0.55;
     float llim = 0.50;
     //float hlim = 0.75;

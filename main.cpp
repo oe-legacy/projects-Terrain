@@ -122,10 +122,11 @@ class CloudAnimator
     Vector<3,float> currentPosition;
     Vector<3,float> oldHeadding;
     Vector<3,float> newHeadding;
+    SunNode& sun;
 
 public:
-    CloudAnimator(IShaderResourcePtr shader, unsigned int cycleTime)
-        : shader(shader), cycleTime(Time(cycleTime,0)) {
+    CloudAnimator(IShaderResourcePtr shader, unsigned int cycleTime, SunNode& sun)
+        : shader(shader), cycleTime(Time(cycleTime,0)), sun(sun) {
         lastI = 0.0;
         windAngle = 0.0;
         currentPosition = Vector<3,float>(0,0,0);
@@ -166,6 +167,7 @@ public:
         shader->SetUniform("wind", currentPosition);
         shader->SetUniform("multiplier", multiplier);
         shader->SetUniform("showTexCoords", showTexCoords);
+        shader->SetUniform("timeOfDayRatio", sun.GetTimeofDayRatio());
         lastI = i;
     }
 };
@@ -493,7 +495,7 @@ int main(int argc, char** argv) {
     Delayed3dTextureLoader* d3dtl = new Delayed3dTextureLoader(cloudTexture);
     renderer->InitializeEvent().Attach(*d3dtl);
 
-    CloudAnimator* cAnim = new CloudAnimator(cloudShader, 20);
+    CloudAnimator* cAnim = new CloudAnimator(cloudShader, 20, *sun);
     engine->ProcessEvent().Attach(*cAnim);
 
     // gradient dome
