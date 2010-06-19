@@ -16,6 +16,7 @@
 #include <Resources/Texture2D.h>
 #include <Resources/Texture3D.h>
 #include <Utils/TextureTool.h>
+#include <Utils/TexUtils.h>
 #include <Math/RandomGenerator.h>
 
 #include <vector>
@@ -30,6 +31,8 @@ namespace OpenEngine {
         protected:
             UCharTexture3DPtr groundTex;
             UCharTexture3DPtr normalTex;
+            UCharTexture2DPtr dirtTex;
+            UCharTexture2DPtr dirtNormalTex;
             
         public:
             Island(FloatTexture2DPtr tex)
@@ -89,19 +92,10 @@ namespace OpenEngine {
                 UCharTexture2DPtr grassNormal =
                     UCharTexture2DPtr(new Texture2D<unsigned char>(1,1,3));
 
-                //#define useSDLIMAGE
-#ifdef useSDLIMAGE
-                grassNormal->GetData()[0] = 127;
-                grassNormal->GetData()[1] = 127;
-                grassNormal->GetData()[2] = 255;
-                grassNormal->GetData()[3] = 0;
-                grassNormal->SetColorFormat(RGBA);
-#else
                 grassNormal->GetData()[0] = 255;
                 grassNormal->GetData()[1] = 127;
                 grassNormal->GetData()[2] = 127;
                 grassNormal->SetColorFormat(BGR);
-#endif
                 texList.push_back(grassNormal);
 
                 unsigned int w = 512;
@@ -134,6 +128,12 @@ namespace OpenEngine {
                 TextureTool<unsigned char>::DumpTexture(normalTex,
                                                         foldername);
                 }
+                
+                dirtTex = ResourceManager<UCharTexture2D>
+                    ::Create("textures/dirt.tga");
+
+                dirtNormalTex = ResourceManager<UCharTexture2D>
+                    ::Create("textures/dirtNormals.tga");
             }
 
             void Initialize(RenderingEventArg arg) {
@@ -147,8 +147,61 @@ namespace OpenEngine {
                 arg.renderer.LoadTexture(normalTex.get());
                 this->landscapeShader->SetTexture("normalTex", normalTex);
 
-                glBindTexture(GL_TEXTURE_3D, 0);
-                glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, 0);
+                glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, groundTex->GetID());
+                glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_GENERATE_MIPMAP, GL_FALSE);
+                CHECK_FOR_GL_ERROR();
+
+                unsigned int width = groundTex->GetWidth();
+                unsigned int height = groundTex->GetHeight();
+                for (unsigned int l = 0; l < 3; ++l){                    
+                    dirtTex = Utils::TexUtils::Scale(dirtTex, width, height);
+                    
+                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY_EXT,
+                                    l,
+                                    0,
+                                    0,
+                                    1,
+                                    width,
+                                    height,
+                                    1,
+                                    GL_BGRA,
+                                    GL_UNSIGNED_BYTE,
+                                    dirtTex->GetData());
+
+                    width /= 2;
+                    height /= 2;
+                }
+                glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_GENERATE_MIPMAP, GL_TRUE);
+                dirtTex->Unload();
+                CHECK_FOR_GL_ERROR();
+
+                glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, normalTex->GetID());
+                glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_GENERATE_MIPMAP, GL_FALSE);
+                CHECK_FOR_GL_ERROR();
+
+                width = groundTex->GetWidth();
+                height = groundTex->GetHeight();
+                for (unsigned int l = 0; l < 3; ++l){                    
+                    dirtNormalTex = Utils::TexUtils::Scale(dirtNormalTex, width, height);
+                    
+                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY_EXT,
+                                    l,
+                                    0,
+                                    0,
+                                    1,
+                                    width,
+                                    height,
+                                    1,
+                                    GL_BGR,
+                                    GL_UNSIGNED_BYTE,
+                                    dirtNormalTex->GetData());
+
+                    width /= 2;
+                    height /= 2;
+                }
+                glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_GENERATE_MIPMAP, GL_TRUE);
+                dirtNormalTex->Unload();
+                CHECK_FOR_GL_ERROR();
             }
 
             void PostRender(Display::Viewport view) {
