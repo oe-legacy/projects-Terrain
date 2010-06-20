@@ -34,6 +34,9 @@ vec3 phongLighting(in vec3 text, in vec3 normal, in vec2 specProp){
     float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
     float specular = specProp.x * pow(stemp, specProp.y);
 
+    //return text * gl_LightSource[0].ambient.rgb;
+    //return text * gl_LightSource[0].diffuse.rgb * diffuse;
+    //return text * gl_LightSource[0].specular.rgb * specular;
     return text * (gl_LightSource[0].ambient.rgb + 
                    gl_LightSource[0].diffuse.rgb * diffuse + 
                    gl_LightSource[0].specular.rgb * specular);
@@ -48,7 +51,7 @@ vec3 blinnLighting(in vec3 text, in vec3 normal, in vec2 specProp){
     vec3 halfVec = normalize(normalize(eyeDir) + lightDir);
     float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
     float specular = specProp.x * pow(stemp, 4.0 * specProp.y);
-
+    //return text * gl_LightSource[0].specular.rgb * specular;
     return text * (gl_LightSource[0].ambient.rgb + 
                    gl_LightSource[0].diffuse.rgb * diffuse + 
                    gl_LightSource[0].specular.rgb * specular);

@@ -1,6 +1,6 @@
 // main
 // -------------------------------------------------------------------
-// Copyright (C) 2007 OpenEngine.dk (See AUTHORS) 
+// Copyright (C) 2010 OpenEngine.dk (See AUTHORS) 
 // 
 // This program is free software; It is covered by the GNU General 
 // Public License version 2 or any later version. 
@@ -45,13 +45,10 @@
 #include "Scene/Island.h"
 #include <Scene/GrassNode.h>
 #include <Scene/SunNode.h>
-#include <Scene/SkySphereNode.h>
 #include <Scene/WaterNode.h>
-//#include <Resources/SDLImage.h>
 #include <Resources/FreeImage.h>
 #include <Utils/TerrainUtils.h>
 #include <Utils/TerrainTexUtils.h>
-//#include <Resources/TGAResource.h>
 #include <Utils/PerlinNoise.h>
 
 // Fps stuff
@@ -69,7 +66,6 @@
 
 // Mesh stuff
 #include <Utils/MeshCreator.h>
-#include <Scene/MeshNode.h>
 
 // PostProcess
 #include <Scene/PostProcessNode.h>
@@ -587,15 +583,6 @@ int main(int argc, char** argv) {
     grass->AddNode(land);
     scene->AddNode(sun);
 
-    //scene->AddNode(tTestNode);
-
-    //state->AddNode(sky);
-    /*
-    scene->AddNode(state);
-    state->AddNode(new MeshNode(MeshPtr(CreateSphere(innerRadius, 15, Vector<3, float>(0,0,0.7)))));
-    state->AddNode(sky);
-    */
-
     // ant tweak bar
     AntTweakBar *atb = new AntTweakBar();
     atb->AttachTo(*renderer);
@@ -617,14 +604,6 @@ int main(int argc, char** argv) {
     atb->MouseButtonEvent().Attach(*move);
     atb->MouseMovedEvent().Attach(*move);
 
-    /*     
-    // Register the handler as a listener on up and down keyboard events.
-    MoveHandler* move_h = new MoveHandler(*camera, *(env->GetMouse()));
-    keyboard->KeyEvent().Attach(*move_h);
-    engine->InitializeEvent().Attach(*move_h);
-    engine->ProcessEvent().Attach(*move_h);
-    engine->DeinitializeEvent().Attach(*move_h);
-    */
     QuitHandler* quit_h = new QuitHandler(*engine);
     keyboard->KeyEvent().Attach(*quit_h);
 

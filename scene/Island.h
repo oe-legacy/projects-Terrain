@@ -55,7 +55,8 @@ namespace OpenEngine {
 
                     // Create the textures and place them in a 3d texture
                     UCharTexture2DPtr sand = ResourceManager<UCharTexture2D>
-                        ::Create("textures/sand.jpg");
+                        //::Create("textures/newSand.tga");
+                        ::Create("textures/sand-old.jpg");
                     texList.push_back(sand);
                     UCharTexture2DPtr grass = ResourceManager<UCharTexture2D>
                         ::Create("textures/newGrass.tga");
@@ -87,7 +88,8 @@ namespace OpenEngine {
 
 
                 UCharTexture2DPtr sandNormal = ResourceManager<UCharTexture2D>
-                    ::Create("textures/sandBump.jpg");
+                    //::Create("textures/newSandNormals.tga");
+                    ::Create("textures/sandNormals-old.jpg");
                 texList.push_back(sandNormal);
                 UCharTexture2DPtr grassNormal = ResourceManager<UCharTexture2D>
                     ::Create("textures/newGrassNormals.tga");
