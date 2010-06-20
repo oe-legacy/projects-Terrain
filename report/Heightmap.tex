@@ -36,10 +36,10 @@ position. Because our terrain is a heightmap, geomorphing only needs
 to be done along the y-axis.
 
 \begin{figure}
+  \label{fig:tesselation}
   \centering
   \includegraphics[width=5cm]{tesselation}
   \caption{A wireframe mound rendered with 3 different levels of detail.}
-  \label{fig:tesselation}
 \end{figure}
 
 % TODO Reference Geomorphing article
@@ -132,7 +132,20 @@ and can be seen on \reffig{fig:lightVectors}.
 \end{figure}
 
 % @TODO add images
-The contribution of each factor to the final image can be seen in figure ??
+
+\begin{figure}
+  \label{fig:lightComponents}
+  \centering
+  \includegraphics[width=5cm]{ambient}
+  \includegraphics[width=5cm]{diffuse}
+  \includegraphics[width=5cm]{specular}
+  \includegraphics[width=5cm]{lightSum}
+  \caption{Images of the different light components making up the terrain lighting.}
+\end{figure}
+
+
+The contribution of each factor to the final image can be seen in
+\reffig{fig:lightComponents}.
 
 Now if we restrict our material to only specify one color instead of a
 seperat color for ambient, diffuse and specular, we can reduce the
@@ -173,9 +186,15 @@ two is given in Real-time Rendering as
 \end{displaymath}
 
 Both specular light models have been implemented in the terrain
-fragment shader and the results can be seen in figure ??
+fragment shader and the results can be seen in \reffig{fig:specularLight}
 
-% @TODO specular images
+\begin{figure}
+  \label{fig:specularLight}
+  \centering
+  \includegraphics[width=5cm]{phongSpec}
+  \includegraphics[width=5cm]{blinnSpec}
+  \caption{A comparison of Phong specular lighting and Blinn specular lighting. The image on the left is Phong and the right is Blinn.}
+\end{figure}
 
 
 \section{Bump mapping}
