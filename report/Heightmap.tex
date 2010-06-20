@@ -136,10 +136,10 @@ and can be seen on \reffig{fig:lightVectors}.
 \begin{figure}
   \label{fig:lightComponents}
   \centering
-  \includegraphics[width=5cm]{ambient}
-  \includegraphics[width=5cm]{diffuse}
-  \includegraphics[width=5cm]{specular}
-  \includegraphics[width=5cm]{lightSum}
+  \includegraphics[width=6cm]{ambient}
+  \includegraphics[width=6cm]{diffuse}
+  \includegraphics[width=6cm]{specular}
+  \includegraphics[width=6cm]{lightSum}
   \caption{Images of the different light components making up the terrain lighting.}
 \end{figure}
 
@@ -175,7 +175,7 @@ where $\mathbf{m}_{spec} = \mathbf{m}_{color}$ and $\mathbf{r} = 2
 
 A faster approximation was proposed by Blinn. Instead of basing the
 specular highlight on the angle between the view direction and
-reflection vector, He proposed to base it on the angle between the
+reflection vector, he proposed to base it on the angle between the
 halfvector, a vector halfway between the view vector and light vector
 given by $\mathbf{h} = (\mathbf{l} + \mathbf{v}) / \|\mathbf{l} +
 \mathbf{v}\|$, and the normal. An approximate relationship between the
@@ -195,6 +195,33 @@ fragment shader and the results can be seen in \reffig{fig:specularLight}
   \includegraphics[width=5cm]{blinnSpec}
   \caption{A comparison of Phong specular lighting and Blinn specular lighting. The image on the left is Phong and the right is Blinn.}
 \end{figure}
+
+Since Blinn yields little to no framerate increase, we've chosen Phong
+specular lighting as our default, as it gives a more pleasing result.
+
+The shader code for Phong lighting can be seen in \reflisting{lst:phongLighting}.
+
+\begin{listing}
+\label{lst:phongLighting}
+\centering
+\begin{cppcode}
+vec3 phongLighting(in vec3 text, in vec3 normal, in vec2 specProp){
+  // Calculate diffuse
+  float ndotl = dot(lightDir, normal);
+  float diffuse = clamp(ndotl, 0.0, 1.0);
+  
+  // Calculate specular
+  vec3 vRef = normalize(reflect(-lightDir, normal));
+  float stemp = clamp(dot(normalize(eyeDir), vRef), 0.0, 1.0);
+  float specular = specProp.x * pow(stemp, specProp.y);
+  
+  return text * (gl_LightSource[0].ambient.rgb + 
+                 gl_LightSource[0].diffuse.rgb * diffuse + 
+                 gl_LightSource[0].specular.rgb * specular);
+}
+\end{cppcode}
+\caption{A glsl function calculating lighting given a color, normal and specular intensity.}
+\end{listing}
 
 
 \section{Bump mapping}
@@ -251,9 +278,26 @@ space to global space. For this project the latter was chosen to
 easier incorperate the shaders into a deferred lighting pipeline in
 the future.
 
-The glsl code can be seen here
+The glsl code can be seen in \reflisting{lst:bumpmapping}
 
-%TODO reference code in appendix or here
+\begin{listing}
+\label{lst:bumpmapping}
+\centering
+\begin{cppcode}
+  // Extract normal and calculate tangent and binormal
+  vec3 normal = texture2D(normalMap, texCoord).xyz;
+  vec3 tangent = normalize(vec3(normal.y, -normal.x, 0.0));
+  vec3 bitangent = normalize(vec3(0.0, -normal.z, normal.y));
+  mat3 tangentSpace = mat3(tangent, normal, bitangent);
+
+  // Extract normals and transform them into tangent space
+  vec3 bumpNormal = texture2DArray(normalTex, vec3(srcUV, layer)).xzy;
+  bumpNormal = bumpNormal * 2.0 - 1.0; // move from [0; 1] to [-1; 1]
+  bumpNormal = normalize(tangentSpace * bumpNormal);
+\end{cppcode}
+\caption{Calculating tangent space for a heightmap and rotating the normal in glsl.}
+\end{listing}
+
 
 \section{Ground layers}
 
@@ -320,24 +364,6 @@ the 3'rd layer.
 When specifying the height or the terrain a little randomness is added
 to it from the normalmap. This is done to avoid smooth transitions
 between the layers and give the terrain a more natural feel.
-
-%\section{Vertex shader}
-
-% Geomorphing, fordele/ulemper, alternativer
-
-% Terrain skal placeres i worldspace, acceptabel antagelse og spare os
-% for matrix multiplicationer.
-
-%\section{Fragment shader}
-
-% Light calculations (blinn/phong)
-
-% Calculating the appropriate texture index and blending with the next
-% layer.
-
-% Normals and tangent space
-
-% Bump mapping (rotating the normal in tangent space)
 
 \section{Summary}
 
