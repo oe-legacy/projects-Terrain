@@ -29,11 +29,11 @@ void main(void)
     vec2 fdist = sca * nuv.zw;
                  
     //calculate specular highlight
-    //vec3 vRef = normalize(reflect(-lightDir, normal));
-    //float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
+    vec3 vRef = normalize(reflect(-lightDir, normal));
+    float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
     // aproximated specular light
-    vec3 halfVec = normalize(viewt + lightDir);
-    float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
+    //vec3 halfVec = normalize(viewt + lightDir);
+    //float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
     vec4 specular = gl_LightSource[0].specular * pow(stemp, exponent);
 
     //calculate fresnel and inverted fresnel

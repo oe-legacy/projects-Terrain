@@ -58,7 +58,7 @@ namespace OpenEngine {
                         ::Create("textures/sand.jpg");
                     texList.push_back(sand);
                     UCharTexture2DPtr grass = ResourceManager<UCharTexture2D>
-                        ::Create("textures/grass.tga");
+                        ::Create("textures/newGrass.tga");
                     texList.push_back(grass);
                     UCharTexture2DPtr snow = ResourceManager<UCharTexture2D>
                         ::Create("textures/snow.tga");
@@ -89,17 +89,32 @@ namespace OpenEngine {
                 UCharTexture2DPtr sandNormal = ResourceManager<UCharTexture2D>
                     ::Create("textures/sandBump.jpg");
                 texList.push_back(sandNormal);
-                UCharTexture2DPtr grassNormal =
-                    UCharTexture2DPtr(new Texture2D<unsigned char>(1,1,3));
+                UCharTexture2DPtr grassNormal = ResourceManager<UCharTexture2D>
+                    ::Create("textures/newGrassNormals.tga");
 
-                grassNormal->GetData()[0] = 255;
-                grassNormal->GetData()[1] = 127;
-                grassNormal->GetData()[2] = 127;
-                grassNormal->SetColorFormat(BGR);
+                grassNormal->Load();
+                for (unsigned int u = 0; u < grassNormal->GetWidth(); ++u)
+                    for (unsigned int v = 0; v < grassNormal->GetHeight(); ++v){
+                        Vector<3, float> pixel;
+                        pixel[0] = grassNormal->GetPixel(u, v)[0];
+                        pixel[1] = grassNormal->GetPixel(u, v)[1];
+                        pixel[2] = grassNormal->GetPixel(u, v)[2];
+                        
+                        pixel = (pixel / 256.0f) * 2.0 - 1.0;
+
+                        pixel[0] = 1.0;
+                        pixel.Normalize();
+
+                        pixel = ((pixel + 1.0f) * 0.5f) * 256.0f;
+
+                        grassNormal->GetPixel(u, v)[0] = pixel[0];
+                        grassNormal->GetPixel(u, v)[1] = pixel[1];
+                        grassNormal->GetPixel(u, v)[2] = pixel[2];
+                    }
                 texList.push_back(grassNormal);
 
-                unsigned int w = 512;
-                unsigned int h = 512;
+                unsigned int w = 1024;
+                unsigned int h = 1024;
                 UCharTexture2DPtr snowNormal =
                     UCharTexture2DPtr(new Texture2D<unsigned char>(w,h,3));
                 snowNormal->SetColorFormat(BGR);
@@ -107,8 +122,8 @@ namespace OpenEngine {
                 RandomGenerator r;
                 for (unsigned int x=0; x<w; x++) {
                     for (unsigned int y=0; y<h; y++) {
-                        Vector<3,float> v(1, r.Normal(0, 0.05),
-                                          r.Normal(0, 0.05));
+                        Vector<3,float> v(1, r.Normal(0, 0.1),
+                                          r.Normal(0, 0.1));
                         v.Normalize();
                         
                         data[(x+y*w)*3 + 0] = (v[0] * 0.5 + 0.5) * 256;

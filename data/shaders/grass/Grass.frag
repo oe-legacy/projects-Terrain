@@ -10,7 +10,7 @@ void main(){
 
     // if it's the transparent part of the grass texture then discard
     // it. This way no z-sorting is needed.
-    if (grass.a < 0.8)
+    if (grass.a < 0.6)
         discard;
 
     // Calculate diffuse

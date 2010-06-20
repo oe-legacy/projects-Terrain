@@ -313,7 +313,7 @@ ValueList Inspect(SunNode *sun, CloudAnimator *ca) {
              &SunNode::GetDayLength,
              &SunNode::SetDayLength);
         v->name = "day length";
-        v->properties[MIN] = 1.0;
+        v->properties[MIN] = 0.0;
         v->properties[MAX] = 120.0;
         v->properties[STEP] = 1.0;
         values.push_back(v);
@@ -374,6 +374,7 @@ int main(int argc, char** argv) {
     IShaderResourcePtr glow = ResourceManager<IShaderResource>::Create("shaders/glow.glsl");
     effects.push_back(glow);
     effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/HorizontalBoxBlur.glsl"));
+    //effects.push_back(ResourceManager<IShaderResource>::Create("shaders/HorizontalCircleBlur.glsl"));
     ChainPostProcessNode* glowNode = new ChainPostProcessNode(effects, dimension, 1, true);
     glow->SetTexture("scene", glowNode->GetPostProcessNode(1)->GetSceneFrameBuffer()->GetTexAttachment(0));
     renderer->InitializeEvent().Attach(*glowNode);
@@ -566,7 +567,7 @@ int main(int argc, char** argv) {
     // Grass node
     IShaderResourcePtr grassShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
     grassShader->SetTexture("heightmap", map);
-    GrassNode* grass = new GrassNode(land, grassShader, 12000, 64, 1);
+    GrassNode* grass = new GrassNode(land, grassShader, 8000, 64, 1);
     engine->ProcessEvent().Attach(*grass);
     renderer->InitializeEvent().Attach(*grass);
 

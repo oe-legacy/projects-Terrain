@@ -8,4 +8,5 @@ frag: shaders/grass/Grass.frag
 
 #textures
 
-text: grassTex|textures/grass7319.png
+#text: grassTex|textures/grass7319.png
+text: grassTex|textures/grassStraw.tga
