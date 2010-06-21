@@ -2,8 +2,7 @@
 
 % GPU gems 1 chapter 7
 
-Now that we have our heightmap rendered, it's time to place some
-grass on it. 
+Now that we have a terrain, it's time to place some grass on it.
 
 Some rendering techniques for grass that where considered were
 
@@ -20,9 +19,8 @@ Some rendering techniques for grass that where considered were
 \item Rendering a volume texture containing the grass straws.
 \end{itemize}
 
-We opted for grass drawn onto quads, since it's easy to
-draw a quad of grass on the screen and grass textures are easy to come
-by. 
+We opted for grass drawn onto quads, since it's easy to draw a quad of
+grass on the screen and grass textures are easy to come by.
 
 However we can't simply cover the entire landscape with quads of
 grass, as that would be extremely expensive to render, so there are
@@ -58,21 +56,11 @@ the complexity of our animation algorithm is limited in order to
 minimize the cost of the shader. Our wave therefore is just a simple
 cosine function.
 
+\section{Placing the grass}
+
 As stated earlier we cannot simply draw the grass everywhere without
 incurring a huge fps penalty, so instead we focus on drawing the grass
 around the camera. %@TODO explain algorithm
-
-\section{Creating the grass}
-
-
-
-\section{Rendering}
-
-% One draw call
-
-\subsection{Vertex Shader}\label{sec:grassVert}
-
-% Moving the grass up to the camera
 
 \begin{displaymath}
   (-halfDim, -halfDim) \le vertex + gridDim * n - eye \le (halfDim, halfDim)
@@ -90,7 +78,17 @@ around the camera. %@TODO explain algorithm
   newVert = vertex + gridDim * n
 \end{displaymath}
 
-% and placing it in front of the camera
+% And placing it in front of the camera
+
+% creation
+
+\section{Rendering}
+
+% One draw call
+
+\subsection{Vertex Shader}\label{sec:grassVert}
+
+% Moving the grass up to the camera
 
 
 % Placing it on the heightmap
@@ -110,10 +108,6 @@ around the camera. %@TODO explain algorithm
 
 
 
-% TODO
-
-% 3 lod layers of grass, morphing in, distort the lod layers to avoid
-% drawing the same straws (distort by gridsize / PI?)
 
 
 %%% Local Variables:

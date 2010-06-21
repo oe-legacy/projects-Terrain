@@ -3,35 +3,35 @@
 % A few lines about heightmaps
 
 The terrain itself in our demo is generated from a heightmap and is a
-continuating on the work that we did in the first quarter (which
-itself was based on earlier work). How a heightmap is loaded from a
-texture and converted to geometry is pretty straight forward, and thus
-won't be our focus here. Instead we will focus on our lighting model
-and how it was derived from the generel lightmodel presented in
-Real-time Rendering. We will talk about how we give the illusion of
-more detailed geometry by implementing bump maps, which requires us
-move the bumped normal in tangent space. Finally we will explain how
-texture arrays where used to cut back on texture unit usage and
+continuating on work that we did in the first quarter (which itself
+was based on earlier work). How a heightmap is loaded from a texture
+and converted to geometry is pretty straight forward, and thus won't
+be our focus here. Instead we will focus on our lighting model and how
+it was derived from the generel lightmodel presented in Real-time
+Rendering. We will talk about how we give the illusion of more
+detailed geometry by implementing bump maps, which requires us to
+transform a bumped normal in tangent space. Finally we will explain
+how texture arrays where used to cut back on texture unit usage and
 texture lookups when rendering.\\
 
 % Geomorphing because it is in the vertex shader
 
-However before we start on all the cool visuel effect, we must briefly
-touch upon the subject of geomorphing to understand part of what is
-going on in the vertex shader.\\
+However before we start, we must briefly touch upon the subject of
+geomorphing to understand part of what is going on in the vertex
+shader.\\
 
 % Geomorphing removes terrain popping
 
-The heightmap uses clustered level of detail, CLOD, to minimize vertex
-processing overhead. An example can be seen in
+The heightmap uses a cluster-based Continuous Level of Detail to
+minimize vertex processing overhead. An example can be seen in
 \reffig{fig:tesselation} where a mound is rendered with three
 different levels of detail, LOD. Vertex popping will occur when
-switching between the different levels of detail, as the geometry is
-suddenly deformed. Geomorphing can be used to remove this popping by
-gently morphing in the new vertices. The technique is rather
-simple. Instead of letting a verte pop into it's actual position when
-changing LOD, the vertex is created between on the line between it's
-to existing neighbours and then morphed into its actual
+switching between the different levels of detail, and will appear to
+the user as sudden geometry deformation. Geomorphing can be used to
+remove this popping by gently morphing in the new vertices. The
+technique is rather simple. Instead of letting a vertex pop into it's
+actual position when changing LOD, the vertex is created on the line
+between it's two visible neighbours and then morphed into its actual
 position. Because our terrain is a heightmap, geomorphing only needs
 to be done along the y-axis.
 
@@ -39,7 +39,9 @@ to be done along the y-axis.
   \label{fig:tesselation}
   \centering
   \includegraphics[width=5cm]{tesselation}
-  \caption{A wireframe mound rendered with 3 different levels of detail.}
+  \caption{A wireframe mound rendered with 3 different levels of
+    detail. The new vertices introduced in higher levels of detail are
+    the ones causing vertex popping.}
 \end{figure}
 
 % TODO Reference Geomorphing article
@@ -52,22 +54,27 @@ popping. Our heightmap texture coordinates are proportional to the
 vertex positions so special attention needs to be taken to them. But
 the normals will cause popping in the lighting. We could fix this by
 morphing the normals, but instead we've used a normalmap to store the
-normals in and retain our shading, even when the geometric detail is
+normals in and look them up in the fragment shader. This has the added
+that we will retain our light shading, even when the geometric detail is
 reduced.
 
 We assume that the terrain is not rotated, scaled or translated, so
 all our vertices and normals are given directly in world/model
 space. This is done to simplify some of our calculations and save a
-normal transformation in the fragment shader.
+normal transformation in the fragment shader, but can easily be
+extended to any geometry.
 
 \section{Lighting}
 
-Because we're using shaders for rendering the heightmap, we need to
-implement our own lighting effects. Since we're outside and rendering
-natural environment our only lightsource is the sun, which is a
-directional light. This allows us to ignore several aspects of the
-lighting equation for one light source, equation 4.19 in Real-time
-Rendering. 
+% TODO mention somewhere that it is pr pixel lighting, not pr vertex!
+
+Because we're using shaders for rendering, we need to implement our
+own lighting model. Since we're outside and rendering natural
+environment our only lightsource is the sun, which is a directional
+light. This allows us to ignore several aspects of the general
+lighting equation for one light source
+
+% TODO ref real-time rendering equation 4.19 
 
 \begin{displaymath}
   \mathbf{i}_{tot} = \mathbf{a}_{glob} \otimes \mathbf{m}_{amb} +
@@ -167,6 +174,8 @@ This restriction is more physically correct, in the sense that only
 the color of the material is now shaded with respect to the different
 light components, but is also more restrictive to artists.\\
 
+% TODO ref phong and blinn as real-time rendering
+
 In the above formulas the specular lighting has been given by the
 Phong lighting equation, $\mathbf{i}_{spec} = (\mathbf{v} \cdot
 \mathbf{r})^{m_{shi}} \mathbf{m}_{spec} \otimes \mathbf{s}_{spec}$,
@@ -199,7 +208,7 @@ fragment shader and the results can be seen in \reffig{fig:specularLight}
 Since Blinn yields little to no framerate increase, we've chosen Phong
 specular lighting as our default, as it gives a more pleasing result.
 
-The shader code for Phong lighting can be seen in \reflisting{lst:phongLighting}.
+The shader code for Phong lighting can be seen in \reflst{lst:phongLighting}.
 
 \begin{listing}
 \label{lst:phongLighting}
@@ -278,7 +287,7 @@ space to global space. For this project the latter was chosen to
 easier incorperate the shaders into a deferred lighting pipeline in
 the future.
 
-The glsl code can be seen in \reflisting{lst:bumpmapping}
+The glsl code can be seen in \reflst{lst:bumpmapping}
 
 \begin{listing}
 \label{lst:bumpmapping}
@@ -299,12 +308,12 @@ The glsl code can be seen in \reflisting{lst:bumpmapping}
 \end{listing}
 
 
-\section{Ground layers}
+\section{Texturing the terrain}
 
 Several layers of ground textures have been added to the heightmap for
-a more diverse terrain. There is a sand layer, a grass layer and a
-snow layer. Rocks have also been added where slopes are steep enough,
-but the focus is on layered texturing.
+a more diverse looking terrain. There is a sand layer, a grass layer
+and a snow layer. Rocks have also been added where slopes are steep
+enough, but the focus is on layered texturing.
 
 % No blending between layers
 

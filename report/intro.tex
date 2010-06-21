@@ -59,11 +59,11 @@ The texture array extension does just what its name suggests, it
 allows us to store several textures in an array. This is an
 improvement in several ways. Firstly we only need to call
 glBindTexture only once and then all the textures in the array are at
-our disposal. Secondly the gpu only allows a certain number of
+our disposal. Secondly the GPU only allows a certain number of
 textures to be bound, usually 8 or 16. Using a texture array only
-takes up one of these slots. In the case of our island heightmap using
-texture arrays allows us to have an array of 4 color textures; sand, grass, snow
-and cliffs. For each of these we're using a normalmap to do
+takes up one of these slots. In the case of our terrain, using texture
+arrays allows us to have an array of 4 color textures; sand, grass,
+snow and cliffs. For each of these we're using a normalmap to do
 bumpmapping, which can also be stored in their own texture array. We
 can then bind these two arrays, effectively giving us 8 textures at
 the price of 2 texture slots.
@@ -78,13 +78,13 @@ effect is a shader applied to the rendered image.
 
 % OE implementation
 
-To facilitate easy setup of frame buffer objects (fbo's), we have created the
-FrameBuffer abstraction in OpenEngine. Users only need to specify what
-dimensions their frame buffer object should have, how many color
-buffers should be attached, wether or not they want to use a
-texture for the depth buffer and then OpenEngine will setup the entire
-fbo. This abstraction makes it less error prone to
-create fbo's and attach textures to them.
+To facilitate easy setup of frame buffer objects, FBO's, we have
+created the \class{FrameBuffer} abstraction in OpenEngine. Users only need to
+specify what dimensions their frame buffer object should have, how
+many color buffers should be attached, wether or not they want to use
+a texture for the depth buffer and then OpenEngine will setup the
+entire fbo. This abstraction makes devlopment less error prone to
+create FBO's and attach textures to them.
 
 
 % own dimensions if the programmer wants higher quality images to

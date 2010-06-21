@@ -38,7 +38,7 @@ rendered to, and another FrameBuffer where the scene with the effect
 is rendered into. Why the effect is not simply rendered directly to
 the backbuffer (or previous frame buffer in case of chained effects)
 is explained in the Rendering subsection. The postprocess node also
-has a list of ITexture2DPtr's where the final image can be stored
+has a list of \class{ITexture2DPtr's} where the final image can be stored
 after the effect has been applied, this is useful for some
 implementations of motion blur, that relies on the previous image
 being availible.
@@ -107,11 +107,8 @@ post process efects that we have created.
 
 \subsection{Motion Blur}
 
-% Ghosting motion blur
-% Accumulation texture
-
 While motion blurring may not be critical to outdoor environments,
-many projects still benifit from it. Therefore one of the criteria
+many projects still benefit from it. Therefore one of the criteria
 to the post process node was that it would allow an easy motion blur
 implementation for existing and future open engine projects.
 
@@ -132,16 +129,24 @@ camera is moved. A car that drives past the camera will crystal
 clear. Another problem is that the shader becomes quite complex and
 timeconsuming.
 
-The algorithm that we settled on combines a low memory footprint with
-a fast shader. We simply store the previous image, which contain all
-the previous images blended together, and then blend them together
-with the current image. That way the effect from old images will tend
-toward 0 and the motion blurring will produce nice looking blurred
-'tails' on moving objects.
+The algorithm that we settled on is a ghosting motion blur and
+combines a low memory footprint with a fast shader. We use an
+acuumulation texture for storing all the previous images blended
+together, and then blend that together with the current image. That
+way the effect from old images will tend toward 0 and the motion
+blurring will produce nice looking blurred 'tails' on moving
+objects. Ofcourse since we can only blur between rendered frames, a
+fast turning camera will produce artefacts.
 
-% @TODO image to show the effect
+The result can be seen in \reffig{fig:motionblur}
 
-% @TODO shader in appendix
+\begin{figure}
+  \label{fig:motionblur}
+  \centering
+  \includegraphics[width=5cm]{motionBlur}
+  \caption{Ghosting motion blur using an accumulation texture.}
+\end{figure}
+
 
 \subsection{Glow}
 
@@ -163,25 +168,67 @@ achieving the same effect.
 
 % @TODO show the non blurred + blurred = glow images
 
-As the images show, a subtle smeering gives a smoother and more
-natural looking image.
+As can be seen on \reffig{fig:glow}, a subtle smeering gives a
+smoother and more natural looking image. The shader that does the
+vertical blurring can be seen in \reflst{lst:glowShader}.
 
-% @TODO shader in appendix
+\begin{listing}
+\label{lst:glowShader}
+\centering
+  \lstinputlisting[language=C++]{../data/shaders/glow.frag}
+\caption{The vertically blurring glow shader.}
+\end{listing}
+
 
 \subsection{Depth of field}
 
 When filming or photografing through a lens an effect called depth of
-field occurs.
+field occurs. Essentially everything not in focus by the camera
+becomes blurry, and the greater the difference between the object in
+focus and the out-of-focus object the more blurry the object will
+appear.
 
-% @TODO shader in appendix
+With the color texture and depth texture of the rendered scene it is
+possible to emulate this effect. In our example the focus of the
+camera will always be the center of the screen.
 
-\subsection{Under Water}
+To create the effect we first have to determine how out of focus a
+fragment is, which determines teh fragments blurring offset. This is
+done by computing the difference between the depth at the center of
+the screen and the depth at the fragment.
 
-% Combines the previous effects and a wobble
+As before in the glow effect we again create the blur by sampling a
+box around the fragment. This time though the distance between sample
+points is not constant, but proportional to the blurring offset. The
+fragments in focus or near focus have a small blurring offset and thus
+won't be much blurred, while fragments with a high blurring offset
+will be sampled inside a larger square and thus be blurrier.
 
-% Create it as several layered effects? Should be possible.
+Instead of doing a box blur, we decided to blur with a half circle
+kernel, as can be seen on \reffig{fig:halfCircle}. To increase
+effectivness we tried squaring the error term and came up with the
+kernel in \reffig{fig:squaredHalfCircle}, which while faster still
+provided a pleasing result.
 
-% @TODO shader in appendix
+The result can be seen on \reffig{fig:depthOfField} where hill in the
+background and the horizon have been slightly. The shader that creates
+the horizontal depth of field blurring can be seen in \reflst{lst:dofShader}.
+
+\begin{figure}
+  \label{fig:depthOfField}
+  \centering
+  \includegraphics[width=8cm]{depthOfField}
+  \caption{The depth of field effect is clearly visible in the background.}
+\end{figure}
+
+\begin{listing}
+\label{lst:dofShader}
+\centering
+\lstinputlisting[language=C++]{../data/shaders/HorizontalDepthOfField.frag}
+\caption{The horizontal blurring depth of field shader.}
+\end{listing}
+
+
 
 \subsection{Summary}
 
@@ -192,6 +239,8 @@ convolution.
 
 % One/two fbos pr node is a waste but makes it easy to setup and they
 % can be configured individually
+
+% Other effects have been implemented, like wobble, edge detection, pixelate and an underwater that combines...
 
 % Next step is merge
 
