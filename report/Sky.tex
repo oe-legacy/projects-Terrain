@@ -1,44 +1,60 @@
 % -*- mode: latex; mode: auto-fill; coding: utf-8; -*-
 
 \chapter{Sky}
-An essential part of an outdoor environment is the sky, whether it is
-night, day, cloudy or clear sky plays an important roll in setting the
-mood of the scene. The sky is an ever changing part of any outdoor scene
-and depends on many things including both the time of the day and on the
-weather conditions.
+The sky is an essential part of an outdoor environment, whether it is
+night, day, cloudy or clear sky plays an important role in setting the
+mood of the scene. 
+%Each of these different looking skies are composed
+%of different phenomena that needs to be modeled and simulated by
+%differently.
+The sky is an ever changing part of an outdoor scene
+and depends on many parameters including both the time of the day and
+on the weather conditions.
 %
 This makes it a hard effect to simulate and visualize, but because it
 is such a central part of an outdoor setting, it must be included in
 the rendering.
 
-Historically, skies in computer graphics, like many other visual
-effects, started of as a simple thing. For a long time, the sky way
-simulated by a simple light blue background color, which works fine
-when used together with simple scene. But as the other objects in the
-scene has become more complex and detailed this simple approach makes the
-sky stand out. Therefore developers have started to use sky boxes,
+On possible ... is to simulate the entire ... like weather forecast
+... ***
+
+When rendering a scene it is important that the overall LOD
+matches, to convince the user of our illusion. This means that if we
+have a scene with  high detailed objects, we also need to render the
+sky in high detail. If we had a simple scene, then it could be enough to
+simulate the sky by a simple light blue background color. This
+approach works fine when used e.g. together with cartoon shading. But
+as objects in the scene becomes more detailed and realistic looking
+this simple approach makes the sky stand out. 
+%
+Simulating a more realistic looking sky can and have been done many
+different way. Some developers use what is known as \emph{sky boxes},
 which is a technique that maps images of the sky onto a box. This box
-then surrounds the entire scene and the camera is inside the box at
+then surrounds the entire scene where the camera is inside the box at
 all times, making the illusion of fare stretching planes by using
 simple images.
 %
-One problem with using a box when doing this, is that the edges between the
-images on different sides of the box are apparent as artifacts when
-looking directly at them. To get around this problem, developers
-instead use a sphere or dome as the basic geometry, and hence the name
-sky dome, when rendering the sky. The main difference between these
-two approaches is the texture mapping of the images. When mapping
-images onto a box a straight forward approach can be used, but when
-using a dome this step becomes much more tricky.
-
-Returning to the images used when mapping a sky box or dome. When
-using stills the sky seams static and dull. By animating ...
+One problem with using a box when doing this, is that the edges
+between the images on different sides of the box are apparent as
+artifacts when looking directly at them. To get around this problem,
+developers instead use a sphere or dome as the basic geometry, and
+hence the name sky dome, when rendering the sky. The main difference
+between these two approaches is the texture mapping of the
+images. When mapping images onto a box a straight forward approach can
+be used, but when using a dome this step becomes much more tricky.
+%
+Although this approach can give fine results, the sky remains frozen
+in time, which makes it unrealistic when looking at it fore longer
+periods in time. 
+%
+So we have take up the challenge of simulating the image animation on
+a sky dome.
 
 \section{Sky domes}
 We have chosen to using two sky spheres, one inner sphere for
-rendering white clouds with alpha transparency, and an out sphere to
+rendering white clouds with alpha transparency, and an outer sphere to
 render a background color which can change based on the time of day.
-We also include cloud animation based on a simple model for wind, so
+We also include cloud animation based on a simple wind model, so
 the clouds change over time.
 
 \subsection{Geometry}
@@ -47,29 +63,51 @@ geometry. The first method used was the traditional longitudinal/latitude
 sphere commonly used for geographical maps. This
 however gave very obvious image stretching artifact at the poles
 because of oversampling in these regions. Instead we now use geodesic
-spheres which consist of equilateral triangles and are beautifully
+spheres which consist of equilateral triangles that are beautifully
 constructed by recursively subdivision of an icosahedron until the
 required LOD is attained.
+
+\subsection{Sun}
 
 \subsection{Atmospheric dome}
 What phenomena drives the coloring of the sky, making it so beautiful
 with it shades of blue and red?
 This is the questing ask by researchers studying 
-\emph{atmospheric scattering}. This subject has been studied in great detail,
-an lots of complex theories and models has been developed within the
-field.
+\emph{atmospheric scattering}. This subject has been studied in great detail
+and lots of complex theories and models has been developed within the field.
 We however have chosen not dig deep into this subject because it could
 be an entire subject of its own.
-
+%
 However, to color our sky we use a simple model based on color
 gradients as described in ref:\footnote{A fast, simple method to
   render sky color using gradients maps, by Jesús Alonso Abad.}
 Where the atmospheric dome is colored based on time, height, and the
 location of the sun.
-We use a color gradient e.g from light to medium blue as a function of
-the height and dividing the time into four periods: day, night,
-sunrise and sunset, and use the location of the sun the make a
-beautiful sunrise and sunset.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=5cm]{EarthClearSky2}
+  \caption{Color gradient used to color the atmospheric dome. The
+    white on the right is alpha transparency.}
+  \label{fig:sky-gradient}
+\end{figure}
+
+We use the color gradient in figure
+\ref{fig:sky-gradient}, borrowed from the Caelum
+framework\footnote{\url{http://www.ogre3d.org/tikiwiki/Caelum}}.
+using the height for texture mapping in the y direction and time of
+day in the x direction. This divides time into four periods: day,
+night, sunrise and sunset by first going positive along the x direction,
+and then the other way.
+One possible extension here is to include the location or angle of the
+sun to make a more beautiful sunrise and sunset.
+
+The alpha channel seen on the right in figure \ref{fig:sky-gradient}
+is used at night to enable rendering of stars. We render stars simple
+by pregenerating a black square image with randomly placed pixels,
+painted shades of white, in a circle round the center of the
+image. This images is then alpha blended with the color gradient based
+on normalized x and z coordinates of the atmospheric dome.
 
 \subsection{Cloud Dome}
 
@@ -114,6 +152,8 @@ Gradient noise which is the category the includes the most
 now famous noise function known as Perlin noise, first described by Ken
 Perlin in famous 1985 paper: Making Noise. 
 
+\subsubsection{Wind simulation}
+Brownian motion
 
 \subsubsection{Texture mapping - animation}
 The basic texture mapping scheme, is to put the three dimensional
