@@ -374,7 +374,7 @@ int main(int argc, char** argv) {
     ChainPostProcessNode* glowNode = new ChainPostProcessNode(effects, dimension, 1, true);
     glow->SetTexture("scene", glowNode->GetPostProcessNode(1)->GetSceneFrameBuffer()->GetTexAttachment(0));
     renderer->InitializeEvent().Attach(*glowNode);
-    /*
+
     IShaderResourcePtr motionBlur = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/MotionBlur.glsl");
     PostProcessNode* motionBlurNode = new PostProcessNode(motionBlur, dimension);
     motionBlurNode->SetEnabled(false);
@@ -500,17 +500,14 @@ int main(int argc, char** argv) {
     clouds->GetMaterial()->shad = cloudShader;
     MeshNode* cloudNode = new MeshNode();
     cloudNode->SetMesh(clouds);
-    RenderStateNode* cloudScene = new RenderStateNode();
-    cloudScene->DisableOption(RenderStateNode::DEPTH_TEST);
-    ISceneNode* bn = new BlendingNode();
+    ISceneNode* cloudScene = new BlendingNode();
     TransformationNode* cloudPos = new TransformationNode();
 
     //cloudPos->SetPosition(Vector<3,float>(0,-earth_radius,0));
     //cloudPos->Rotate(PI/2,0,0);
     cloudPos->SetPosition(center);
     cloudPos->AddNode(cloudNode);
-    bn->AddNode(cloudPos);
-    cloudScene->AddNode(bn);
+    cloudScene->AddNode(cloudPos);
 
     CloudDomeMover* cdm = new CloudDomeMover(*camera, *cloudPos);
     engine->ProcessEvent().Attach(*cdm);    
@@ -533,37 +530,41 @@ int main(int argc, char** argv) {
     atmosphericDome->GetMaterial()->shad = gradientShader;
 
     // stars
-    UCharTexture2DPtr stars =
-        UCharTexture2DPtr(new Texture2D<unsigned char>(512,512,1));
-    unsigned char* data = stars->GetData();
-    RandomGenerator r;
-    for (unsigned int n=0; n<200; n++) {
-        float dist = r.UniformFloat(0.05, 0.9);
-        float angle = r.UniformFloat(0, 2*PI);
-        unsigned int x = (unsigned int)(256 + cos(angle) * dist * 256);
-        unsigned int y = (unsigned int)(256 + sin(angle) * dist * 256);
-        data[x+y*512] = (unsigned char)(256 * r.UniformFloat(0.5, 0.9));
+    std::string starDir = "projects/Terrain/data/generated/stars";
+    std::string starFile = starDir + "/stars.png";
+    UCharTexture2DPtr stars;
+    if (Directory::Exists(starDir)) {
+        logger.info << "loading texture: " << starFile << logger.end;
+        stars  = ResourceManager<UCharTexture2D>::Create(starFile);
+    } else {
+        logger.info << "generating texture: " << foldername << logger.end;
+        stars = UCharTexture2DPtr(new Texture2D<unsigned char>(512,512,1));
+        unsigned char* data = stars->GetData();
+        RandomGenerator r;
+        for (unsigned int n=0; n<200; n++) {
+            float dist = r.UniformFloat(0.05, 0.9);
+            float angle = r.UniformFloat(0, 2*PI);
+            unsigned int x = (unsigned int)(256 + cos(angle) * dist * 256);
+            unsigned int y = (unsigned int)(256 + sin(angle) * dist * 256);
+            data[x+y*512] = (unsigned char)(256 * r.UniformFloat(0.5, 0.9));
+        }
+        //TextureTool<unsigned char>::DumpTexture(stars, starFile);
     }
     gradientShader->SetTexture("stars", stars);
 
     MeshNode* atmosphericNode = new MeshNode();
     atmosphericNode->SetMesh(atmosphericDome);
     RenderStateNode* atmosphericScene = new RenderStateNode();
-    //cloudScene->DisableOption(RenderStateNode::DEPTH_TEST);
-    //ISceneNode* bn = new BlendingNode();
+    atmosphericScene->DisableOption(RenderStateNode::DEPTH_TEST);
     TransformationNode* atmosphericDomePosition = new TransformationNode();
-
-    //cloudPos->SetPosition(Vector<3,float>(0,-earth_radius,0));
-    //cloudPos->Rotate(PI/2,0,0);
-    //cloudPos->SetPosition(center);
-
     atmosphericDomePosition->AddNode(atmosphericNode);
     atmosphericScene->AddNode(atmosphericDomePosition);
     GradientAnimator* gAnim = new GradientAnimator(gradientShader, 50, *sun, *frustum);
     engine->ProcessEvent().Attach(*gAnim);
 
     // Grass node
-    IShaderResourcePtr grassShader = ResourceManager<IShaderResource>::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
+    IShaderResourcePtr grassShader = ResourceManager<IShaderResource>
+        ::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
     grassShader->SetTexture("heightmap", map);
     GrassNode* grass = new GrassNode(land, grassShader, 8000, 64, 1);
     engine->ProcessEvent().Attach(*grass);
@@ -581,7 +582,7 @@ int main(int argc, char** argv) {
     motionBlurNode->AddNode(water);
     water->AddNode(state);
     state->AddNode(atmosphericScene);
-    state->AddNode(cloudScene);
+    atmosphericScene->AddNode(cloudScene);
     state->AddNode(grass);
     grass->AddNode(land);
     scene->AddNode(sun);

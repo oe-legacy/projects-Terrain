@@ -14,13 +14,17 @@ on the weather conditions.
 This makes it a hard effect to simulate and visualize, but because it
 is such a central part of an outdoor setting, it must be included in
 the rendering.
-
-On possible ... is to simulate the entire ... like weather forecast
-... ***
+%
+One possibility is to simulate all important real world conponents
+influencing the apperance of the sky. This could e.g involved complex
+weather forecast models or other large models, but because there are
+so many complex phenomena influencing it apperance this cannot be done
+in real time. Instead we have chosen the most obvious effects and
+tried to create believable visualizations of those.
 
 When rendering a scene it is important that the overall LOD
 matches, to convince the user of our illusion. This means that if we
-have a scene with  high detailed objects, we also need to render the
+have a scene with high detailed objects, we also need to render the
 sky in high detail. If we had a simple scene, then it could be enough to
 simulate the sky by a simple light blue background color. This
 approach works fine when used e.g. together with cartoon shading. But
@@ -28,7 +32,8 @@ as objects in the scene becomes more detailed and realistic looking
 this simple approach makes the sky stand out. 
 %
 Simulating a more realistic looking sky can and have been done many
-different way. Some developers use what is known as \emph{sky boxes},
+different way. Some developers use what is known as \emph{sky boxes}
+\citebook{page~338-339}{RTR2},
 which is a technique that maps images of the sky onto a box. This box
 then surrounds the entire scene where the camera is inside the box at
 all times, making the illusion of fare stretching planes by using
@@ -79,8 +84,7 @@ We however have chosen not dig deep into this subject because it could
 be an entire subject of its own.
 %
 However, to color our sky we use a simple model based on color
-gradients as described in ref:\footnote{A fast, simple method to
-  render sky color using gradients maps, by Jesús Alonso Abad.}
+gradients as described in \citeabook{abad2006}.
 Where the atmospheric dome is colored based on time, height, and the
 location of the sun.
 
@@ -116,11 +120,10 @@ We have chosen to use a procedural generated image to visualize the
 clouds. By take this approach we can change their appearance and
 generate very different looking clouds by only altering a few
 parameters that is supplied to the generation algorithm.
-
+%
 We have furthermore chosen a three dimensional image because this
 eases texture mapping when the image is to be mapped onto the sphere.
-
-\subsubsection{Procedural generated images}
+%
 To generate the cloud image we have been inspired by an Internet
 homepage\footnote{\url{http://freespace.virgin.net/hugo.elias/models/m_clouds.htm}
   \\Be warned though, this homepage does not use Perlin noise as they
@@ -128,32 +131,10 @@ homepage\footnote{\url{http://freespace.virgin.net/hugo.elias/models/m_clouds.ht
 describing how to use procedural generation and
 image layering/composition in combination to produce texture that
 looks like real clouds.
-
-Procedural generation, is a very fuzzy term, which covers quite a
-large area.
---> ref. PG 3rd edition
-
-But boils down to, using some kind of algorithm to produce data, where
-a number of parameters can be specified to control the
-generation process in a way that alters the result in a intuitive way
-based on the parameters.
-
-The basic building block when generating procedural data are noise
-functions. A noise function is a function e.g. $f(x)$ which for 
----> ref. PG3rd edition
-
-There are many noise functions, with different properties. But general
-they are divide into categories based on how they generation the
-noise.
-
-Value lattice noise.
-
-Gradient noise which is the category the includes the most 
-now famous noise function known as Perlin noise, first described by Ken
-Perlin in famous 1985 paper: Making Noise. 
-
-\subsubsection{Wind simulation}
-Brownian motion
+Because this is a large subject we have dedicated another chapther for
+it describtion. Here it is enought to say that we generate a three
+dimensional texture which is ensured to be wrapable along all three
+dimensions.
 
 \subsubsection{Texture mapping - animation}
 The basic texture mapping scheme, is to put the three dimensional
@@ -166,6 +147,12 @@ would not be used.
 So besides the basic texture mapping scheme, we have introduced
 texture coordinate animation. This has been done by modeling the wind.
 
+\subsubsection{Wind simulation}
+We have implemented a simple wind simulation algorithm which is
+inspired by Brownian motions. It works by having a current and future
+wind direction. The future direction is generated randomly based on
+the current and are normal distributed. Switching from the current and
+future direction is done by interpolating the two, and switching 
 
 
 
