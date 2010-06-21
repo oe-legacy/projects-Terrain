@@ -51,11 +51,8 @@ void main() {
         vertex.xz += hmapOffset;
         
         // Let the grass wave
-        if (texCoord.y > 0.9){
-            vec2 wave = vec2(cos(time + center.xz * 1000.0));
-            wave *= 0.5;
-            vertex.xz += wave;
-        }
+        vec2 wave = vec2(cos(time + center.xz * 1000.0));
+        vertex.xz += 0.5 * texCoord.y * wave;
         gl_Position = gl_ModelViewProjectionMatrix * vec4(vertex, 1.0);
     }
 

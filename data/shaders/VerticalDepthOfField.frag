@@ -2,7 +2,7 @@ uniform sampler2D color0;
 uniform sampler2DShadow depth;
 
 uniform float halfSamples;
-uniform float offset;
+uniform float offsetScale;
 
 varying vec2 texCoord;
 
@@ -12,7 +12,7 @@ void main () {
     float d = shadow2D(depth, vec3(texCoord, 0.0)).x;
 
     // Blur offset computed from the deviation from the focus depth.
-    float blurOffset = (d - focus) * offset;
+    float blurOffset = (d - focus) * offsetScale;
     blurOffset = clamp(blurOffset, -0.0005, 0.0009);
 
     // The error term

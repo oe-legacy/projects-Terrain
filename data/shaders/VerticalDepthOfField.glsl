@@ -8,4 +8,4 @@ frag: shaders/VerticalDepthOfField.frag
 
 # Uniform values
 unif: halfSamples = 9
-unif: offset = 0.015
+unif: offsetScale = 0.015

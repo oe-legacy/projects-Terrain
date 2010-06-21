@@ -1,12 +1,12 @@
 #extension GL_EXT_texture_array : require
 
 const vec3 startHeight = vec3(-10.76, 5.0, 50.0); // {sand, grass, snow}
-const vec3 blending = vec3(10.0, 5.0, 20.0); // {sand, grass, snow}
+const vec3 blending = 1.0 / vec3(10.0, 5.0, 20.0); // {sand, grass, snow}
 
 const vec3 WATER_COLOR = vec3(0.18, 0.24, 0.45);
 
 const float cliffStartSlope = 0.5;
-const float cliffBlend = 0.3;
+const float cliffBlend = 1.0 / 0.3;
 
 const float cliffScaling = 2.0;
 
@@ -64,7 +64,7 @@ void main()
     // Use the normalmap to produce a little randomness in the height.
     float heightBump = texture2D(normalMap, srcUV).x * 5.0;
     // Calculating the texture layer factors
-    vec3 factors = (vec3(height, height - heightBump, height - heightBump) - startHeight) / blending; // Can be calculated in the vertex shader if need be.
+    vec3 factors = (vec3(height, height - heightBump, height - heightBump) - startHeight) * blending; // Can be calculated in the vertex shader if need be.
     factors = clamp(factors, 0.0, 1.0);
 
     // Calculate the layer and it's blend factor with the next layer
@@ -79,7 +79,7 @@ void main()
     mat3 tangentSpace = mat3(tangent, normal, bitangent);
 
     // Calculate the cliff factor
-    float cliffFactor = (normal.y - cliffStartSlope) / cliffBlend;
+    float cliffFactor = (normal.y - cliffStartSlope) * cliffBlend;
     cliffFactor = clamp(cliffFactor, 0.0, 1.0);
 
     // Texture color
