@@ -5,7 +5,7 @@
 
 In the previous sections we've had to use geometry to help us create
 the landscape, sky and rendering it to the screen. Now we will turn to
-screen space effects, which doesn't rely on geometry, but will instead
+screen space effects, which do not rely on geometry, but will instead
 use the final color image and the depth buffer to create the
 effects. Depth of field, motion blur and a screenwide glow are all
 effects that can easily be produced through post processing and there
@@ -138,15 +138,7 @@ blurring will produce nice looking blurred 'tails' on moving
 objects. Ofcourse since we can only blur between rendered frames, a
 fast turning camera will produce artefacts.
 
-The result can be seen in \reffig{fig:motionblur}
-
-\begin{figure}
-  \label{fig:motionblur}
-  \centering
-  \includegraphics[width=5cm]{motionBlur}
-  \caption{Ghosting motion blur using an accumulation texture.}
-\end{figure}
-
+The result can be seen in \reffig{fig:dofMotionblur}
 
 \subsection{Glow}
 
@@ -210,15 +202,18 @@ effectivness we tried squaring the error term and came up with the
 kernel in \reffig{fig:squaredHalfCircle}, which while faster still
 provided a pleasing result.
 
-The result can be seen on \reffig{fig:depthOfField} where hill in the
+The result can be seen on \reffig{fig:dofMotionBlur} where hill in the
 background and the horizon have been slightly. The shader that creates
 the horizontal depth of field blurring can be seen in \reflst{lst:dofShader}.
 
 \begin{figure}
-  \label{fig:depthOfField}
+  \label{fig:dofMotionBlur}
   \centering
-  \includegraphics[width=8cm]{depthOfField}
-  \caption{The depth of field effect is clearly visible in the background.}
+  \includegraphics[width=7cm]{depthOfField}
+  \includegraphics[width=7cm]{motionBlur}
+  \caption{The left figure shows the depth of field effect with the
+    focus on the front grass. The right image shows ghosting motion
+    blur in action.}
 \end{figure}
 
 \begin{listing}
@@ -240,9 +235,11 @@ convolution.
 % One/two fbos pr node is a waste but makes it easy to setup and they
 % can be configured individually
 
-% Other effects have been implemented, like wobble, edge detection, pixelate and an underwater that combines...
+% Other effects have been implemented, like wobble, edge detection,
+% pixelate and an underwater that combines...
 
-% Next step is merge
+% Next step is merge, blitting of the depth buffer to post process
+% subscene graphs
 
 
 

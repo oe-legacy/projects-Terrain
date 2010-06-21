@@ -11,3 +11,6 @@ pdf:
 clean:
 	rm -rf build
 	mkdir build
+
+view:
+	open build/master.pdf

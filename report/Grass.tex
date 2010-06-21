@@ -7,11 +7,11 @@ Now that we have a terrain, it's time to place some grass on it.
 Some rendering techniques for grass that where considered were
 
 \begin{itemize}
-\item Rendering grass straw textures unto quads. This allows us to
+\item Rendering grass straw textures on quads. This allows us to
   render several grass straws while only having to process 4
   vertices. Letting it wave in the wind is also easy as that only
   means moving the 2 top vertices. A problem however is that the
-  illusion breaks down when viewed form above or on steep cliffs.
+  illusion breaks down when viewed from above or on steep cliffs.
 \item Modeling each grass straw. This technigue allows for very
   flexible grass with correct lighting. It is however very expensive
   to process all the vertices, so it's ususally used in conjunction
@@ -22,14 +22,14 @@ Some rendering techniques for grass that where considered were
 We opted for grass drawn onto quads, since it's easy to draw a quad of
 grass on the screen and grass textures are easy to come by.
 
-However we can't simply cover the entire landscape with quads of
-grass, as that would be extremely expensive to render, so there are
-some design desicions to be made. Another problem with this technique
-is that part of the grass texture is transparent, and transparency
-isn't easy in the OpenGL 2.1 pipeline. A solution would be depth
-peeling or z-sorting the straws, but for our purpose we propose a much
-simpler method in the \hyperref[sec:grassFrag]{fragment shader
-  subsection}.
+However we can't simply cover the entire landscape with millions of
+quads of grass, as that would be extremely expensive to render, so
+there are some design decisions to be made. Another problem with this
+technique is that part of the grass texture is transparent, and
+transparency isn't easy in the OpenGL 2.1 pipeline. A solution would
+be depth peeling or z-sorting the straws, but for our purpose we
+propose a much simpler method in the
+\hyperref[sec:transparency]{Handling Transparency subsection}.
 
 % @TODO reference GPU Gems 1
 
@@ -38,8 +38,66 @@ they propose to draw the quads in objects with star patterns, to
 achieve a grass effect independent of the cameras line of sight. Our
 implementation does the same, but allows the user to specify how many
 quads should be used used pr. star object. Setting this to 1
-effectively disables the star pattern and simply renders one quad of
-grass straws pr. object instead.
+effectively disables the star pattern and simply renders random quads
+of grass straws instead.
+
+\section{Placing the grass}
+
+As stated earlier we cannot simply draw the grass everywhere without
+incurring a huge fps penalty, so instead we focus on drawing the grass
+around the camera. We choose to draw it in a square around the camera,
+but other shapes should be possible.
+
+% explain algorithm
+
+On \reffig{fig:grassTranslation} the basics of the algorithm can be
+seen. We need to translate the square of grass centered around origo
+to the camera. But we can't simply use the vector from origo to the
+camera, since that would make the grass straws float along with the
+camera. Instead we need grass straws exiting the square on one side to
+overlap and appear on the other side. This can be achieved by ensuring
+that grass objects are always moved by a multiplum of the grass
+squares side's length, and is expressed in the following equation
+
+\begin{displaymath}
+    -halfSize \le position + size * n - eye \le halfSize \\
+\end{displaymath}
+
+Focussing on the left hand side of the equation and remembering that
+$n$ should be an integer we get
+
+\begin{displaymath}
+  \begin{array}{l}
+    -halfSize \le position + size * n - eye \\
+    \Updownarrow \\
+    (eye - halfSize - position) / size \le n \\
+    \Updownarrow \\
+    n = \lceil (eye - halfSize - position) / size \rceil \\
+    \Updownarrow \\
+    n = \lceil (eye - position) / size - 0.5 \rceil \\
+  \end{array}
+\end{displaymath}
+
+Now the new position of the grass straw is simply calculated by 
+
+\begin{displaymath}
+  newVert = position + size * n
+\end{displaymath}
+
+% And placing it in front of the camera
+\reffig{fig:grassTranslation}
+
+% creation
+
+% One draw call
+
+% Placing it on the heightmap
+
+% not on sand or snow.
+
+% Normal lookup
+
+\section{Waving in the wind}
 
 Our animation algorithm is the same as the one proposed in section
 7.4.4, where the grass objects center is used to create 'locel
@@ -56,55 +114,15 @@ the complexity of our animation algorithm is limited in order to
 minimize the cost of the shader. Our wave therefore is just a simple
 cosine function.
 
-\section{Placing the grass}
-
-As stated earlier we cannot simply draw the grass everywhere without
-incurring a huge fps penalty, so instead we focus on drawing the grass
-around the camera. %@TODO explain algorithm
-
-\begin{displaymath}
-  (-halfDim, -halfDim) \le vertex + gridDim * n - eye \le (halfDim, halfDim)
-\end{displaymath}
-
-\begin{displaymath}
-  (0, 0) \le vertex + gridDim * n - eye + halfDim \le (gridDim, gridDim)
-\end{displaymath}
-
-\begin{displaymath}
-  n = \lfloor (eye - halfDim - vertex) / gridDim + 1 \rfloor
-\end{displaymath}
-
-\begin{displaymath}
-  newVert = vertex + gridDim * n
-\end{displaymath}
-
-% And placing it in front of the camera
-
-% creation
-
-\section{Rendering}
-
-% One draw call
-
-\subsection{Vertex Shader}\label{sec:grassVert}
-
-% Moving the grass up to the camera
 
 
-% Placing it on the heightmap
-
-% not on sand or snow.
-
-% Making it wave in the wind
-
-% Normal lookup
-
-\subsection{Fragment Shader}\label{sec:grassFrag}
+\section{Handling Transparency}\label{sec:transparency}
 
 % Discarding seethrough texture (how to avoid z sorting and rendering
 % everything with one draw call)
 
 % Simple diffuse lighting, no specular.
+
 
 
 
