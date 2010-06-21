@@ -275,7 +275,40 @@ public:
 namespace OpenEngine {
 namespace Utils {
 namespace Inspection {
+    ValueList PPInspect(ChainPostProcessNode* glow,
+                        ChainPostProcessNode* depthOfField,
+                        PostProcessNode* motionBlur) {
+        ValueList values;
+        {
+            RWValueCall<ChainPostProcessNode, bool> *v
+                = new RWValueCall<ChainPostProcessNode, bool>
+                (*glow,
+                 &ChainPostProcessNode::Enabled,
+                 &ChainPostProcessNode::SetEnabled);
+            v->name = "Glow";
+            values.push_back(v);
+        }
+        {
+            RWValueCall<ChainPostProcessNode, bool> *v
+                = new RWValueCall<ChainPostProcessNode, bool>
+                (*depthOfField,
+                 &ChainPostProcessNode::Enabled,
+                 &ChainPostProcessNode::SetEnabled);
+            v->name = "Depth Of Field";
+            values.push_back(v);
+        }
+        {
+            RWValueCall<PostProcessNode, bool> *v
+                = new RWValueCall<PostProcessNode, bool>
+                (*motionBlur,
+                 &PostProcessNode::GetEnabled,
+                 &PostProcessNode::SetEnabled);
+            v->name = "Motion Blur";
+            values.push_back(v);
+        }
 
+        return values;
+    }
 ValueList Inspect(SunNode *sun, CloudAnimator *ca) {
     ValueList values;
     {
@@ -316,6 +349,8 @@ ValueList Inspect(SunNode *sun, CloudAnimator *ca) {
     }
     return values;    
 }
+
+
 
 }}}
 
@@ -537,7 +572,7 @@ int main(int argc, char** argv) {
         logger.info << "loading texture: " << starFile << logger.end;
         stars  = ResourceManager<UCharTexture2D>::Create(starFile);
     } else {
-        logger.info << "generating texture: " << foldername << logger.end;
+        logger.info << "generating texture: " << starFile << logger.end;
         stars = UCharTexture2DPtr(new Texture2D<unsigned char>(512,512,1));
         unsigned char* data = stars->GetData();
         RandomGenerator r;
@@ -565,7 +600,6 @@ int main(int argc, char** argv) {
     // Grass node
     IShaderResourcePtr grassShader = ResourceManager<IShaderResource>
         ::Create("projects/Terrain/data/shaders/grass/Grass.glsl");
-    grassShader->SetTexture("heightmap", map);
     GrassNode* grass = new GrassNode(land, grassShader, 8000, 64, 1);
     engine->ProcessEvent().Attach(*grass);
     renderer->InitializeEvent().Attach(*grass);
@@ -591,6 +625,7 @@ int main(int argc, char** argv) {
     AntTweakBar *atb = new AntTweakBar();
     atb->AttachTo(*renderer);
     atb->AddBar(new InspectionBar("debug variables",Inspect(sun,cAnim)));
+    atb->AddBar(new InspectionBar("Post Process Nodes",PPInspect(glowNode,depthOfFieldNode,motionBlurNode)));
     keyboard->KeyEvent().Attach(*atb);
     mouse->MouseMovedEvent().Attach(*atb);
     mouse->MouseButtonEvent().Attach(*atb);
