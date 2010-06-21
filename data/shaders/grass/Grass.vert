@@ -2,12 +2,7 @@ uniform vec2 viewPos; // the xz position that the grass is centered around.
 
 uniform sampler2D heightmap;
 uniform sampler2D normalmap;
-//uniform vec3 scale; // heightmap scaling
-uniform vec2 hmapDims;
 uniform vec2 invHmapDimsScale; // 1.0 / (heightmap dimensions * scale)
-uniform vec2 invNmapDimsScale; // 1.0 / (normalmap dimensions * scale)
-// We have to use both normalmap dimensions and heightmap dimensions
-// as the textures often have different sizes.
 uniform vec2 hmapOffset; // The offset of the heightmap in xz.
 
 uniform float gridDim;
@@ -31,14 +26,12 @@ void main() {
 
     vec2 mapCoord = (vertex.xz + 1.0) * invHmapDimsScale;
     vec2 centerCoord = (center.xz + 1.0) * invHmapDimsScale;
-    vec2 normalmapCoord = (center.xz+0.5) * invNmapDimsScale;
-    // The normal map is translated, i'd find out why, but it's going
-    // to be replaced by clipmaps anyways, so just swizzle them.
-    normalmapCoord = normalmapCoord.yx;
 
     float height = texture2D(heightmap, mapCoord).x;
     float centerHeight = texture2D(heightmap, centerCoord).x;
-    normal = texture2D(normalmap, normalmapCoord).xyz;
+    // The normal map is translated, i'd find out why, but it's going
+    // to be replaced by clipmaps anyways, so just swizzle them.
+    normal = texture2D(normalmap, mapCoord.yx).xyz;
 
     center.y += centerHeight;
     center.xz += hmapOffset;
