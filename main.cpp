@@ -376,13 +376,15 @@ int main(int argc, char** argv) {
     renderer->InitializeEvent().Attach(*glowNode);
     /*
     IShaderResourcePtr motionBlur = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/MotionBlur.glsl");
-    PostProcessNode* motionblur = new PostProcessNode(motionBlur, dimension);
-    */
+    PostProcessNode* motionBlurNode = new PostProcessNode(motionBlur, dimension);
+    motionBlurNode->SetEnabled(false);
+    renderer->InitializeEvent().Attach(*motionBlurNode);
 
     std::list<IShaderResourcePtr> dof;
-    dof.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/VerticalDepthOfField.glsl"));
-    dof.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/HorizontalDepthOfField.glsl"));
+    dof.push_back(ResourceManager<IShaderResource>::Create("shaders/VerticalDepthOfField.glsl"));
+    dof.push_back(ResourceManager<IShaderResource>::Create("shaders/HorizontalDepthOfField.glsl"));
     ChainPostProcessNode* depthOfFieldNode = new ChainPostProcessNode(dof, dimension, 1, true);
+    depthOfFieldNode->SetEnabled(true);
     renderer->InitializeEvent().Attach(*depthOfFieldNode);
 
     
@@ -575,7 +577,8 @@ int main(int argc, char** argv) {
     // Scene setup
     scene->AddNode(depthOfFieldNode);
     depthOfFieldNode->AddNode(glowNode);
-    glowNode->AddNode(water);
+    glowNode->AddNode(motionBlurNode);
+    motionBlurNode->AddNode(water);
     water->AddNode(state);
     state->AddNode(atmosphericScene);
     state->AddNode(cloudScene);
