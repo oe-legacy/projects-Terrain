@@ -404,8 +404,8 @@ int main(int argc, char** argv) {
     std::list<IShaderResourcePtr> effects;
     IShaderResourcePtr glow = ResourceManager<IShaderResource>::Create("shaders/glow.glsl");
     effects.push_back(glow);
-    effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/HorizontalBoxBlur.glsl"));
-    //effects.push_back(ResourceManager<IShaderResource>::Create("shaders/HorizontalCircleBlur.glsl"));
+    //effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/HorizontalBoxBlur.glsl"));
+    effects.push_back(ResourceManager<IShaderResource>::Create("shaders/HorizontalCircleBlur.glsl"));
     ChainPostProcessNode* glowNode = new ChainPostProcessNode(effects, dimension, 1, true);
     glow->SetTexture("scene", glowNode->GetPostProcessNode(1)->GetSceneFrameBuffer()->GetTexAttachment(0));
     renderer->InitializeEvent().Attach(*glowNode);

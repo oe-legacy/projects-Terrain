@@ -19,25 +19,26 @@ void main() {
     vec3 vertex = gl_Vertex.xyz;
     vec3 center = gl_Normal.xyz;
 
+    // Translate the vertex and center to the camera
     vec2 n = ceil((viewPos - center.xz) * invGridDim - 0.5);
     vec2 translate = gridDim * n;
     vertex.xz += translate;
     center.xz += translate;
 
+    // Offset by half the heightmaps gridcell width, which is 1.0
     vec2 mapCoord = (vertex.xz + 1.0) * invHmapDimsScale;
     vec2 centerCoord = (center.xz + 1.0) * invHmapDimsScale;
 
-    float height = texture2D(heightmap, mapCoord).x;
-    float centerHeight = texture2D(heightmap, centerCoord).x;
+    float height = texture2DLod(heightmap, mapCoord, 1.0).x + 0.5;
+    float centerHeight = texture2DLod(heightmap, centerCoord, 1.0).x;
     // The normal map is translated, i'd find out why, but it's going
     // to be replaced by clipmaps anyways, so just swizzle them.
-    normal = texture2D(normalmap, mapCoord.yx).xyz;
+    normal = texture2DLod(normalmap, mapCoord.yx, 1.0).xyz;
 
     center.y += centerHeight;
-    center.xz += hmapOffset;
 
     // Discard the foliage if the slope is too steep
-    if (normal.y < 0.6 || center.y < 8.0 || 60.0 < center.y){
+    if (normal.y < 0.7 || center.y < 8.0 || 60.0 < center.y){
         gl_Position = vec4(0.0,0.0,0.0,0.0);
     }else {
         vertex.y += height;
