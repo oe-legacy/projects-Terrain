@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# contrib contains darcs and cmake
+CONTRIB=/users/contrib
+
+# libraries
+GLEW=/users/cgd/lib/glew-1.4.0-linux32
+
+# path extentions
+export PATH="${PATH}:${CONTRIB}/cmake/cmake-2.4.7-Linux-i386/bin";
+export PATH="${PATH}:${CONTRIB}/bin";
+export MANPATH="${MANPATH}:${CONTRIB}/man";
+export CPATH="${CPATH}:${GLEW}/include";
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GLEW}/lib";
+
+
+cd ../..
+./make.py
