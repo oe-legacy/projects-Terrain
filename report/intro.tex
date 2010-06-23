@@ -2,56 +2,87 @@
 
 \chapter{Introduction}
 This report is the product for the second part of the course:
-introduction to computer graphics, followed by the autors during the
-spring of 2010 at the computer science department at Aarhus University.
-The focus of this secord part of the course is OpenGL's programable
-pipeline and OpenGL extensions.
+introduction to computer graphics, followed by the authors during the
+spring of 2010 at the department of computer science at Aarhus
+University. The focus of this second part of the course is OpenGL's
+programmable pipeline and OpenGL extensions.
 %
 To utilize the power of these advanced rendering technologies we have
 chosen to try and make a more realistic looking outdoor environment
 for one of our previous projects.
 
 \section{Setting the scene}
-In computer graphics as when directing a movie or play, the director
-writes a script, and sets the scene which sets the mood and describes
-the place for where a story unrolls.
+When creating a scene in computer graphics the director, as when
+making a movie or directing a play, writes a script. This script
+includes descriptions of the mood and describes the place for where
+the story unrolls.
 %
 This report describes techniques for rendering a scenery 
-where the authors had the following particular setting in mind.
+where the authors had the following setting in mind.
 %
-The main scene consists of a island surrounded by ocean as far as the
+The main scene consists of an island surrounded by ocean as far as the
 eye can tell, the island has sandy beaches, grass fields, and mountains
 with snow on the top.
 
 \section{Previous work}
-This we had allready implemented before the course started. The island
-was implemented as a height map, where the ocean was plane seperating
-the terrain into and underwater environment and land. The
-differantiation of sandy beach, grass fields, rocks, and snow was
-based on height and rendered by interpolating different textures for
-each type.
+We have previously been work on this project, but not been satisfied
+with the mood of the result because only the basic objects in the
+scene was put into play. In this project we want to focus our
+attention on the making the details of an outdoor scene seem realistic
+and convincing. In our previous work the island was implemented as a
+height map, where the ocean was plane separating the terrain into an
+underwater environment and land environment. The differentiation of
+sandy beach, grass fields, rocks, and snow was based on height and
+rendered by interpolating different textures for each type.
 
 \section{Rendering outdoor scenes}
-To create a more convincing and realistic outdoor scenery we needed to
-add more details than the main ... described by section \ref{}.
-
-The first addition to the above, is to introduce controlable
-procedural content.
-
-To convince the audience ... we will introduce motion by animated
-clouds, rising and setting sun, waving grass...
-
-
-Furthermore, we wish to scenery to look astonishing
-
-
+To create a more convincing and realistic outdoor scenery we need to
+add more details than done in our previous work. This includes
+improving the details of the landscape by using more advanced
+lighting, animated grass the waves in the wind, a realistic looking
+sky, and added post processing effects.
 
 \section{OpenEngine}
+The work in this report as well as our previous work is build on top
+of the OpenEngine framework. This framework is an open source project
+that was started at Aarhus University in the spring of 2007, and which
+was original build to teach the course computer game development (CGD)
+the same year. The authors of this report are both deeply involved in
+the ongoing development of OpenEngine, and has been so from its
+beginning.
 
-% OpenEngine dependency
+OpenEngine is a framework for rendering 3D scene using a scene graph,
+the engine is composed of a basic framework, extensions, and
+projects. For the work developed in this report, we have one project
+called \code{Terrain} that utilizes the basic framework and one extension 
+called \code{HeightMap}. The \code{Terrain} project
+uses the following other already available extensions: 
+\code{SDL} to create a window and get a OpenGL context,
+\code{OpenGLRenderer} which includes \code{GLEW} to visit and render
+the scene graph,
+\code{GenericHandlers} for keyboard and mouse event handling, 
+\code{CairoResource} and \code{HUD} to draw and render the FPS counter
+in orthogonal projection mode,
+\code{AntTweakBar}, \code{Inspection}, and \code{InspectionBar} to add
+graphically components which can change values of variables on run-time,
+
+The following extensions is also used in our project but has been
+.. expanded during the implementation of our project:
+\code{FreeImage} to load and save \code{PNG} and \code{EXR} images, 
+\code{MeshUtils} which creates geodesic spheres and other geometric
+mesh types, 
+\code{TexUtils} which includes our noise generation algorithm
+described in chapter \ref{chap:noise},
+and \code{OpenGLPostProcessingEffects} which implements the effects
+described in chapter \ref{chap:pp}.
 
 % Which extensions contain the important code parts, and include
 % filenames in appendix
+
+To use OpenGL's programmable pipeline we have chosen to use the
+OpenGL Shader Language (GLSL), we chose this partly because we have
+most experience with this shading language and partly because our
+previous work already uses this language.
 
 \section{OpenGL version and extensions}
 % Antager opengl 2.1 som core så brugte extensions
@@ -60,44 +91,8 @@ Since every new version of OpenGL is composed of a set of extension,
 OpenGL now consists of quite a large number of extensions. Therefore
 instead of listing every extension we're using, which would be quite a
 long list, we will instead assume OpenGL 2.1 and only list extensions
-not in this version.
-
-\subsection{GL\_EXT\_texture\_array}
-
-The texture array extension does just what its name suggests, it
-allows us to store several textures in an array. This is an
-improvement in several ways. Firstly we only need to call
-glBindTexture only once and then all the textures in the array are at
-our disposal. Secondly the GPU only allows a certain number of
-textures to be bound, usually 8 or 16. Using a texture array only
-takes up one of these slots. In the case of our terrain, using texture
-arrays allows us to have an array of 4 color textures; sand, grass,
-snow and cliffs. For each of these we're using a normalmap to do
-bumpmapping, which can also be stored in their own texture array. We
-can then bind these two arrays, effectively giving us 8 textures at
-the price of 2 texture slots.
-
-\subsection{GL\_ARB\_framebuffer\_object}
-
-FrameBuffers allow programmers to render colors or depth directly to
-textures, instead of rendering to the a renderbuffer and then performing
-an expensive copy to texture. This is useful when creating post
-processing effects such as depth of field or motion blur, since the
-effect is a shader applied to the rendered image.
-
-% OE implementation
-
-To facilitate easy setup of frame buffer objects, FBO's, we have
-created the \class{FrameBuffer} abstraction in OpenEngine. Users only need to
-specify what dimensions their frame buffer object should have, how
-many color buffers should be attached, wether or not they want to use
-a texture for the depth buffer and then OpenEngine will setup the
-entire fbo. This abstraction makes devlopment less error prone to
-create FBO's and attach textures to them.
-
-
-% own dimensions if the programmer wants higher quality images to
-% apply the effect to.
+not in this version. The extensions used in our project are described
+in appendix \ref{sec:GLext}
 
 %%% Local Variables:
 %%% mode: latex

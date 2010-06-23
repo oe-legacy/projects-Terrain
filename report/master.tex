@@ -3,8 +3,10 @@
 \documentclass[a4paper,english]{report} 
 
 \usepackage{fullpage}
+\usepackage{subfig}
 
 \include{preamble}
+
 
 \newcommand{\reffig}[1]{figure \ref{#1}}
 \newcommand{\reflst}[1]{listing \ref{#1}}
@@ -16,7 +18,7 @@
 \bibliographystyle{is-alpha} % is- shows ISBN in references
 
 %\title{Terrains}
-\title{Natural looking outdoor environments}
+\title{Rendering natural looking outdoor environments}
 \author{
   Asger Dam Hoedt \\ asgerhoedt@gmail.com \\ 20051770  \and 
   Christian P. V. Christoffersen \\ cpvc@cs.au.dk \\ 20050879
@@ -40,6 +42,9 @@
 \input{Postprocessing}
 
 \input{Conclussion}
+
+\appendix
+\input{Glext}
 
 \bibliography{refs}
 

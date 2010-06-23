@@ -512,9 +512,6 @@ int main(int argc, char** argv) {
     cloudTexture->SetCompression(false);
     cloudShader->SetTexture("clouds", cloudTexture);
 
-    logger.info << "time elapsed: "
-                << timer.GetElapsedTime() << logger.end;
-
     /*
     //from: http://geography.about.com/library/faq/blqzdiameter.htm
     float earth_diameter = 12756.32; //m
@@ -564,23 +561,28 @@ int main(int argc, char** argv) {
     std::string starDir = "projects/Terrain/data/generated/stars";
     std::string starFile = starDir + "/stars.png";
     UCharTexture2DPtr stars;
-    if (Directory::Exists(starDir)) {
+    /*  if (Directory::Exists(starDir)) {
         logger.info << "loading texture: " << starFile << logger.end;
         stars  = ResourceManager<UCharTexture2D>::Create(starFile);
     } else {
+    */
         logger.info << "generating texture: " << starFile << logger.end;
-        stars = UCharTexture2DPtr(new Texture2D<unsigned char>(512,512,1));
+        unsigned int ssize = 512;
+        stars = UCharTexture2DPtr(new Texture2D<unsigned char>(ssize,ssize,1));
         unsigned char* data = stars->GetData();
         RandomGenerator r;
         for (unsigned int n=0; n<200; n++) {
             float dist = r.UniformFloat(0.05, 0.9);
             float angle = r.UniformFloat(0, 2*PI);
-            unsigned int x = (unsigned int)(256 + cos(angle) * dist * 256);
-            unsigned int y = (unsigned int)(256 + sin(angle) * dist * 256);
-            data[x+y*512] = (unsigned char)(256 * r.UniformFloat(0.5, 0.9));
+            unsigned int x = (unsigned int)
+                (ssize/2 + cos(angle) * dist * ssize/2);
+            unsigned int y = (unsigned int)
+                (ssize/2 + sin(angle) * dist * ssize/2);
+            data[x+y*512] = (unsigned char)(ssize/2 * r.UniformFloat(0.5, 0.9));
         }
-        //TextureTool<unsigned char>::DumpTexture(stars, starFile);
-    }
+        Directory::Make(starDir);
+        TextureTool<unsigned char>::DumpTexture(stars, starFile);
+        // }
     gradientShader->SetTexture("stars", stars);
 
     MeshNode* atmosphericNode = new MeshNode();
@@ -592,6 +594,9 @@ int main(int argc, char** argv) {
     atmosphericScene->AddNode(atmosphericDomePosition);
     GradientAnimator* gAnim = new GradientAnimator(gradientShader, 50, *sun, *frustum);
     engine->ProcessEvent().Attach(*gAnim);
+
+    logger.info << "time elapsed: "
+                << timer.GetElapsedTime() << logger.end;
 
     // Grass node
     IShaderResourcePtr grassShader = ResourceManager<IShaderResource>
