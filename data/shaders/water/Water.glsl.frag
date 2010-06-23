@@ -1,5 +1,6 @@
 //const vec4 WATER_COLOR = vec4(0.0, 0.0, 0.5, 1.0);
-const vec4 WATER_COLOR = vec4(.36, 0.48, 0.9, 1.0);
+//const vec4 WATER_COLOR = vec4(.36, 0.48, 0.9, 1.0);
+const vec4 WATER_COLOR = vec4(.18, 0.48, 0.45, 1.0);
 const float sca = 0.02;
 const float sca2 = 0.02;
 
@@ -28,10 +29,10 @@ void main(void)
     // Reflection distortion
     vec2 fdist = sca * nuv.zw;
                  
-    //calculate specular highlight
+    // phong specular highlight
     vec3 vRef = normalize(reflect(-lightDir, normal));
     float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
-    // aproximated specular light
+    // blinn specular light
     //vec3 halfVec = normalize(viewt + lightDir);
     //float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
     vec4 specular = gl_LightSource[0].specular * pow(stemp, exponent);
