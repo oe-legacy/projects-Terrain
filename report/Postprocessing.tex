@@ -139,7 +139,7 @@ hold the final image.
 \section{Post Pocess Effect}
 
 In this section we will take to a short look at some of the different
-post process efects that we have created.
+post process effects that we have created.
 
 \subsection{Motion Blur}
 
@@ -180,25 +180,29 @@ The result can be seen in \reffig{fig:dofMotionBlur}
 
 When looking at natural outdoor environments in bright sunlight,
 colors seem to blur or smeer together. We would like to reproduce this
-effect using a fullscreen glow post process. Initally we created the
-effect with just a single shader. This shader first did a box blur on
-the surrounding fragments and then blended that result with the
-original fragment. This produced the results we where after, but at a
-huge performance overhead. The problem was texture lookups. To blur
-the surrounding fragments of an $N \times N$ rectangle, we required
-$N^2$ texture lookups. We solved this by applying the separable
-convolution technique. In the first post process pass a horizontal
-blurring is performed, then in the second pass a vertical blurring is
-performed on the resulting image of the previous pass and this is then
-blended together with the original non-blurred scene. For an $N \times
-N$ rectangle we've now reduced $N^2$ texture lookups to $2N$, while
-achieving the same effect.
+effect using a fullscreen glow post process. 
+
+Initally the effect was created in just a single shader. This shader
+did ablur on the surrounding fragments and then blended that result
+with the original fragment. This produced the results we where after,
+but at a huge performance overhead. The problem was texture
+lookups. To blur the surrounding fragments of an $N \times N$
+rectangle, we required $N^2$ texture lookups. This performance problem
+was solved by applying the separable convolution technique. In the
+first post process pass a horizontal blurring is performed, then in
+the second pass a vertical blurring is performed on the resulting
+image of the previous pass and this is then blended together with the
+original non-blurred scene. For an $N \times N$ rectangle we've now
+reduced $N^2$ texture lookups to $2N$, while achieving the same
+effect.
 
 % @TODO show the non blurred + blurred = glow images
 
 As can be seen on \reffig{fig:glow}, a subtle smeering gives a
 smoother and more natural looking image. The shader that does the
 vertical blurring can be seen in \reflst{lst:glowShader}.
+
+% TODO ref appendix
 
 %% \begin{listing}
 %% \label{lst:glowShader}
@@ -235,12 +239,79 @@ will be sampled inside a larger square and thus be blurrier.
 Instead of doing a box blur, we decided to blur with a half circle
 kernel, as can be seen on \reffig{fig:halfCircle}. To increase
 effectivness we tried squaring the error term and came up with the
-kernel in \reffig{fig:squaredHalfCircle}, which while faster still
+kernel in \reffig{fig:halfCircleSquared}, which while faster still
 provided a pleasing result.
 
-The result can be seen on \reffig{fig:dofMotionBlur} where hill in the
-background and the horizon have been slightly. The shader that creates
-the horizontal depth of field blurring can be seen in \reflst{lst:dofShader}.
+\begin{figure}
+  \centering
+  \subfloat[Half circle kernel.]{
+    \includegraphics[width=6cm]{halfCircle}
+    \label{fig:halfCircle}
+  }
+  \subfloat[Half circle kernel.]{
+    \includegraphics[width=6cm]{halfCircleSquared}
+    \label{fig:halfCircleSquared}
+  }
+  \caption{Blurring kernels}
+\end{figure}
+%% \begin{figure}
+%%   \label{fig:halfCircle}
+%%   \centering
+%%   \subfloat[Half circle kernel.]{
+%%     \begin{minipage}{0.4\linewidth}
+%%       \centering
+%%       \begin{tikzpicture}[y=0.5cm, x=.35cm,font=\sffamily]
+%%         %axis
+%%         \draw (0,0) -- coordinate (x axis mid) (10,0);
+%%         \draw (0,0) -- coordinate (y axis mid) (0,5);
+%%         \foreach \y in {0,1,...,5}
+%%         \draw (1pt,\y) -- (-3pt,\y) 
+%%         node[anchor=east] {\y};
+        
+%%         \draw (1,0) -- coordinate (y axis mid) (1,1);
+%%         \draw (2,0) -- coordinate (y axis mid) (2,3.65);
+%%         \draw (3,0) -- coordinate (y axis mid) (3,4.46);
+%%         \draw (4,0) -- coordinate (y axis mid) (4,4.87);
+%%         \draw (5,0) -- coordinate (y axis mid) (5,5);
+%%         \draw (6,0) -- coordinate (y axis mid) (6,4.87);
+%%         \draw (7,0) -- coordinate (y axis mid) (7,4.46);
+%%         \draw (8,0) -- coordinate (y axis mid) (8,3.65);
+%%         \draw (9,0) -- coordinate (y axis mid) (9,1);
+%%       \end{tikzpicture}
+%%     \end{minipage}
+%%   }
+
+%%   \subfloat[Half circle squared kernel.]{
+%%     \begin{minipage}{0.4\linewidth}
+%%       \centering
+%%     \begin{tikzpicture}[y=0.125cm, x=.35cm,font=\sffamily]
+%%       %axis
+%%       \draw (0,0) -- coordinate (x axis mid) (10,0);
+%%       \draw (0,0) -- coordinate (y axis mid) (0,20);
+%%       \foreach \y in {0,5,...,20}
+%%       \draw (1pt,\y) -- (-3pt,\y) 
+%%       node[anchor=east] {\y};
+      
+%%       \draw (1,0) -- coordinate (y axis mid) (1,1);
+%%       \draw (2,0) -- coordinate (y axis mid) (2,8);
+%%       \draw (3,0) -- coordinate (y axis mid) (3,13);
+%%       \draw (4,0) -- coordinate (y axis mid) (4,16);
+%%       \draw (5,0) -- coordinate (y axis mid) (5,17);
+%%       \draw (6,0) -- coordinate (y axis mid) (6,16);
+%%       \draw (7,0) -- coordinate (y axis mid) (7,13);
+%%       \draw (8,0) -- coordinate (y axis mid) (8,8);
+%%     \draw (9,0) -- coordinate (y axis mid) (9,1);
+%%     \end{tikzpicture}
+%%     \end{minipage}
+%%   }
+%% \end{figure}
+
+The result can be seen on \reffig{fig:dofMotionBlur} where the hill in
+the background and the horizon are slightly blurry. The shader that
+creates the horizontal depth of field blurring can be seen in
+\reflst{lst:dofShader}.
+
+% TODO ref appendix
 
 \begin{figure}
   \label{fig:dofMotionBlur}

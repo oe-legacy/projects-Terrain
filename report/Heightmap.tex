@@ -144,13 +144,20 @@ and can be seen on \reffig{fig:lightVectors}.
 \begin{figure}
   \label{fig:lightComponents}
   \centering
-  \includegraphics[width=6cm]{ambient}
-  \includegraphics[width=6cm]{diffuse}
-  \includegraphics[width=6cm]{specular}
-  \includegraphics[width=6cm]{lightSum}
+  \subfloat[Ambient lighting.]{
+    \includegraphics[width=6cm]{ambient}
+  }
+  \subfloat[Diffuse lighting.]{
+    \includegraphics[width=6cm]{diffuse}
+  }\\
+  \subfloat[Specular lighting.]{
+    \includegraphics[width=6cm]{specular}
+  }
+  \subfloat[Combined lighting.]{
+    \includegraphics[width=6cm]{lightSum}
+  }
   \caption{Images of the different light components making up the
-    terrain lighting. Upper left is ambient, upper right is diffuse,
-    lower left is the specular component and the lower right their sum.}
+    terrain lighting.}
 \end{figure}
 
 
