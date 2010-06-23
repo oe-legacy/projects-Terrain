@@ -141,12 +141,85 @@ For each level of detail that is added the frequency is doubled while
 the amplitude is halved. We have used value noise to generate four
 layers of white noise as show in figure \ref{}.
 
-***illustrated by the following MatLab program
+\begin{figure}[!h]
+  \centering
+  \subfloat[Layer 0.]{
+    \includegraphics[width=7.25cm]{n0}
+    \label{fig:1d-layer0}
+  }
+  \hspace{4mm}
+  \subfloat[Layer 1.]{
+    \includegraphics[width=7.25cm]{n1}
+    \label{fig:1d-layer1}
+  }
+  \newline
+  \centering
+  \subfloat[Layer 2.]{
+    \includegraphics[width=7.25cm]{n2}
+    \label{fig:1d-layer2}
+  }
+  \hspace{4mm}
+  \subfloat[Result.]{
+    \includegraphics[width=7.25cm]{n0to2}
+    \label{fig:1d-result}
+  }
+  \caption{One dimensional example of the combination process.}
+  \label{fig:1d-layers}
+\end{figure}
 
 in different resolutions and combined them one by one by first
 re-sampling, them combining and lastly blurring the result to even out
 re-sampling artifacts.
 
+\begin{figure}[!h]
+    \centering
+    \subfloat[Layer 0.]{
+      \colorbox{Cerulean} {\includegraphics[width=3cm]{generated-rx8-b1024}}
+      \label{fig:noise-layer0}
+    }
+  \hspace{4mm}
+  \subfloat[Layer 1.]{
+    \colorbox{Cerulean} {\includegraphics[width=3cm]{generated-rx16-b512}}
+    \label{fig:noise-layer1}
+  }
+  \hspace{4mm}
+  \subfloat[Layer 2.]{
+    \colorbox{Cerulean} {\includegraphics[width=3cm]{generated-rx32-b256}}
+    \label{fig:noise-layer2}
+  }
+  \hspace{4mm}
+  \subfloat[Layer 3.]{
+    \colorbox{Cerulean} {\includegraphics[width=3cm]{generated-rx64-b128}}
+    \label{fig:noise-layer3}
+  }
+  \caption{Four noise layers.}
+  \label{fig:noise-layers}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering
+    \subfloat[Combo of layer 0 to 1.]{
+      \colorbox{Cerulean} {\includegraphics[width=3cm]{combined-l1-b512}}
+      \label{fig:combined-layer1}
+    }
+  \hspace{4mm}
+  \subfloat[Combo of layer 0 to 2.]{
+    \colorbox{Cerulean} {\includegraphics[width=3cm]{combined-l2-b256}}
+    \label{fig:combined-layer2}
+  }
+  \hspace{4mm}
+  \subfloat[Combo of layer 0 to 3.]{
+    \colorbox{Cerulean} {\includegraphics[width=3cm]{combined-l3-b128}}
+    \label{fig:combined-layer3}
+  }
+  \hspace{4mm}
+  \subfloat[Result.]{
+    \colorbox{Cerulean} {\includegraphics[width=3cm]{output}}
+    \label{fig:combined-result}
+  }
+  \caption{Snapshots of the combination process.}
+  \label{fig:combined-layers}
+\end{figure}
 
 \section{Implementation}
 When implementing noise functions, one must chose where the
