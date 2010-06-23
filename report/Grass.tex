@@ -2,9 +2,11 @@
 
 % GPU gems 1 chapter 7
 
-Now that we have a terrain, it's time to place some grass on it.
+A completely static terrain would appear quite lifeless. Some foliage
+gently swaying in the wind would make the landscape seem more idyllic
+and grass was therefore added.
 
-Some rendering techniques for grass that where considered were
+Some considered rendering techniques for grass were
 
 \begin{itemize}
 \item Rendering grass straw textures on quads. This allows us to
@@ -22,7 +24,7 @@ Some rendering techniques for grass that where considered were
 We opted for grass drawn onto quads, since it's easy to draw a quad of
 grass on the screen and grass textures are easy to come by.
 
-However we can't simply cover the entire landscape with millions of
+However the entire landscape can't simply be covered with millions of
 quads of grass, as that would be extremely expensive to render, so
 there are some design decisions to be made. Another problem with this
 technique is that part of the grass texture is transparent, and
@@ -33,7 +35,7 @@ propose a much simpler method in the
 
 % @TODO reference GPU Gems 1
 
-The basis of our grass implementation is Chapter 7 in GPU Gems 1. Here
+The basis of the grass implementation is Chapter 7 in GPU Gems 1. Here
 they propose to draw the quads in objects with star patterns, to
 achieve a grass effect independent of the cameras line of sight. Our
 implementation does the same, but allows the user to specify how many
@@ -60,11 +62,11 @@ that grass objects are always moved by a multiplum of the grass
 squares side's length, and is expressed in the following equation
 
 \begin{displaymath}
-    -halfSize \le position + size * n - eye \le halfSize \\
+    -halfSize \le position + size * n - eye \le halfSize, n \in N \\
 \end{displaymath}
 
 Focussing on the left hand side of the equation and remembering that
-$n$ should be an integer we get
+$n$ should be an integer, $n$ can be calculated as 
 
 \begin{displaymath}
   \begin{array}{l}
@@ -81,31 +83,33 @@ $n$ should be an integer we get
 Now the new position of the grass straw is simply calculated by 
 
 \begin{displaymath}
-  newVert = position + size * n
+  newPos = position + size * n
 \end{displaymath}
 
 % And placing it in front of the camera
 
-We've now succeded in placing the grass quads around the camera, as
-can be seen on \reffig{fig:grassTranslation}. However most of the
-straws still aren't inside the frustum. A small trick can be applied
-to move more of the grass up in front of the camera. Instead of
-placing the grass around the camera, it can be placed at a position in
-front of it, relative to the cameras current direction. Since at least
-half the grass square will be behind the camera, we choose to move the
-camera position by the halfsize multiplied by the normalized camera
-direction. This places the center of the grass in front of the camera,
-but the border will never be in front of the camera. The result is
-many more grass straws on the screen at the same vertex processing
-cost.
+
+The grass quads have now succesfully ben placed in a square around the
+camera, as can be seen on \reffig{fig:grassTranslation}. However most
+of the straws still aren't inside the frustum. A small trick can be
+applied to move more of the grass up in front of the camera. Instead
+of placing the grass around the camera, it can be placed at a position
+in front of it, relative to the cameras current direction. Since at
+least half the grass square will be behind the camera, we choose to
+move the camera position by the halfsize multiplied by the normalized
+camera direction. This places the center of the grass in front of the
+camera, but the border will never be in front of the camera. The
+result is many more grass straws on the screen at the same vertex
+processing cost.
 
 % creation and one draw call
 
 Since grass placed anywhere will now be translated to the camera, we
-can create it anywhere we like. More importantly we can now draw 8000
-quads of grass straws with one single draw call, and the vertex shader
-will translate it to the camera. This removes a major overhead we
-could have had if all quads should have been drawn individually.
+can create it anywhere we like. More importantly all the quads of
+grass straws can now be drawn with one single draw call, and the
+vertex shader will translate it to the camera. This removes a major
+overhead we could have had if all quads should have been drawn
+individually.
 
 % Placing it on the heightmap and normal lookup
 
