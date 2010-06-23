@@ -397,14 +397,10 @@ int main(int argc, char** argv) {
 
     // Setup scene
     Vector<2, int> dimension(800, 600);
-    /*
-    IShaderResourcePtr underwater = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/Underwater.glsl");
-    UnderwaterPostProcessNode* pp = new UnderwaterPostProcessNode(underwater, dimension);
-    */
+    //Vector<2, int> dimension(1440, 900);
     std::list<IShaderResourcePtr> effects;
     IShaderResourcePtr glow = ResourceManager<IShaderResource>::Create("shaders/glow.glsl");
     effects.push_back(glow);
-    //effects.push_back(ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/HorizontalBoxBlur.glsl"));
     effects.push_back(ResourceManager<IShaderResource>::Create("shaders/HorizontalCircleBlur.glsl"));
     ChainPostProcessNode* glowNode = new ChainPostProcessNode(effects, dimension, 1, true);
     glow->SetTexture("scene", glowNode->GetPostProcessNode(1)->GetSceneFrameBuffer()->GetTexAttachment(0));
