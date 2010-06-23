@@ -382,6 +382,27 @@ int main(int argc, char** argv) {
 
     DirectoryManager::AppendPath("projects/Terrain/data/");
 
+    /*
+    // output 2d clouds for the report
+    unsigned int octaveFactor = 2;
+    unsigned int psize = 64;
+    FloatTexture2DPtr cloudChannel = 
+        PerlinNoise::Generate(psize, psize, 128,
+                              1.0/octaveFactor, octaveFactor, 3, 3, 0);
+    PerlinNoise::Smooth(cloudChannel,20);
+    PerlinNoise::Normalize(cloudChannel,0,1); 
+    PerlinNoise::CloudExpCurve(cloudChannel);
+    FloatTexture2DPtr cloudTexture2d = 
+        PerlinNoise::ToRGBAinAlphaChannel(cloudChannel);
+    TextureTool<unsigned char>::
+        DumpTexture(PerlinNoise::ToUCharTexture(cloudTexture2d), "output.png");
+    TextureTool<float>::DumpTexture(cloudTexture2d, "output.exr");
+    cloudTexture2d->SetColorFormat(RGBA32F);
+    cloudTexture2d->SetMipmapping(false);
+    cloudTexture2d->SetCompression(false);
+    exit(0);
+    */
+
     scene = new SceneNode();
 
     SetupRendering();
@@ -473,23 +494,9 @@ int main(int argc, char** argv) {
     Utils::Timer timer;
     timer.Start();
 
-    // Add Cloud quad.
+    // Add Clouds
     IShaderResourcePtr cloudShader = ResourceManager<IShaderResource>::
     Create("projects/Terrain/data/shaders/clouds/Clouds.glsl");
-    /*
-    FloatTexture2DPtr cloudChannel = 
-        PerlinNoise::Generate(512, 512, 128, 0.5, 1, 10, 5, 0);
-    PerlinNoise::Smooth(cloudChannel,20);
-    PerlinNoise::Normalize(cloudChannel,0,1); 
-    PerlinNoise::CloudExpCurve(cloudChannel);
-    FloatTexture2DPtr cloudTexture = 
-        PerlinNoise::ToRGBAinAlphaChannel(cloudChannel);
-    TextureTool::DumpTexture(ToUCharTexture(cloudTexture), "output.png");
-    TextureTool::DumpTexture(cloudTexture, "output.exr");
-    cloudTexture->SetColorFormat(RGBA32F);
-    cloudTexture->SetMipmapping(false);
-    cloudTexture->SetCompression(false);
-*/
 
     std::string foldername = "projects/Terrain/data/generated/clouds.3d.exr";
     FloatTexture3DPtr cloudTexture;
@@ -561,13 +568,12 @@ int main(int argc, char** argv) {
     std::string starDir = "projects/Terrain/data/generated/stars";
     std::string starFile = starDir + "/stars.png";
     UCharTexture2DPtr stars;
-    /*  if (Directory::Exists(starDir)) {
+    if (File::Exists(starFile)) {
         logger.info << "loading texture: " << starFile << logger.end;
         stars  = ResourceManager<UCharTexture2D>::Create(starFile);
     } else {
-    */
         logger.info << "generating texture: " << starFile << logger.end;
-        unsigned int ssize = 512;
+        unsigned int ssize = 512; //sampled for the report at 128.
         stars = UCharTexture2DPtr(new Texture2D<unsigned char>(ssize,ssize,1));
         unsigned char* data = stars->GetData();
         RandomGenerator r;
@@ -578,11 +584,13 @@ int main(int argc, char** argv) {
                 (ssize/2 + cos(angle) * dist * ssize/2);
             unsigned int y = (unsigned int)
                 (ssize/2 + sin(angle) * dist * ssize/2);
-            data[x+y*512] = (unsigned char)(ssize/2 * r.UniformFloat(0.5, 0.9));
+            data[x+y*ssize] = (unsigned char)
+                (255 * r.UniformFloat(0.5, 0.9));
         }
         Directory::Make(starDir);
+        stars = PerlinNoise::ToRGBAfromLuminance(stars);
         TextureTool<unsigned char>::DumpTexture(stars, starFile);
-        // }
+    }
 	gradientShader->SetTexture("stars", (ITexture2DPtr)stars);
 
     MeshNode* atmosphericNode = new MeshNode();
