@@ -49,7 +49,7 @@
 #include <Resources/FreeImage.h>
 #include <Utils/TerrainUtils.h>
 #include <Utils/TerrainTexUtils.h>
-#include <Utils/PerlinNoise.h>
+#include <Utils/ValueNoise.h>
 
 // Fps stuff
 #include <Display/HUD.h>
@@ -387,15 +387,15 @@ int main(int argc, char** argv) {
     unsigned int octaveFactor = 2;
     unsigned int psize = 64;
     FloatTexture2DPtr cloudChannel = 
-        PerlinNoise::Generate(psize, psize, 128,
+        ValueNoise::Generate(psize, psize, 128,
                               1.0/octaveFactor, octaveFactor, 3, 3, 0);
-    PerlinNoise::Smooth(cloudChannel,20);
-    PerlinNoise::Normalize(cloudChannel,0,1); 
-    PerlinNoise::CloudExpCurve(cloudChannel);
+    ValueNoise::Smooth(cloudChannel,20);
+    ValueNoise::Normalize(cloudChannel,0,1); 
+    ValueNoise::CloudExpCurve(cloudChannel);
     FloatTexture2DPtr cloudTexture2d = 
-        PerlinNoise::ToRGBAinAlphaChannel(cloudChannel);
+        ValueNoise::ToRGBAinAlphaChannel(cloudChannel);
     TextureTool<unsigned char>::
-        DumpTexture(PerlinNoise::ToUCharTexture(cloudTexture2d), "output.png");
+        DumpTexture(ValueNoise::ToUCharTexture(cloudTexture2d), "output.png");
     TextureTool<float>::DumpTexture(cloudTexture2d, "output.exr");
     cloudTexture2d->SetColorFormat(RGBA32F);
     cloudTexture2d->SetMipmapping(false);
@@ -506,13 +506,13 @@ int main(int argc, char** argv) {
     } else {
         logger.info << "generating 3d texture: " << foldername << logger.end;
         FloatTexture3DPtr cloudChannel = 
-            PerlinNoise::Generate3D(128, 128, 64,
+            ValueNoise::Generate3D(128, 128, 64,
                                     128, 0.5, 1, 3, 3, 0);
-        //PerlinNoise::Smooth3D(cloudChannel,20);
-        PerlinNoise::Normalize3D(cloudChannel,0,1); 
-        PerlinNoise::CloudExpCurve3D(cloudChannel);
+        //ValueNoise::Smooth3D(cloudChannel,20);
+        ValueNoise::Normalize3D(cloudChannel,0,1); 
+        ValueNoise::CloudExpCurve3D(cloudChannel);
         cloudTexture = 
-            PerlinNoise::ToRGBAinAlphaChannel3D(cloudChannel);
+            ValueNoise::ToRGBAinAlphaChannel3D(cloudChannel);
         TextureTool<float>::DumpTexture(cloudTexture, foldername);
     }
     cloudTexture->SetMipmapping(false);
@@ -588,7 +588,7 @@ int main(int argc, char** argv) {
                 (255 * r.UniformFloat(0.5, 0.9));
         }
         Directory::Make(starDir);
-        stars = PerlinNoise::ToRGBAfromLuminance(stars);
+        stars = ValueNoise::ToRGBAfromLuminance(stars);
         TextureTool<unsigned char>::DumpTexture(stars, starFile);
     }
 	gradientShader->SetTexture("stars", (ITexture2DPtr)stars);
