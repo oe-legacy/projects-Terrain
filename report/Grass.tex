@@ -134,29 +134,28 @@ be visible, likewise if the center is too high it is snow. A similar
 scheme is used for deciding if the grass is above cliff, where the
 height is replaced by the normal.
 
-The reason that we need to use the center of the grass objects is that
-while one side of the quad may be placed perfectly legal, the other
-side could be placed on sand or snow. In order to collapse the grass
-objects we needed a variable that was constant across the objects and
-that was the center.
+The reason for using the center of the grass objects is that while one
+side of the quad may be placed perfectly legal, the other side could
+be placed on sand or snow. In order to collapse the grass objects we
+needed a constant variable across the objects and that was the center.
 
 
 \section{Waving in the wind}
 
 Our animation algorithm is the same as the one proposed in section
 7.4.4 of GPU Gems 1, where the grass objects center is used to create
-'locel chaos'. This means that we can still draw all our grass with
-only one draw call, we get minimal texture distortion since the
-vertices always have the same distance to their neighbours and the
-local chaos creates a more natural wave effect. Of the two cons to the
-approach only one of them really applies to our implementation. The
-first con, which is that extra uniform data is required to hold the
-center of the grass object, doesn't apply to our case, since we needed
-the center anyway.. The second con does apply to our shader, namely
-that the complexity of our animation algorithm is limited in order to
-minimize the cost of the shader. Our wave therefore is just a simple
-cosine function applied to the two top vertices, distinguished by
-their texture coordinate.
+'local chaos'. This means that all the grass can still be drawn with
+only one draw call, texture are minimally distorted since the vertices
+always have the same distance to their neighbours and the local chaos
+creates a more natural wave effect. Of the two cons to the approach
+only one of them applies to our implementation. The first con, which
+is that extra uniform data is required to hold the center of the grass
+object, doesn't apply ion this case, since the center was needed
+anyway. The second con does apply to our shader, namely that the
+complexity of the animation algorithm is limited in order to minimize
+the cost of the shader. The wave therefore is just a simple cosine
+function applied to the two top vertices, distinguished by their
+texture coordinate.
 
 
 \section{Handling Transparency}\label{sec:transparency}
@@ -164,14 +163,19 @@ their texture coordinate.
 % Discarding seethrough texture (how to avoid z sorting and rendering
 % everything with one draw call)
 
-Now that the grass has been placed, texture transparency needs to be
+With the grass placed on the terrain, texture transparency needs to be
 handled. The grass straw texture can be seen in
-\reffig{fig:grassStraws}. Since we're drawing everything with one draw
-call, z-sorting every frame isn't an option. Instead we completely
-avoid the transparency and drawing order issue, by only rendering
+\reffig{fig:grassStraws}. Since everything is drawn with one draw
+call, z-sorting every frame isn't an option. Instead the transparency
+and drawing order issue is completely ignored, by only rendering
 completely opaque fragments or discarding them. This is done in the
 fragment shader, where colors with alpha values below a certain value
-are simply discarded.
+are simply discarded. The reason for not just discarding everything
+stictly below 1 is that mipmapping has to be taken into account. If 2
+opague and 2 transparent pixels are combined in a lower mipmap layer,
+that would yield an alpha of 0.5, but the fragment should perhaps
+still be rendered. In practice we found that discarding alphas below
+0.6 works well with the grass straw texture.
 
 \begin{figure}
   \label{fig:grassStraws}
@@ -179,8 +183,6 @@ are simply discarded.
   \includegraphics[width=5cm]{grassStraw}
   \caption{The grass straws.}
 \end{figure}
-
-
 
 % Simple diffuse lighting, no specular.
 
