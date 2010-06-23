@@ -157,12 +157,12 @@ namespace OpenEngine {
                 groundTex->SetMipmapping(true);
                 groundTex->SetUseCase(ITexture3D::TEXTURE2D_ARRAY);
                 arg.renderer.LoadTexture(groundTex.get());
-                this->landscapeShader->SetTexture("groundTex", groundTex);
+                this->landscapeShader->SetTexture("groundTex", (ITexture3DPtr)groundTex);
 
                 normalTex->SetMipmapping(true);
                 normalTex->SetUseCase(ITexture3D::TEXTURE2D_ARRAY);
                 arg.renderer.LoadTexture(normalTex.get());
-                this->landscapeShader->SetTexture("normalTex", normalTex);
+                this->landscapeShader->SetTexture("normalTex", (ITexture3DPtr)normalTex);
 
                 glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, groundTex->GetID());
                 glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_GENERATE_MIPMAP, GL_FALSE);

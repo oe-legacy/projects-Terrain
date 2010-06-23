@@ -510,7 +510,7 @@ int main(int argc, char** argv) {
     }
     cloudTexture->SetMipmapping(false);
     cloudTexture->SetCompression(false);
-    cloudShader->SetTexture("clouds", cloudTexture);
+    cloudShader->SetTexture("clouds", (ITexture3DPtr)cloudTexture);
 
     /*
     //from: http://geography.about.com/library/faq/blqzdiameter.htm
@@ -554,7 +554,7 @@ int main(int argc, char** argv) {
     UCharTexture2DPtr gradient = ResourceManager<UCharTexture2D>
         ::Create("textures/EarthClearSky2.png");
     gradient->SetWrapping(CLAMP_TO_EDGE);
-    gradientShader->SetTexture("gradient", gradient);
+    gradientShader->SetTexture("gradient", (ITexture2DPtr)gradient);
     atmosphericDome->GetMaterial()->shad = gradientShader;
 
     // stars
@@ -583,7 +583,7 @@ int main(int argc, char** argv) {
         Directory::Make(starDir);
         TextureTool<unsigned char>::DumpTexture(stars, starFile);
         // }
-    gradientShader->SetTexture("stars", stars);
+	gradientShader->SetTexture("stars", (ITexture2DPtr)stars);
 
     MeshNode* atmosphericNode = new MeshNode();
     atmosphericNode->SetMesh(atmosphericDome);
