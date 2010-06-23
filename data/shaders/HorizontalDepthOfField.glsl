@@ -7,5 +7,5 @@ vert: shaders/default.vert
 frag: shaders/HorizontalDepthOfField.frag
 
 # Uniform values
-unif: halfSamples = 9
-unif: offsetScale = 0.015
+unif: halfSamples = 5
+unif: offsetScale = 0.03
