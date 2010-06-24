@@ -183,7 +183,7 @@ colors seem to blur or smeer together. We would like to reproduce this
 effect using a fullscreen glow post process. 
 
 Initally the effect was created in just a single shader. This shader
-did ablur on the surrounding fragments and then blended that result
+did a blur on the surrounding fragments and then blended that result
 with the original fragment. This produced the results we where after,
 but at a huge performance overhead. The problem was texture
 lookups. To blur the surrounding fragments of an $N \times N$

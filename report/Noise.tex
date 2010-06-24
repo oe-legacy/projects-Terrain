@@ -111,13 +111,15 @@ points, which again can be used to evaluate a noise value.
 %
 The gradient noise category includes the now famous noise
 function known as Perlin noise, first described by Ken Perlin in
-the paper: \citeabook{PerlinNoise}.
+the paper: \citeabook{Perlin88}.
 %
 Here it is time once again to warn the reader that many authors of web
 pages,
 e.g. \url{http://freespace.virgin.net/hugo.elias/models/m_perlin.htm},
 seems to confuse Perlin noise with value noise, with the result that
-an Internet search for Perlin noise becomes a non-trivial job.
+an Internet search for Perlin noise becomes a non-trivial job. An
+excellent describtion of Perlin noise can be found in
+\citebook{chapter~12}{ebert2003} which is also written by Ken Perlin.
 
 \section{Composite of layers}
 Noise alone does not make realistic looking textures, only by carefully
@@ -268,7 +270,8 @@ is an increase in run-time performance, where as doing the calculations
 at run-time enable adaption in LOD in relation to the camera
 position. For the run-time computations to be fast enough for
 real-time rendering they are usually done on the GPU, but although noise
-functions exists in the GLSL API\citebook{}{}, they are not recommended because
+functions exists in the GLSL API\citebook{page~145-146}{orangebook},
+they are not recommended because
 their behavior are not fully described in the specification and are
 implemented differently by different vendors and on different
 hardware. Developers that still want to do the calculations

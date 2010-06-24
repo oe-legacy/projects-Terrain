@@ -32,6 +32,15 @@ handle transparency.
 
 An extension to the atmospheric dome is to include the location or
 angle of the sun to make a more beautiful sunrise and sunset.
+Or going evaen futher an implementing the full atmosphric scattering
+effect described in \citebook{chapher~16}{GPUGEMS2}
+
+Create a texture binding manager that reuses \emph{texture unit} by
+using \code{glActivateTexture} \citebook{page~440}{redbook} and cache
+a stack of the last x number of binded textures.
+
+Texture mapping on the cloud sphere, try with a plane as described in
+\citebook{page~32}{copenhagen2007real}
 
 
 The next step for the \class{PostProcessNode} is to allow it to be
