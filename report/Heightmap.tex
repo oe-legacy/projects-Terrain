@@ -2,16 +2,16 @@
 
 % A few lines about heightmaps
 
-The terrain itself in our demo is generated from a heightmap and is a
-continuation of work that we did in the first quarter. How a heightmap
-is loaded from a texture and converted to geometry is pretty straight
-forward, and thus won't be our focus here. Instead we will focus on
-the lighting model and how it was derived from the generel model
-presented in Real-time Rendering. We will talk about how we give the
-illusion of more detailed geometry by implementing bump maps, which
-requires us to transform a bumped normal from tangent space and into
-world space, where the lighting calculations are done. Finally we will
-explain how texture arrays where used to cut back on texture unit
+The terrain itself in our project is generated from a heightmap and is
+a continuation of work that we did in the first quarter. How a
+heightmap is loaded from a texture and converted to geometry is pretty
+straight forward, and thus won't be the focus in this chapter. Instead
+we will focus on the lighting model and how it was derived from the
+generel model presented in \citeabook{RTR2}. We will talk about how we
+give the illusion of more detailed geometry by implementing bump maps,
+which requires us to transform a bumped normal from tangent space and
+into world space, where the lighting calculations are done. Finally we
+will explain how texture arrays where used to cut back on texture unit
 usage and texture lookups when rendering.\\
 
 % Geomorphing because it is in the vertex shader
@@ -27,13 +27,13 @@ minimize vertex processing overhead. An example can be seen in
 \reffig{fig:tesselation} where a mound is rendered with three
 different levels of detail, LOD. When switching between different
 levels of detail, the terrain will appear to suddenly deform, this is
-termed Vertex Popping. Geomorphing can be used to remove this popping
-by gently morphing in the new vertices. The technique is rather
-simple. Instead of letting a vertex pop into it's actual position when
-changing LOD, the vertex is created on the line between it's two
-visible neighbours and then morphed into its actual position. Because
-our terrain is a heightmap, geomorphing only needs to be done along
-the y-axis.
+termed \emph{Vertex Popping}. \emph{Geomorphing}, as presented by
+\citeabook{1936}, can be used to remove this popping by gently
+morphing in the new vertices. The technique is rather simple. Instead
+of letting a vertex pop into it's actual position when changing LOD,
+the vertex is created on the line between it's two visible neighbours
+and then morphed into its actual position. Because our terrain is a
+heightmap, geomorphing only needs to be done along the y-axis.
 
 \begin{figure}
   \label{fig:tesselation}
@@ -43,8 +43,6 @@ the y-axis.
     detail. The new vertices introduced in higher levels of detail are
     the ones causing vertex popping.}
 \end{figure}
-
-% TODO Reference Geomorphing article
 
 % We remove normal popping by using a normal map
 
@@ -68,15 +66,12 @@ extended to any geometry.
 
 \section{Lighting}
 
-% TODO mention somewhere that it is pr pixel lighting, not pr vertex!
-
 Because we're using shaders for rendering, we need to implement our
 own lighting model. Since the scene is set outside in a natural
 environment the only lightsource is the sun, which is a directional
 light. This allows several aspects of the general lighting equation
-for one light source to be ignored.
-
-% TODO ref real-time rendering equation 4.19 
+for one light source\footnote{\citebook{page~83}{RTR2}}, to be
+ignored.
 
 \begin{displaymath}
   \mathbf{i}_{tot} = \mathbf{a}_{glob} \otimes \mathbf{m}_{amb} +
@@ -139,8 +134,6 @@ and can be seen on \reffig{fig:lightVectors}.
   \caption{The vectors used in lighting calculations}
 \end{figure}
 
-% @TODO add images
-
 \begin{figure}
   \label{fig:lightComponents}
   \centering
@@ -187,20 +180,20 @@ light components, but is also more restrictive to artists.\\
 % TODO ref phong and blinn as real-time rendering
 
 In the above formulas the specular lighting has been given by the
-Phong lighting equation, $\mathbf{i}_{spec} = (\mathbf{v} \cdot
-\mathbf{r})^{m_{shi}} \mathbf{m}_{spec} \otimes \mathbf{s}_{spec}$,
-where $\mathbf{m}_{spec} = \mathbf{m}_{color}$ and $\mathbf{r} = 2
-(\mathbf{n} \cdot \ \mathbf{l}) - \mathbf{l}$.
+\emph{Phong lighting equation}\footnote{\citebook{page~76}{RTR2}},
+$\mathbf{i}_{spec} = (\mathbf{v} \cdot \mathbf{r})^{m_{shi}}
+\mathbf{m}_{spec} \otimes \mathbf{s}_{spec}$, where $\mathbf{m}_{spec}
+= \mathbf{m}_{color}$ and $\mathbf{r} = 2 (\mathbf{n} \cdot
+\ \mathbf{l}) - \mathbf{l}$.
 
-A faster approximation was proposed by Blinn. Instead of basing the
+A faster approximation was proposed by
+Blinn\footnote{\citebook{page~77}{RTR2}}. Instead of basing the
 specular highlight on the angle between the view direction and
 reflection vector, he proposed to base it on the angle between the
 normal and the halfvector, a vector halfway between the view vector
 and light vector given by $\mathbf{h} = (\mathbf{l} + \mathbf{v}) /
 \|\mathbf{l} + \mathbf{v}\|$. An approximate relationship between the
 two is given in Real-time Rendering as
-
-% TODO ref
 
 \begin{displaymath}
   (\mathbf{r} \cdot \mathbf{v})^{m_{shi}} \approx (\mathbf{n} \cdot \mathbf{h})^{4m_{shi}} 
@@ -380,8 +373,6 @@ visible. At that height layer 1 will also think it should be
 completely opaque. The layer height is then $1 + 1 + 0.4 = 2.4$, which
 means that the base layer is 2 and that has be blended with 40\% of
 the 3'rd layer.
-
-% TODO ref appendix or show layer code
 
 When specifying the height or the terrain a little randomness is added
 to it from the normalmap. This is done to avoid smooth transitions

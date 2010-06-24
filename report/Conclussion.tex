@@ -20,16 +20,17 @@
 
 \section{Future work}
 Although we have come a long way there are still things that we wish to
-do even better. The following techniques have been discussed doing our
-work.
+do even better. The following techniques have been discussed during
+the development of the project.
 
-The terrain itself could include a clipmap implementation and level of
-detail not only on the textures and geometry, but also within the
-shaders. An example would be removing specular lighting and
-bumpmapping on distant terrain. An alternative to the current
-geomeorphing LOD system is alpha blending, which would make
-transistions between LODs easier, but ofcourse requires us to handle
-transparency.
+The current terrain implementation could be replaced by a clipmap
+implementation. Level of detail should also be extended to not only
+apply to textures and geometry, but also the shaders. An example would
+be removing specular lighting and bumpmapping from shaders on distant
+terrain. An alternative to the current geomeorphing LOD system is
+alpha blending, which would make transistions between LODs not require
+that morphing is handled, but of course means we'd have to handle
+transparency instead.
 
 For our sky we corrently have two minor visual defects: The first
 problem is that the atmospheric dome do not take the angle of the sun

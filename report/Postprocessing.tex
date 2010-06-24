@@ -157,13 +157,13 @@ problem is that the blurring is framerate dependent, so low framerates
 will make the blurring excessive, while high framerates will make it
 non existent.
 
-Another approach was proposed in GPU Gems 3, where the previous
-ViewProjection matrix is used to calculate the previous position of a
-fragment and then accumulate the colors between the current and
-previous position. This approach however only creates blurring if the
-camera is moved. A car that drives past the camera will crystal
-clear. Another problem is that the shader becomes quite complex and
-timeconsuming.
+Another approach was proposed in \citebook{chapter~27}{1536934}, where
+the previous ViewProjection matrix is used to calculate the previous
+position of a fragment and then accumulate the colors between the
+current and previous position. This approach however only creates
+blurring if the camera is moved. A car that drives past the camera
+will crystal clear. Another problem is that the shader becomes quite
+complex and timeconsuming.
 
 The algorithm that we settled on is a ghosting motion blur and
 combines a low memory footprint with a fast shader. We use an
@@ -212,13 +212,6 @@ project/Terrain/data/shaders/Glow.frag.
     \includegraphics[width=5cm]{blur}
   }
 \end{figure}
-
-%% \begin{listing}
-%% \label{lst:glowShader}
-%% \centering
-%%   \lstinputlisting[language=C++]{../data/shaders/glow.frag}
-%% \caption{The vertically blurring glow shader.}
-%% \end{listing}
 
 
 \subsection{Depth of field}

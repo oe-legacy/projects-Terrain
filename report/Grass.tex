@@ -33,15 +33,13 @@ be depth peeling or z-sorting the straws, but for our purpose we
 propose a much simpler method in the
 \hyperref[sec:transparency]{Handling Transparency subsection}.
 
-% @TODO reference GPU Gems 1
-
-The basis of the grass implementation is Chapter 7 in GPU Gems 1. Here
-they propose to draw the quads in objects with star patterns, to
-achieve a grass effect independent of the cameras line of sight. Our
-implementation does the same, but allows the user to specify how many
-quads should be used used pr. star object. Setting this to 1
-effectively disables the star pattern and simply renders random quads
-of grass straws instead.
+The basis of the grass implementation is
+\citebook{chapter~7}{983868}. Here they propose to draw the quads in
+objects with star patterns, to achieve a grass effect independent of
+the cameras line of sight. Our implementation does the same, but
+allows the user to specify how many quads should be used used pr. star
+object. Setting this to 1 effectively disables the star pattern and
+simply renders random quads of grass straws instead.
 
 \section{Placing the grass}
 
@@ -172,20 +170,20 @@ needed a constant variable across the objects and that was the center.
 
 \section{Waving in the wind}
 
-Our animation algorithm is the same as the one proposed in section
-7.4.4 of GPU Gems 1, where the grass objects center is used to create
-'local chaos'. This means that all the grass can still be drawn with
-only one draw call, texture are minimally distorted since the vertices
-always have the same distance to their neighbours and the local chaos
-creates a more natural wave effect. Of the two cons to the approach
-only one of them applies to our implementation. The first con, which
-is that extra uniform data is required to hold the center of the grass
-object, doesn't apply ion this case, since the center was needed
-anyway. The second con does apply to our shader, namely that the
-complexity of the animation algorithm is limited in order to minimize
-the cost of the shader. The wave therefore is just a simple cosine
-function applied to the two top vertices, distinguished by their
-texture coordinate.
+Our animation algorithm is the same as the one proposed in
+\citebook{section~7.4.4}{983868}, where the grass objects center is
+used to create 'local chaos'. This means that all the grass can still
+be drawn with only one draw call, texture are minimally distorted
+since the vertices always have the same distance to their neighbours
+and the local chaos creates a more natural wave effect. Of the two
+cons to the approach only one of them applies to our
+implementation. The first con, which is that extra uniform data is
+required to hold the center of the grass object, doesn't apply ion
+this case, since the center was needed anyway. The second con does
+apply to our shader, namely that the complexity of the animation
+algorithm is limited in order to minimize the cost of the shader. The
+wave therefore is just a simple cosine function applied to the two top
+vertices, distinguished by their texture coordinate.
 
 
 \section{Handling Transparency}\label{sec:transparency}
