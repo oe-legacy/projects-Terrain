@@ -18,7 +18,8 @@ handle most effects where the programmer needs to do as little setup
 as possible. It should also be possible to stack post processing
 effects on top of each other, for example to combine a \emph{cartoon
   shader} with \emph{edge detection} or optimizing blurring by using
-the two pass \emph{separable convolution technique}.
+the two pass \emph{separable convolution
+  technique}\footnote{{\citebook{section~21.2.3}{983868}}}.
 
 \section{Structure}
 
@@ -32,32 +33,30 @@ structure the rendering.
 
 The \class{PostProcessNode} will apply a fragment program to
 manipulate the image rendered while visiting subnodes in the scene
-graph. Therefore it of course contains a pointer to OpenEngine's
-shader abstraction, \class{IShaderResource}, that points to the
-effect. It contains a pointer to an OpenEngine \class{FrameBuffer},
-which scene subnodes are rendered to. The \class{PostProcessNode} also
-holds another \class{FrameBuffer} where the final image can be
-\emph{blitted} into after the effect has been applied. This is useful
-for some implementations of motion blur, that relies on the previous
-frame being availible.
+graph, the subscene. Therefore it of course contains a pointer to
+OpenEngine's shader abstraction, \class{IShaderResource}, that points
+to the effect. It contains a pointer to an OpenEngine
+\class{FrameBuffer}, which scene subnodes are rendered to. The
+\class{PostProcessNode} also holds another \class{FrameBuffer} where
+the final image can be \emph{blitted} into after the effect has been
+applied. This is useful for some implementations of motion blur, that
+relies on the previous frame being availible.
 
 In order to allow users of the \class{PostProcessNode} to focus on
 writing their effects, the node will handle most of the setup as long
 as a few naming conventions are followed. If a uniform named
-\textit{depth} is detected then the subscenes depth texture will be
-bound to this uniform. Similarly if \textit{imageN}, where \textit{N}
-is any integer, is seen, then the \class{FrameBuffer}'s \textit{N}'th
-color attachment will be bound to that uniform. The same goes for the
-final image and the uniform name \textit{finalImageN}. The node can
-also decide to improve performance by not blitting the final image, if
-this isn't needed. Of course the previous image doesn't make sense in
-the very first rendering, so when initialized the node binds the
+\code{depth} is detected then the subscenes depth texture will be
+bound to this uniform. Similarly if \code{imageN}, where \code{N} is
+any integer, is seen, then the \class{FrameBuffer}'s $N^{th}$ color
+attachment will be bound to that uniform. The same goes for the final
+image and the uniform name \code{finalImageN}. The node can also
+decide to improve performance by not blitting the final image, if this
+is not needed. Of course the previous image doesn't make sense in the
+very first rendering, so when initialized the node binds the
 not-processed scene image as the final image, and then after the first
 frame it switches to the final image. And finally, if needed the node
-will pass the time to the shader.
-
-All of this has allowed us to cut back on doing setup and spend our
-time writing cool and fun effects.
+will pass the time to the shader. All of this has allowed us to cut
+back on doing setup and spend our time writing cool and fun effects.
 
 \subsection*{Rendering}
 
@@ -109,12 +108,11 @@ performance the depth test is set to always allow all fragments.
 
 If the post process effect relies on the final image from the previous
 rendering, then now is the time to save the image. However recall from
-earlier that the previous image was originally set in the effect as
-the same as the current image. Therefore if this is the first
-renderpass, the final image texture has to be bound to the effect, so
-it is ready for use in the next pass. The final image can then be
-blitted from the current renderbuffer into the renderbuffer that will
-hold the final image.
+earlier that the previous image was originally set as the current
+image. Therefore if this is the first renderpass, the final image
+texture has to be bound to the effect, so it is ready for use in the
+next pass. The final image can then be blitted from the current
+renderbuffer into the renderbuffer that will hold the final image.
 
 \begin{lstlisting}[frame=,language=C++]
   FrameBuffer* finalFb = node->GetFinalFrameBuffer();
@@ -137,7 +135,7 @@ hold the final image.
 
 \section{Post Pocess Effect}
 
-In this section we will take to a short look at some of the different
+In this section we will take a short look at some of the different
 post process effects that we have created.
 
 \subsection{Motion Blur}
@@ -151,43 +149,42 @@ Motion blurring can be done in several ways. The simplest way
 conceptually is to store the last $n$ images and then blend them
 together. This creates a nice blurring effect across the last few
 frames. The problem is that we then need to store the last few frames
-in memory, giving us a memory overhead of 8-16 textures. Another
-problem is that the blurring is framerate dependent, so low framerates
-will make the blurring excessive, while high framerates will make it
-non existent.
+in memory, giving us a memory overhead of possibly 8-16
+textures. Another problem is that the blurring then becomes framerate
+dependent, which means that low framerates will make the blurring
+excessive, while high framerates will make it non existent.
 
 Another approach was proposed in \citebook{chapter~27}{1536934}, where
-the previous ViewProjection matrix is used to calculate the previous
-position of a fragment and then accumulate the colors between the
-current and previous position. This approach however only creates
+the previous \emph{ViewProjectionMatrix} is used to calculate the
+previous position of a fragment and then accumulate the colors between
+the current and previous position. This approach however only creates
 blurring if the camera is moved. A car that drives past the camera
 will be crystal clear. Another problem is that the shader becomes
 quite complex and timeconsuming.
 
-The algorithm that we settled on is \emph{ghosting motion blur} and
+The algorithm that we settled on is \emph{ghosting motion blur} which
 combines a low memory footprint with a fast shader. We use an
 accumulation texture for storing all the previous images blended
 together, and then blend that texture together with the current
-image. That way the contribution from old images will tend toward 0
-and the motion blurring will produce nice looking blurred 'tails' on
-moving objects. Ofcourse since we can only blur between rendered
-frames, a fast turning camera will produce artefacts.
-
-The result can be seen in \reffig{fig:dofMotionBlur}
+image. This way the contribution from old images will tend toward 0
+and the motion blurring will produce nice looking blurred `tails' on
+moving objects. Of course since we can only blur between rendered
+frames, a fast turning camera will produce artefacts. The result can
+be seen in \reffig{fig:dofMotionBlur}
 
 \subsection{Glow}
 
 When looking at natural outdoor environments in bright sunlight,
 colors seem to blur or smeer together. We would like to reproduce this
-effect using a fullscreen glow post process, as is also proposed in
-\citebook{chapter~1}{983868}
+effect using a fullscreen glow post processing effect, as is also
+proposed in \citebook{chapter~1}{983868}
 
 Initally the effect was created in just a single shader. This shader
-did a blur on the surrounding fragments and then blended that result
+did a blur on the surrounding fragments and then blended the result
 with the original fragment. This produced the results we where after,
 but at a huge performance overhead. The problem was texture
 lookups. To blur the surrounding fragments of an $N \times N$
-rectangle, we required $N^2$ texture lookups. This performance problem
+rectangle, we required $N^2$ texture lookups. The performance problem
 was solved by applying the separable convolution technique. In the
 first post process pass a horizontal blurring is performed, then in
 the second pass a vertical blurring is performed on the resulting
@@ -200,7 +197,7 @@ As can be seen on the image on the frontpage, a subtle smeering gives
 a smoother and more natural looking image. The non blurred and blurred
 image can be seen in \reffig{fig:glow} and the shader that does the
 vertical blurring and blend it with the original image can be seen in
-project/Terrain/data/shaders/Glow.frag.
+the file:\\ \code{project/Terrain/data/shaders/Glow.frag}.
 
 \begin{figure}
   \centering
@@ -217,9 +214,9 @@ project/Terrain/data/shaders/Glow.frag.
 
 \subsection{Depth of field}
 
-When filming or photografing through a lens an effect called depth of
-field occurs. Essentially everything not in focus by the camera
-becomes blurry, and the greater the difference between the object in
+When taking pictures or filming through a lens an effect called Depth
+of Field occurs. Essentially everything not in focus by the camera
+becomes blury, and the greater the distance between the object in
 focus and the out-of-focus object the more blurry the object will
 appear.
 
@@ -227,23 +224,23 @@ With the color texture and depth texture of the rendered scene it is
 possible to emulate this effect. In our example the focus of the
 camera will always be the center of the screen.
 
-To create the effect we first have to determine how out of focus a
-fragment is, which determines the fragments blurring offset. This is
+To create the effect we first have to determine how much out of focus
+a fragment is, which determines the fragments blurring offset. This is
 done by computing the difference between the depth at the center of
 the screen and the depth at the fragment.
 
-As before in the glow effect we again create the blur by sampling a
+As before, in the glow effect, we again create the blur by sampling a
 box around the fragment. This time though the distance between sample
 points is not constant, but proportional to the blurring offset. The
 fragments in focus or near focus have a small blurring offset and thus
-won't be much blurred, while fragments with a high blurring offset
+will not be much blurred, while fragments with a high blurring offset
 will be sampled inside a larger square and thus be blurrier.
 
-Instead of doing a box blur, we decided to blur with a half circle
-kernel, as can be seen on \reffig{fig:blurKernels}. To increase
-effectivness we tried squaring the error term and came up with the
-kernel in \reffig{fig:blurKernels}, which while faster still provided
-a pleasing result.
+We decided to blur with a half circle kernel, as can be seen on
+\reffig{fig:blurKernels}. To increase effectivness we tried squaring
+the sample weights and came up with the kernel in
+\reffig{fig:blurKernels}, which while faster still provided a pleasing
+result.
 
 \begin{figure}
   \centering
@@ -312,15 +309,15 @@ a pleasing result.
 
 The result can be seen on \reffig{fig:dofMotionBlur} where the hill in
 the background and the horizon are slightly blurry. The shader that
-creates the horizontal depth of field blurring can be seen in
-project/Terrain/data/shaders/HorizontalDepthOfField.frag.
+creates the horizontal depth of field blurring can be seen in the file:\\
+\code{project/Terrain/data/shaders/HorizontalDepthOfField.frag}.
 
 \begin{figure}
   \centering
   \subfloat[Depth of field is visible on the background]{
     \includegraphics[width=7cm]{depthOfField}
   }
-  \subfloat[The landscape is motionblurred as teh camera pans to the side.]{
+  \subfloat[The landscape is motionblurred as the camera pans to the side.]{
     \includegraphics[width=7cm]{motionBlur}
   }
   \caption{Post processing effects.}
