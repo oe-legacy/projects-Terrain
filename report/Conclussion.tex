@@ -1,25 +1,29 @@
 % -*- mode: latex; mode: auto-fill; coding: utf-8; -*-
 
 \chapter{Conclussion}
-With offset in an old and doll looking project, we have created an
-exciting dynamic outdoor environment that changes look and feel
-according the time of day. To do this we have used OpenGL's
-programmable pipeline and some of OpenGL new extensions.
 
-The time of day is easy to see when looking at the sky, at day time
-the sky is bright blue with animated clouds, at night with stars, and
-at sunrise and sunset coloring yellow and red colors fill the horizon.
+We have created an exciting dynamic outdoor environment that changes
+look and feel according the time of day. To do this we have used
+OpenGL's programmable pipeline and some of OpenGL new extensions.
+
+The time of day is easy to see when looking at the sky. At day time
+the sky is bright blue with animated clouds, at night starfields fill
+the sky, and at sunrise and sunset yellow and red scattered sunlight
+can be seen along the horizon.
 %
-Details have been added to the terrain by using advanced lighting and
-bump mapping techniques, and waving grass makes it come alive.
+Details have been added to the terrain by using advanced lighting
+techniques, such as bump mapping, and waving grass makes it come alive.
 %
 A final level of detail is provided by the our new post processing
-extension which includes effects as motion blur, glow, and depth of
-field.
+extension which includes effects such as motion blur, glow, and depth of
+field. Other effects such as edge detection and an underwater post
+processing effect have already been created and applied to other
+OpenEngine projects, so we also succeded in creating an easy-to-use
+interface, which will hopefully be of use to many.
 
-All in all, we are quite satisfied with the progress that have been
-made from our old code when comparing the looks and feel with the
+All in all, we are quite satisfied with the look and feel of the end
 result.
+
 
 %Post Process
 
@@ -37,8 +41,9 @@ result.
 
 
 \section{Future work}
-Although we have come a long way there are still things that we wish to
-do even better. The following techniques have been discussed during
+
+Although we have come a long way there are still things that we wish
+to do even better. The following techniques have been discussed during
 the development of the project.
 
 The current terrain implementation could be replaced by a clipmap
@@ -50,12 +55,12 @@ alpha blending, which would make transistions between LODs not require
 that morphing is handled, but of course means we'd have to handle
 transparency instead.
 
-For our sky we corrently have two minor visual defects: The first
-problem is that the atmospheric dome do not take the angle of the sun
-into account. This results in a uniform coloring of the dome in the
-vertical direction on the entire sphere. A more realistic coloring
-would be to only color the dome shades of yellow and red in a radius
-around where the sun is setting or rising.
+Our sky implementation currently have two minor visual defects: The
+first problem is that the atmospheric dome do not take the angle of
+the sun into account. This results in a uniform coloring of the dome
+in the vertical direction on the entire sphere. A more realistic
+coloring would be to only color the dome shades of yellow and red in a
+radius around where the sun is setting or rising.
 %
 We have also talked about going even further an implementing a full
 atmospheric scattering simulation algorithm like the
@@ -79,8 +84,8 @@ some of the most commonly used effects could also be made to increase
 performance and in the case of Depth of Field remove the flickering
 that comes from only sampling one focus point.
 
-During our work with texture binding the idea of 
-creating a texture binding manager that reuses \emph{texture unit}
-using \code{glActivateTexture}\citebook{page~440}{redbook} has
+During our work with texture binding the idea of creating a texture
+binding manager that reuses \emph{texture unit} using
+\code{glActivateTexture}\citebook{page~440}{redbook} has
 surfaced. This manager could cache texture ids and texture units so
 the last x number of bound textures more quickly can be activated.
