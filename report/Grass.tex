@@ -173,16 +173,17 @@ needed a constant variable across the objects and that was the center.
 
 Our animation algorithm is the same as the one proposed in
 \citebook{section~7.4.4}{983868}, where the grass objects center is
-used to create 'local chaos'. This means textures are minimally
+used to create `local chaos'. This means textures are minimally
 distorted since the vertices always have the same distance to their
 neighbours and the local chaos creates a more natural wave effect. Of
-the two cons to the approach only one of them applies to our
+the two cons to the approach desribed in
+\citebook{section~7.4.4}{983868}, only one of them applies to our
 implementation. The first con, which is that extra uniform data is
-required to hold the center of the grass object, doesn't apply ion
-this case, since the center was needed anyway. The second con does
-apply to our shader, namely that the complexity of the animation
-algorithm is limited in order to minimize the cost of the shader. The
-wave therefore is just a simple cosine function applied to the two top
+required to hold the center of the grass object, doesn't apply in this
+case, since the center was needed anyway. The second con does apply to
+our shader, namely that the complexity of the animation algorithm is
+limited in order to minimize the cost of the shader. The wave
+therefore is just a simple cosine function applied to the two top
 vertices, distinguished by their texture coordinate.
 
 

@@ -25,7 +25,7 @@ noise functions. A noise function is a function that is apparently
 stochastic and will break up monotony of the patterns that would
 otherwise be too regular \citebook{page~67-78}{ebert2003}.
 %
-Typically a noise function is a function of the space so the arguments
+Typically a noise function is a function of a position so the arguments
 can be filled directly when rendering, e.g. $f(x,y,z)$.
 %
 An obvious stochastic primitive is uniformly distributed random
@@ -104,7 +104,7 @@ returned when the function is evaluated.
 
 \subsubsection{Gradient noise}
 Gradient noise however generates a gradient at each point in the
-lattice, which is a vector with the same dimension as the number of
+lattice, which is a vector with the same dimensions as the number of
 dimensions wherein the function is defined. The gradient in each grid
 point is then used to calculate a continuous function between the grid
 points, which again can be used to evaluate a noise value.
@@ -121,10 +121,10 @@ an Internet search for Perlin noise becomes a non-trivial job. An
 excellent describtion of Perlin noise can be found in
 \citebook{chapter~12}{ebert2003} which is also written by Ken Perlin.
 
-\section{Composite of layers}
+\section{Composition of layers}
 Noise alone does not make realistic looking textures, only by carefully
 choosing the noise parameters and cleverly combining many layers of
-different looking noise results in naturally beauty. In the following,
+different looking noise results in natural beauty. In the following,
 we will focus on generating a volumetric texture of clouds, but the
 description illustrates the overall process of how to generate and
 combine noise functions.
@@ -146,12 +146,12 @@ Because we want the basic shapes to be the most
 dominant the amplitude of noise with higher frequencies are lowered,
 this is shown in figure \ref{fig:1d-layer1} and \ref{fig:1d-layer2}.
 %
-We change these frequency and amplitude in octaves because
-octaves frequent occur in nature and give good visual results.
-For each level of detail that is added the frequency is doubled while
-the amplitude is halved. To illustrate this, we have used value noise
-to generate three layers and combined them into the result show in
-figure \ref{fig:1d-result}.
+We change these frequency and amplitude in octaves because octaves
+frequently occur in nature and give good visual results.  For each
+level of detail that is added, the frequency is doubled while the
+amplitude is halved. To illustrate this, we have used value noise to
+generate three layers and combined them into the result show in figure
+\ref{fig:1d-result}.
 
 \begin{figure}[!h]
   \centering
@@ -189,11 +189,11 @@ image that looks like clouds.
 %
 When sampling into an array, as has been done in figure
 \ref{fig:noise-layers} the increase in sampling frequency is the same
-as using a larger array. If this array represent an image or
-texture, as in the figure, then the different layers do not have the
-same height and width. To solve this, when algorithmically combining
-two layers, the image with the lowest resolution is re-sampling to the
-same resolution as the other image.
+as using a larger array. If this array represent an image or texture,
+as in the figure, then the different layers do not have the same
+height and width. To solve this, when algorithmically combining two
+layers, the layer with the lowest resolution is re-sampled to the same
+resolution as the other layer.
 
 \begin{figure}[!h]
     \centering
@@ -261,18 +261,18 @@ with an exponential function which creates the look seen in figure
 \ref{fig:combined-result}.
 
 \section{Implementation}
-When implementing noise functions, one must chose where the
+When implementing noise functions, one must choose where the
 computations are placed. One option is to do all computations as
 pre-computations and then use the resulting noise texture for look up
 at run-time. Another option is to do all the computations at
 run-time. The main advantage of doing the calculation as pre-computation
 is an increase in run-time performance, where as doing the calculations
-at run-time enable adaption in LOD in relation to the camera
+at run-time enable dynamic adaption in LOD in relation to the camera
 position. For the run-time computations to be fast enough for
 real-time rendering they are usually done on the GPU, but although noise
 functions exists in the GLSL API\citebook{page~145-146}{orangebook},
 they are not recommended because
-their behavior are not fully described in the specification and are
+their behavior is not fully described in the specification and are
 implemented differently by different vendors and on different
 hardware. Developers that still want to do the calculations
 at run-time, instead use a hybrid solution, generating a small noise

@@ -17,8 +17,8 @@ the rendering.
 %
 One possibility is to simulate all important real world components
 influencing the appearance of the sky. This could involve complex
-weather forecast models or other large simulations, but because
-there are so many complex phenomena influencing the skies appearance the
+weather forecast models or other large simulations, but because there
+are so many complex phenomena influencing the skies appearance, the
 calculations of such models cannot be computed in real-time. Instead
 we have chosen some of the skies most obvious visual effects and tried
 to create believable visualizations of those.
@@ -33,18 +33,18 @@ shading. But as objects in the scene becomes more detailed and
 realistic looking this simple approach makes the sky stand out. 
 %
 Simulating a more realistic looking sky can and have been done many
-different way. Some authors use what is known as a \emph{sky box}
-\citebook{page~338-339}{RTR2},
-which is a technique that maps images of the sky onto a axis aligned
-box. This box is so large that it contains the entire scene and by
-moving the center of the box according to the camera position creates
-the illusion of fare stretching planes by using simple images.
+different ways. Some authors use what is known as a \emph{sky box}
+\citebook{page~338-339}{RTR2}, which is a technique that maps images
+of the sky onto an axis aligned box. This box is so large that it
+contains the entire scene and by moving the center of the box
+according to the camera position, it  creates the illusion of far
+stretching planes by using simple images.
 %
 One problem with using a box when doing this, is that the edges
-between the images on different faces of the box are apparent as
+between the images on different faces of the box can be apparent as
 artifacts when looking directly at them. To get around this problem,
 developers instead use a sphere or dome as the basic geometry, and
-hence what is know as a \emph{sky dome}, when rendering the sky. The
+hence what is known as a \emph{sky dome}, when rendering the sky. The
 main difference between these two approaches is texture mapping
 the images. When mapping images onto a box a straight forward approach
 can be used, but when using a dome this step becomes much more tricky.
@@ -57,25 +57,24 @@ So we have also take up the challenge of simulating or animating the
 images which is to be mapped onto the sky dome.
 
 \section{Sun}
-Before we describe the sky dome we will introduce the source that lights
-and hereby influences the entire scene. The only light source in our
-scene is the sun, which is a directional light source that we move
-around according to the time of day.
+Before we describe the sky dome we will introduce the source that
+lights and thereby influences the entire scene. The only light source
+in our scene is the sun, which is a directional light source that we
+move around according to the time of day.
 
 *** Lighting properties: shader on the dome, in the water, on the landscape...
 
 \section{Sky domes}
-We have chosen to using two sky spheres, one inner sphere for
-rendering clouds as a black and white image with alpha transparency,
-and an outer sphere to render a background color which can change
-based on the time of day. We also include texture coordinate animation
-of the cloud texture based on a simple wind model, so the clouds
-change over time.
+We have chosen to use two sky spheres, one inner sphere for rendering
+clouds as a greyscale image with alpha transparency, and an outer
+sphere to render a background color which can change based on the time
+of day. We also include texture coordinate animation of the cloud
+texture based on a simple wind model, so the clouds change over time.
 
 \subsection{Geometry}
-We have tried two different ways on generating the sphere
-geometry. The first method used was the traditional longitudinal/latitude
-sphere commonly used for geographical maps. This
+We have tried two different ways of generating the sphere
+geometry. The first method used was the traditional
+longitudinal/latitude sphere commonly used for geographical maps. This
 however gave very obvious image stretching artifact at the poles
 because of oversampling in these regions. Instead we now use geodesic
 spheres which consist of equilateral triangles. This sphere is
@@ -108,15 +107,14 @@ to model this complex process. This technique is based on a
   \label{fig:atmosphere}
 \end{figure}
 
-We use the color gradient in figure
-\ref{fig:sky-gradient}, borrowed from the open source framework: 
-Caelum\footnote{\url{http://www.ogre3d.org/tikiwiki/Caelum}}, to
-color the fragments of the atmospheric dome. We use the
-fragments height in the dome for texture mapping vertically on
-the color gradient and the time of day in the horizontal
-direction. This divides time into four periods: day, sunset, night,
-and sunrise by first going from left to right, and then the
-other way.
+We use the color gradient in figure \ref{fig:sky-gradient}, borrowed
+from the open source framework:
+Caelum\footnote{\url{http://www.ogre3d.org/tikiwiki/Caelum}}, to color
+the fragments of the atmospheric dome. We use the y-component of the
+texture coordinate for texture mapping vertically on the color
+gradient and the time of day in the horizontal direction. This divides
+time into three periods: day, sunset/sunrise, and night by first going
+from left to right, and then the other way.
 %
 The white color seen on the right in figure \ref{fig:sky-gradient}
 is alpha transparency, which is used at night to enable rendering of
@@ -132,7 +130,7 @@ The cloud dome is simply used to map a cloud texture.
 
 \subsubsection{Cloud texture}
 We have chosen to use a procedural generated image to texture the
-cloud dome. By take this approach we can generate very different
+cloud dome. By taking this approach we can generate very different
 looking clouds by only altering a few parameters that is supplied to
 the generation algorithm.
 %
@@ -142,22 +140,21 @@ eases texture mapping when the image is to be mapped onto the sphere.
 To generate the cloud image we have been inspired by an Internet
 homepage\footnote{\url{http://freespace.virgin.net/hugo.elias/models/m_clouds.htm}
   \\Be warned though, this homepage does not use Perlin noise as they
-  say but value lattice noise.}
-The page describe how to use procedural generation and
-image layering/composition in combination to produce texture that
-looks like real clouds.
-Because procedural data generation is a large subject we have
-dedicated a separate chapter for it, chapter \ref{chap:noise}. Here it
-is enough to say that we generate a three dimensional texture which
-can be tiled in all three dimensions.
+  say but value lattice noise.}  The page describes how to use
+procedural generation and image layering/composition in combination to
+produce textures that look like real clouds.  Because procedural data
+generation is a large subject we have dedicated a separate chapter to
+it, chapter \ref{chap:noise}. Here it is enough to say that we
+generate a three dimensional texture which can be tiled in all three
+dimensions.
 
 \subsubsection{Texture mapping - animation}
 The basic texture mapping scheme, is to put the three dimensional
 texture into a unit cube, and use texture coordinates based on the
 unit sphere to make a direct mapping which avoids texture stretching.
 %
-If we only did this, the a large portion of the generated texture
-would not be used.
+If we only did this, a large portion of the generated texture would
+not be used.
 %
 So besides the basic texture mapping scheme, we have introduced
 texture coordinate animation. This has been done by modeling the wind.
@@ -169,8 +166,8 @@ The algorithm works by having a two wind directions referred to as the
 current and future direction. The future direction is generated
 randomly based on the current direction and is normal distributed
 around this. The wind is then changing progressively by interpolating
-linear between these based on time. When the future wind direction is
-reaches we overwrite the current by the future direction and generate
+linearly between these based on time. When the future wind direction is
+reached we overwrite the current by the future direction and generate
 a new future wind direction.
 
 %%% Local Variables:
