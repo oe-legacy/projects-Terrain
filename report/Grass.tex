@@ -102,6 +102,36 @@ camera, but the border will never be in front of the camera. The
 result is many more grass straws on the screen at the same vertex
 processing cost.
 
+\begin{figure}
+  \centering
+  \label{fig:grassTranslation}
+  \begin{tikzpicture}[y=0.5cm, x=.5cm,font=\sffamily]
+    \draw (0,0) -- coordinate (x axis mid) (10,0);
+    \draw (0,0) -- coordinate (y axis mid) (0,5);
+
+    \draw (-2,-2) -- coordinate (x axis mid) (-2,2);
+    \draw (2,-2) -- coordinate (x axis mid) (2,2);
+    \draw (2,2) -- coordinate (x axis mid) (-2,2);
+    \draw (2,-2) -- coordinate (x axis mid) (-2,-2);
+
+    \draw (3,0) -- coordinate (x axis mid) (3,4);
+    \draw (7,0) -- coordinate (x axis mid) (7,4);
+    \draw (7,4) -- coordinate (x axis mid) (3,4);
+    \draw (7,0) -- coordinate (x axis mid) (3,0);
+
+    \draw (-1.5,2.2) -- coordinate (x axis mid) (2.5,3.8);
+    \draw (2,3.8) -- coordinate (x axis mid) (2.5,3.8);
+    \draw (2.15,3.5) -- coordinate (x axis mid) (2.5,3.8);
+    
+    \draw (2.5,-1.8) -- coordinate (x axis mid) (6.5,-0.2);
+    \draw (6,-0.2) -- coordinate (x axis mid) (6.5,-0.2);
+    \draw (6.15,-0.5) -- coordinate (x axis mid) (6.5,-0.2);
+
+  \end{tikzpicture}
+  \caption{The translation of the grass bounding box from origo out to the camera.}
+\end{figure}
+
+
 % creation and one draw call
 
 Since grass placed anywhere will now be translated to the camera, we
