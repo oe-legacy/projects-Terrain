@@ -184,6 +184,8 @@ $\mathbf{i}_{spec} = (\mathbf{v} \cdot \mathbf{r})^{m_{shi}}
 = \mathbf{m}_{color}$ and $\mathbf{r} = 2 (\mathbf{n} \cdot
 \ \mathbf{l}) - \mathbf{l}$.
 
+\pagebreak
+
 A faster approximation was proposed by
 Blinn\footnote{\citebook{page~77}{RTR2}}. Instead of basing the
 specular highlight on the angle between the view direction and
@@ -200,7 +202,7 @@ two is given in \citebook{page~77}{RTR2} as
 Both specular light models have been implemented in the terrain
 fragment shader and the results can be seen in \reffig{fig:specularLight}
 
-\begin{figure}
+\begin{figure}[!h]
   \centering
   \subfloat[Phong specular lighting]{
     \includegraphics[width=5cm]{phongSpec}
@@ -214,6 +216,8 @@ fragment shader and the results can be seen in \reffig{fig:specularLight}
 
 Since Blinn yields little to no framerate increase, we use Phong
 specular lighting as the default, as it gives a more pleasing result.
+
+\pagebreak
 
 The GLSL code for lighting with Phong specular light can be seen in
 \reflst{lst:phongLighting}.
@@ -295,6 +299,8 @@ the direction of the light from global space to tangent space or
 transform the bumped normal from tangent space to global space. For
 this project the latter was chosen to easier incorporate the shaders
 into a deferred lighting pipeline in the future.
+
+\pagebreak
 
 The GLSL code can be seen in \reflst{lst:bumpmapping}
 
