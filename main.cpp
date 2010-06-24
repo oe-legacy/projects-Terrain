@@ -709,8 +709,8 @@ void SetupDisplay(){
     camera  = new Camera(*(new PerspectiveViewingVolume(1, 4000)));
     frustum = new Frustum(*camera);
 
-    camera->SetPosition(Vector<3, float>(-256.0, 200.0, -256.0));
-    camera->LookAt(0.0, 127.0, 0.0);
+    camera->SetPosition(Vector<3, float>(-256.0, 350.0, -256.0));
+    camera->LookAt(512.0, 0.0, 512.0);
 }
 
 
