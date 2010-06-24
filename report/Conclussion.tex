@@ -19,34 +19,49 @@
 
 
 \section{Future work}
+Although we have come a long way there are still things that we wish to
+do even better. The following techniques have been discussed doing our
+work.
 
-Future work on the terrain itself would include a clipmap
-implementation and level of detail not only on teh textures and
-geometry, but also within the shaders. An example would be removing
-specular lighting and bumpmapping on distant terrain. An alternative
-to the current geomeorphing LOD system is alpha blending, which would
-make transistions between LODs easier, but ofcourse requires us to
-handle transparency.
+The terrain itself could include a clipmap implementation and level of
+detail not only on the textures and geometry, but also within the
+shaders. An example would be removing specular lighting and
+bumpmapping on distant terrain. An alternative to the current
+geomeorphing LOD system is alpha blending, which would make
+transistions between LODs easier, but ofcourse requires us to handle
+transparency.
 
+For our sky we corrently have two minor visual defects: The first
+problem is that the atmospheric dome do not take the angle of the sun
+into account. This results in a uniform coloring of the dome in the
+vertical direction on the entire sphere. A more realistic coloring
+would be to only color the dome shades of yellow and red in a radius
+around where the sun is setting or rising.
+%
+We have also talked about going even further an implementing a full
+atmospheric scattering simulation algorithm like the
+effect described in \citebook{chapher~16}{GPUGEMS2}.
+%
+The second problem is that the texture mapping of the cloud dome does
+not have the right perspective.
+To fixed this we have talked about using the texture mapping scheme
+based on a plane as described in \citebook{page~32}{copenhagen2007real}.
 
-
-An extension to the atmospheric dome is to include the location or
-angle of the sun to make a more beautiful sunrise and sunset.
-Or going evaen futher an implementing the full atmosphric scattering
-effect described in \citebook{chapher~16}{GPUGEMS2}
-
-Create a texture binding manager that reuses \emph{texture unit} by
-using \code{glActivateTexture} \citebook{page~440}{redbook} and cache
-a stack of the last x number of binded textures.
-
-Texture mapping on the cloud sphere, try with a plane as described in
-\citebook{page~32}{copenhagen2007real}
-
+When generating the cloud texture we use value noise as suggested in
+the web page that inspired our
+work\footnote{\url{http://freespace.virgin.net/hugo.elias/models/m_perlin.htm}}.
+Some authors however use Perlin noise to generate clouds, which could
+be interesting to implement and compare with our current value noise.
 
 The next step for the \class{PostProcessNode} is to allow it to be
 placed anywhere inside the scene graph and then merge the post
-processed image with the rest of the scene. Also optimized versions of
-the most commen effects could be made to increase performance and in
-the case of Depth of Field remove the flickering that comes from only
-sampling one focuspoint.
+processed image with the rest of the scene. An optimized versions of
+some of the most commonly used effects could also be made to increase
+performance and in the case of Depth of Field remove the flickering
+that comes from only sampling one focus point.
 
+During our work with texture binding the idea of 
+creating a texture binding manager that reuses \emph{texture unit}
+using \code{glActivateTexture}\citebook{page~440}{redbook} has
+surfaced. This manager could cache texture ids and texture units so
+the last x number of bound textures more quickly can be activated.
