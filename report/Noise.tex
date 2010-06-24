@@ -2,22 +2,22 @@
 
 \chapter{Procedural generation of content}
 \label{chap:noise}
-What is known as procedural or synthetic generation of content are
+What is known as procedural or synthetic generation of content is
 used extensively in computer graphics to enable generation of natural
-looking details. By generating details, in contract to doing them by
-hand, boring work typically done by computer artists can be cut down,
-and instead be used on designing the overall look and feel.
+looking details. By generating details, in contrast to doing them by
+hand, boring work typically done by computer artists can be cut down.
+%and instead be used on designing the overall look and feel.
 %
 The term procedural generation of content is very fuzzy and covers
 quite a large area of different techniques, but boils down to some
 kind of algorithm that produces data \citebook{page~12}{ebert2003}.
-Typically where a number of parameters can be specified to control the
-generation process in a way that alters the result in a intuitive way
-based on the parameters.
+The algorithm typically has a number of parameters that can be
+specified to control the generation process in a way that alters the
+result in an intuitive way based on the parameters.
 
 \section{Generating irregular data}
-We have chosen to concentration our effort on irregular data generation
-minded on textures, therefore only this type type of data generation
+We have chosen to concentrate our effort on irregular data generation
+minded on textures, therefore only this type of data generation
 will be covered in the following.
 %
 The basic building blocks when generating irregular data are
@@ -44,9 +44,9 @@ representation used when rendering. Instead we use a low-pass filtered
 version of an approximation to white noise.
 
 There are many different ways of using PRN to produce noise functions,
-each method generate functions with different properties. General the
-functions are divide into categories based on how they generate the
-noise. To making an important and often misunderstood point regarding
+each method generates functions with different properties. Generally the
+functions are divided into categories based on how they generate the
+noise. To make an important and often misunderstood point regarding
 what precisely defines the famous Perlin noise function, we will
 introduce two basic categories of noise functions: Value and gradient
 noise, which both also are categorized as lattice noise.
@@ -105,7 +105,7 @@ returned when the function is evaluated.
 \subsubsection{Gradient noise}
 Gradient noise however generates a gradient at each point in the
 lattice, which is a vector with the same dimension as the number of
-dimensions wherein the function is defined. The gradients in each grid
+dimensions wherein the function is defined. The gradient in each grid
 point is then used to calculate a continuous function between the grid
 points, which again can be used to evaluate a noise value.
 %
@@ -134,7 +134,7 @@ describes the space between to consecutive samples, and the term
 \emph{amplitude} the maximum value of the function.
 
 To generate the basic shape of some clouds we use a low
-frequency noise with a large amplitude as illustrated for an one
+frequency noise with a large amplitude as illustrated for a one
 dimensional case in figure in \ref{fig:1d-layer0}.
 %
 We add layers of details onto this low frequency noise by combining it 
@@ -145,7 +145,7 @@ dominant the amplitude of noise with higher frequencies are lowered,
 this is shown in figure \ref{fig:1d-layer1} and \ref{fig:1d-layer2}.
 %
 We change these frequency and amplitude in octaves because
-octaves frequent occur in nature and gives good visual results.
+octaves frequent occur in nature and give good visual results.
 For each level of detail that is added the frequency is doubled while
 the amplitude is halved. To illustrate this, we have used value noise
 to generate three layers and combined them into the result show in
