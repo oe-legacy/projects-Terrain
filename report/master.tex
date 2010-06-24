@@ -18,17 +18,52 @@
 \citestyle{chicago} % Chicago Manual of Style citations
 \bibliographystyle{is-alpha} % is- shows ISBN in references
 
-%\title{Terrains}
-\title{Rendering natural looking outdoor environments}
-\author{
-  Asger Dam Hoedt \\ asgerhoedt@gmail.com \\ 20051770  \and 
-  Christian P. V. Christoffersen \\ cpvc@cs.au.dk \\ 20050879
-}
+%\title{Rendering natural looking outdoor environments}
+%\author{
+%  Asger Dam Hoedt \\ asgerhoedt@gmail.com \\ 20051770  \and 
+%  Christian P. V. Christoffersen \\ cpvc@cs.au.dk \\ 20050879
+%}
+
+
 
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+\pagenumbering{alph}
+
+\thispagestyle{empty}
+\centering
+{ \baselineskip=24pt
+    {\LARGE Rendering natural looking outdoor environments}\\
+    Introduction to Computer Graphics
+    \vspace*{20pt}
+    \\
+    \includegraphics[width=8cm]{frontpage}
+    \vspace*{40pt}
+    \\
+    \begin{minipage}{0.4\textwidth}
+      \centering
+      Asger Dam Hoedt \\ asgerhoedt@gmail.com \\ 20051770
+    \end{minipage}
+    \begin{minipage}{0.4\textwidth}
+      \centering
+      Christian P. V. Christoffersen \\ cpvc@cs.au.dk \\ 20050879
+    \end{minipage}
+}
+\vfill
+\small
+Datalogisk Institut\\
+Aarhus Universitet
+\end{titlepage}
+
+\clearpage\pagenumbering{roman}
+\tableofcontents
+
+\clearpage\pagenumbering{arabic}
+
+
+%\maketitle
 
 \input{intro}
 

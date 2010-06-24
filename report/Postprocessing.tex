@@ -196,13 +196,22 @@ original non-blurred scene. For an $N \times N$ rectangle we've now
 reduced $N^2$ texture lookups to $2N$, while achieving the same
 effect.
 
-% @TODO show the non blurred + blurred = glow images
+As can be seen on the image on the frontpage, a subtle smeering gives
+a smoother and more natural looking image. The non blurred and blurred
+image can be seen in \reffig{fig:glow} and the shader that does the
+vertical blurring and blend it with the original image can be seen in
+project/Terrain/data/shaders/Glow.frag.
 
-As can be seen on \reffig{fig:glow}, a subtle smeering gives a
-smoother and more natural looking image. The shader that does the
-vertical blurring can be seen in \reflst{lst:glowShader}.
-
-% TODO ref appendix
+\begin{figure}
+  \centering
+  \label{fig:glow}
+  \subfloat[Non blurred image.]{
+    \includegraphics[width=5cm]{noGlow}
+  }
+  \subfloat[Blurred image.]{
+    \includegraphics[width=5cm]{blur}
+  }
+\end{figure}
 
 %% \begin{listing}
 %% \label{lst:glowShader}
@@ -308,8 +317,8 @@ provided a pleasing result.
 
 The result can be seen on \reffig{fig:dofMotionBlur} where the hill in
 the background and the horizon are slightly blurry. The shader that
-creates the horizontal depth of field blurring can be seen in shader
-HorizontalDepthOfField.frag.
+creates the horizontal depth of field blurring can be seen in
+project/Terrain/data/shaders/HorizontalDepthOfField.frag.
 
 \begin{figure}
   \label{fig:dofMotionBlur}
