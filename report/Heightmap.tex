@@ -7,7 +7,7 @@ of previous work, as already stated in the introduction. How a
 heightmap is loaded from a texture and converted into geometry is
 pretty straight forward, and thus won't be the focus in this
 chapter. Instead we will focus on the lighting model and how it was
-derived from the generel model presented in
+derived from the general model presented in
 \citebook{page~83}{RTR2}. We will talk about how we give the illusion
 of more detailed geometry by implementing \emph{bump maps}, which
 requires us to transform a bumped normal from \emph{tangent space} and
@@ -26,7 +26,7 @@ shader.
 
 The heightmap uses cluster-based Continuous Level of Detail to
 minimize vertex processing overhead. An example can be seen in
-\reffig{fig:tesselation} where a mound is rendered with three
+\reffig{fig:tessellation} where a mound is rendered with three
 different levels of detail, LOD. When changing level of detail, the
 terrain will appear to suddenly deform, this is termed \emph{Vertex
   Popping}. Geomorphing, as presented by \citeabook{1936}, can be used
@@ -43,13 +43,13 @@ to be done along the y-axis.
   \caption{A wireframe mound rendered with three different levels of
     detail. The new vertices introduced in higher levels of detail are
     the ones causing vertex popping.}
-  \label{fig:tesselation}
+  \label{fig:tessellation}
 \end{figure}
 
 % We remove normal popping by using a normal map
 
 Vertex popping has now been removed, but all other vertex attributes
-must be morphed aswell to remove texture popping and normal
+must be morphed as well to remove texture popping and normal
 popping. Our heightmap texture coordinates are proportional to the
 vertex xz-positions and will therefore not pop when changing LOD. But
 the adding or removing of normals will cause popping in the
@@ -78,17 +78,17 @@ source\footnote{\citebook{page~83}{RTR2}} states
 \end{displaymath}
 
 Since the scene is set outside in a natural environment the only
-lightsource is the sun, which is a directional light. This allows
+light source is the sun, which is a directional light. This allows
 several aspects of the lighting equation to be ignored. First of all
-since there is only one lightsource in the scene, the global ambience
-can be taken into account in the lightsource's ambience, removing that
+since there is only one light source in the scene, the global ambiance
+can be taken into account in the light source's ambiance, removing that
 expression from the equation.
 
 \begin{displaymath}
   \mathbf{i}_{tot} = \mathbf{m}_{emi} + c_{spot}(\mathbf{i}_{amb} + d(\mathbf{i}_{diff} + \mathbf{i}_{spec}))
 \end{displaymath}
 
-Also because the lightsource is a directional light, the spotlight
+Also because the light source is a directional light, the spotlight
 factor, $c_{spot}$, and attenuation factor, $d$, can safely be
 removed from the expression.
 
@@ -124,7 +124,7 @@ lighting where used.
 where $\mathbf{n}$ is the surface normal, $\mathbf{l}$ is the
 direction of the light, $\mathbf{v}$ is the vector pointing to the
 camera from the surface point and $\mathbf{r}$ is the reflection of the
-light around the normal. All the vectors are assummed to be normalized
+light around the normal. All the vectors are assumed to be normalized
 and can be seen on \reffig{fig:lightVectors}.
 
 \begin{figure}
@@ -158,7 +158,7 @@ The contribution of each factor to the final image can be seen in
 \reffig{fig:lightComponents}.
 
 Now if we restrict our material to only specify one color and a
-specular intensity instead of a seperat color for ambient, diffuse and
+specular intensity instead of a separate color for ambient, diffuse and
 specular, we can reduce the equation to
 
 \begin{displaymath}
@@ -188,7 +188,7 @@ A faster approximation was proposed by
 Blinn\footnote{\citebook{page~77}{RTR2}}. Instead of basing the
 specular highlight on the angle between the view direction and
 reflection vector, he proposed to base it on the angle between the
-normal and the halfvector, a vector halfway between the view- and
+normal and the half-vector, a vector halfway between the view- and
 light direction given by $\mathbf{h} = (\mathbf{l} + \mathbf{v}) /
 \|\mathbf{l} + \mathbf{v}\|$. An approximate relationship between the
 two is given in \citebook{page~77}{RTR2} as
@@ -258,9 +258,9 @@ using the y-axis as up, the normal will be our y-axis in the tangent
 space coordinate system. The tangent and bitangent are normalized
 vectors perpendicular to the normal and lie along the normalmaps
 texture coordinate axes. Calculating them normally is done as a
-preprocessing step and they are stored as vertex attributes, or in our
+pre-processing step and they are stored as vertex attributes, or in our
 case a tangent- and bitangentmap. However due to the heightmap being a
-2D array of vertices with texture coordinates proportinal to the x-
+2D array of vertices with texture coordinates proportional to the x-
 and z-coordinates, we can calculate the tangents directly in the
 shader. This saves us two texture lookup and the need to bind
 additional textures.
@@ -293,7 +293,7 @@ The tangent, bitangent and normal now make up the basis vectors of the
 tangent space coordinate-system and can be used to either transform
 the direction of the light from global space to tangent space or
 transform the bumped normal from tangent space to global space. For
-this project the latter was chosen to easier incorperate the shaders
+this project the latter was chosen to easier incorporate the shaders
 into a deferred lighting pipeline in the future.
 
 The GLSL code can be seen in \reflst{lst:bumpmapping}
@@ -312,7 +312,7 @@ The GLSL code can be seen in \reflst{lst:bumpmapping}
   bumpNormal = bumpNormal * 2.0 - 1.0; // move from [0; 1] to [-1; 1]
   bumpNormal = normalize(tangentSpace * bumpNormal);
 \end{cppcode}
-\caption{Calculating tangent space for a heightmap and rotating the normal in glsl.}
+\caption{Calculating tangent space for a heightmap and rotating the normal in GLSL.}
 \label{lst:bumpmapping}
 \end{listing}
 

@@ -29,10 +29,10 @@ the sun is setting, casting it's last golden rays toward the
 landscape.
 
 \section{Previous work}
-This project is build ontop of a previous heightmap project in the
+This project is build on top of a previous heightmap project in the
 OpenEngine framework. While that old project's only purpose was to
 explorer heightmap techniques, this project has been about making the
-environment more aesthetically pleasing. Alot of effort have therefore
+environment more aesthetically pleasing. A lot of effort have therefore
 gone into the shaders, both with respect to creating a more realistic
 result and optimizing them, this means that none of the old shader code
 remains. Most of the code behind the heightmap scene node have also
@@ -41,10 +41,10 @@ project and for future extensions.
 
 The water used in this project was made by the authors as part of
 the old heightmap extension, but contains most of it's original code,
-appart from using the new \class{FrameBuffer} abstraction.
+apart from using the new \class{FrameBuffer} abstraction.
 
 Apart from the terrain, we have extended the scene with an
-animated skydome, waving grass and post process effects.
+animated sky dome, waving grass and post process effects.
 
 %% We have previously been work on this project, but not been satisfied
 %% with the mood of the result because only the basic objects in the
@@ -77,7 +77,7 @@ as \class{HeightmapNode}, \class{MeshNode} or \class{PostProcessNode},
 where the two latter were developed during the process of creating
 this project and have made their way into the core framework. We use
 the two existing nodes; \class{TransformationNode}, for translating
-the skydome, and \class{BlendNode}, to make the skydome transparent.\\
+the sky dome, and \class{BlendNode}, to make the sky dome transparent.\\
 
 OpenEngine is composed of a core framework, extensions, and
 projects. In this project we have made use of some already available
@@ -87,10 +87,10 @@ extensions:
   \item \code{SDL}, to create a window and get an OpenGL context.
   \item \code{GenericHandlers} for keyboard and mouse event handling.
   \item \code{CairoResource} and \code{HUD} to draw and render the FPS
-    counter ontop of the rendered image.
+    counter on top of the rendered image.
   \item \code{AntTweakBar}, \code{Inspection}, and
     \code{InspectionBar} to add graphical components, allowing us to
-    change values of variables at runtime.
+    change values of variables at run-time.
 \end{itemize}
 
 The following extensions are also used in our project and have either
@@ -110,7 +110,7 @@ been created or extended during the implementation of our project:
     load and save \code{PNG}, \code{TGA} and \code{EXR} images,
   \item \code{MeshUtils} which was created as part of the new geometry
     structure to handle  buffer objects. It creates the geodesic
-    spheres used for the skydomes.
+    spheres used for the sky domes.
   \item \code{TexUtils} which includes our noise generation algorithm
     described in chapter \ref{chap:noise},
   \item \code{OpenGLPostProcessingEffects} which holds shaders for
@@ -118,7 +118,7 @@ been created or extended during the implementation of our project:
     of other effects.
   \item \code{Heightmap} which implements a heightmap node and a grass
     node. This extension also includes an expansion to the
-    renderingview in \code{OpenGLRenderer}, which can render the
+    \code{RenderingView} in \code{OpenGLRenderer}, which can render the
     heightmap and grass.
 \end{itemize}
 

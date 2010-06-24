@@ -5,7 +5,7 @@
 % project and reused.
 
 In the previous sections geometry has been used to render the
-landscape and skyto the screen. Now we turn to \emph{screen space
+landscape and sky to the screen. Now we turn to \emph{screen space
   effects}, which do not rely on geometry, but will instead use the
 final color image and the depth buffer to create effects. \emph{Depth
   of field}, \emph{motion blur}, a screenwide \emph{glow} and many
@@ -40,7 +40,7 @@ to the effect. It contains a pointer to an OpenEngine
 \class{PostProcessNode} also holds another \class{FrameBuffer} where
 the final image can be \emph{blitted} into after the effect has been
 applied. This is useful for some implementations of motion blur, that
-relies on the previous frame being availible.
+relies on the previous frame being available.
 
 In order to allow users of the \class{PostProcessNode} to focus on
 writing their effects, the node will handle most of the setup as long
@@ -109,7 +109,7 @@ performance the depth test is set to always allow all fragments.
 If the post process effect relies on the final image from the previous
 rendering, then now is the time to save the image. However recall from
 earlier that the previous image was originally set as the current
-image. Therefore if this is the first renderpass, the final image
+image. Therefore if this is the first render pass, the final image
 texture has to be bound to the effect, so it is ready for use in the
 next pass. The final image can then be blitted from the current
 renderbuffer into the renderbuffer that will hold the final image.
@@ -133,7 +133,7 @@ renderbuffer into the renderbuffer that will hold the final image.
   }
 \end{lstlisting}
 
-\section{Post Pocess Effect}
+\section{Post Process Effect}
 
 In this section we will take a short look at some of the different
 post process effects that we have created.
@@ -160,7 +160,7 @@ previous position of a fragment and then accumulate the colors between
 the current and previous position. This approach however only creates
 blurring if the camera is moved. A car that drives past the camera
 will be crystal clear. Another problem is that the shader becomes
-quite complex and timeconsuming.
+quite complex and time consuming.
 
 The algorithm that we settled on is \emph{ghosting motion blur} which
 combines a low memory footprint with a fast shader. We use an
@@ -169,17 +169,17 @@ together, and then blend that texture together with the current
 image. This way the contribution from old images will tend toward 0
 and the motion blurring will produce nice looking blurred `tails' on
 moving objects. Of course since we can only blur between rendered
-frames, a fast turning camera will produce artefacts. The result can
+frames, a fast turning camera will produce artifacts. The result can
 be seen in \reffig{fig:dofMotionBlur}
 
 \subsection{Glow}
 
 When looking at natural outdoor environments in bright sunlight,
-colors seem to blur or smeer together. We would like to reproduce this
+colors seem to blur or smear together. We would like to reproduce this
 effect using a fullscreen glow post processing effect, as is also
 proposed in \citebook{chapter~1}{983868}
 
-Initally the effect was created in just a single shader. This shader
+Initially the effect was created in just a single shader. This shader
 did a blur on the surrounding fragments and then blended the result
 with the original fragment. This produced the results we where after,
 but at a huge performance overhead. The problem was texture
@@ -193,7 +193,7 @@ with the original non-blurred scene. For an $N \times N$ rectangle we
 have reduced $N^2$ texture lookups to $2N$, while achieving the same
 effect.
 
-As can be seen on the image on the frontpage, a subtle smeering gives
+As can be seen on the image on the front page, a subtle smearing gives
 a smoother and more natural looking image. The non blurred and blurred
 image can be seen in \reffig{fig:glow} and the shader that does the
 vertical blurring and blend it with the original image can be seen in
@@ -216,7 +216,7 @@ the file:\\ \code{project/Terrain/data/shaders/Glow.frag}.
 
 When taking pictures or filming through a lens an effect called Depth
 of Field occurs. Essentially everything not in focus by the camera
-becomes blury, and the greater the distance between the object in
+becomes blurry, and the greater the distance between the object in
 focus and the out-of-focus object the more blurry the object will
 appear.
 
@@ -237,7 +237,7 @@ will not be much blurred, while fragments with a high blurring offset
 will be sampled inside a larger square and thus be blurrier.
 
 We decided to blur with a half circle kernel, as can be seen on
-\reffig{fig:blurKernels}. To increase effectivness we tried squaring
+\reffig{fig:blurKernels}. To increase effectiveness we tried squaring
 the sample weights and came up with the kernel in
 \reffig{fig:blurKernels}, which while faster still provided a pleasing
 result.
@@ -317,7 +317,7 @@ creates the horizontal depth of field blurring can be seen in the file:\\
   \subfloat[Depth of field is visible on the background]{
     \includegraphics[width=7cm]{depthOfField}
   }
-  \subfloat[The landscape is motionblurred as the camera pans to the side.]{
+  \subfloat[The landscape is motion blurred as the camera pans to the side.]{
     \includegraphics[width=7cm]{motionBlur}
   }
   \caption{Post processing effects.}

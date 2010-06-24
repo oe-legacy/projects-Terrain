@@ -15,7 +15,7 @@ rendering techniques for grass were:
   illusion breaks down when viewed from above or on steep cliffs.
 \item Modeling each grass straw. This technique allows for very
   flexible grass with correct lighting. It is however very expensive
-  to process all the vertices, so it is ususally used in conjunction
+  to process all the vertices, so it is usually used in conjunction
   with the above method for far away grass.
 \item Rendering a volume texture containing the grass straws.
 \end{itemize}
@@ -57,14 +57,14 @@ quads to be moved up to the camera with a step size equal to the
 length of the bounding box' side. From the camera this would create
 the effect that quads exiting the camera bounding box on one side
 would reappear on the other side. In practice this isn't visible from
-the camera and the illusion of individuel grass straws is
+the camera and the illusion of individual grass straws is
 preserved. The following equation expresses the this desire.
 
 \begin{displaymath}
     -halfSize \le position + size * n - eye \le halfSize, n \in N \\
 \end{displaymath}
 
-Focussing on the left hand side of the equation and remembering that
+Focusing on the left hand side of the equation and remembering that
 $n$ should be an integer, $n$ can be calculated as
 
 \begin{displaymath}
@@ -85,14 +85,14 @@ Now the new position of the grass straw is simply calculated by
   newPos = position + size * n
 \end{displaymath}
 
-An added benefit to this approch is that even though the grass is
+An added benefit to this approach is that even though the grass is
 dynamically placed, it is deterministic and is always placed the
 same. This means that if a user is exploring the terrain and returns
 to a previously visited area, the grass will be placed the same way.
 
 % And placing it in front of the camera
 
-The grass objects have now succesfully been placed inside the bounding
+The grass objects have now successfully been placed inside the bounding
 box around the camera, as can be seen on
 \reffig{fig:grassTranslation}. However most of the straws still are
 not inside the frustum. A small trick can be applied to move more of
@@ -152,7 +152,7 @@ height at creation time and must therefore look it up in the vertex
 shader. From grass' xz-position a texture coordinate can be calculated
 and used to lookup into the heightmap texture, where we can find the
 correct height for the grass. To ensure that the terrain and grass are
-equally lit, we use the same procedure to lookup into the heightmaps
+equally lit, we use the same procedure to lookup into the heightmap's
 normalmap.
 
 % not on sand or snow.
@@ -160,12 +160,12 @@ normalmap.
 The last part of the grass placement is to keep it off the sand, snow
 and steep cliffs. To this end we pass along the center of the grass
 straw to the vertex shader. The center is then subjected to the same
-translations as the vertex position. Wether or not the grass straws
+translations as the vertex position. Whether or not the grass straws
 should be visible can then be estimated from the height of the
 center. If the center is too low the grass is on sand and should not
 be visible, likewise if the center is too high it is on snow. A
 similar scheme is used for deciding if the grass is placed on cliff,
-where the angle of the normal compared to the upvector is the deciding
+where the angle of the normal compared to the up vector is the deciding
 factor.
 
 The reason for using the center of the grass objects is that while one
@@ -181,7 +181,7 @@ Our animation algorithm is the same as the one proposed in
 used to create \emph{local chaos}. This means that textures are
 minimally distorted, since the vertices always have the same distance
 to their neighbours, and the local chaos creates a more natural wave
-effect. Of the two cons to the approach desribed in
+effect. Of the two cons to the approach described in
 \citebook{section~7.4.4}{983868}, only one of them applies to our
 implementation. The first con, which is that extra uniform data is
 required to hold the center of the grass object, does not apply in
@@ -205,8 +205,8 @@ transparency issue is completely ignored, by only rendering completely
 opaque fragments or discarding transparent fragments. This is done in
 the fragment shader, where colors with alpha values below a certain
 value are simply discarded. The reason for not just discarding
-everything with alpha values stictly below one is that mipmapping has
-to be taken into account. If two opague and two transparent pixels are
+everything with alpha values strictly below one is that mipmapping has
+to be taken into account. If two opaque and two transparent pixels are
 combined in a lower mipmap layer, this would yield an alpha of 0.5,
 but the fragment should perhaps still be rendered. In practice we
 found that discarding alphas below 0.6 works well with our grass straw
