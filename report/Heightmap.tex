@@ -54,11 +54,11 @@ popping. Our heightmap texture coordinates are proportional to the
 vertex xz-positions and will therefore not pop when changing LOD. But
 the adding or removing of normals will cause popping in the
 lighting. We could fix this by morphing the normals, but instead we've
-used a \emph{normalmap} to store the normals in and look them up in
-the fragment shader. This has the added benefit that we will retain
-our light shading, even when the geometric detail is reduced. The
-downside is that it forces us to use per pixel lighting, since the
-normal is not available until the fragment shader.
+used a \emph{normalmap} to store the normals in texture and look them
+up in the fragment shader. This has the added benefit that we will
+retain our light shading, even when the geometric detail is
+reduced. The downside is that it forces us to use per pixel lighting,
+since the normal is not available until the fragment shader.
 
 We assume that the terrain is not rotated, scaled or translated, so
 all our vertices and normals are given directly in world/model
@@ -69,20 +69,20 @@ easily be extended to transformed geometry.
 \section{Lighting}
 
 Because we are using shaders for rendering, we need to implement a
-light model. Since the scene is set outside in a natural
-environment the only lightsource is the sun, which is a directional
-light. This allows several aspects of the general lighting equation
-for one light source\footnote{\citebook{page~83}{RTR2}}, to be
-ignored.
+light model. The general lighting equation for one light
+source\footnote{\citebook{page~83}{RTR2}} states
 
 \begin{displaymath}
   \mathbf{i}_{tot} = \mathbf{a}_{glob} \otimes \mathbf{m}_{amb} +
   \mathbf{m}_{emi} + c_{spot}(\mathbf{i}_{amb} + d(\mathbf{i}_{diff} + \mathbf{i}_{spec}))
 \end{displaymath}
 
-First of all since there is only one lightsource in the scene, the
-global ambience can be taken into account in the lightsource's
-ambience, removing that expression from the equation.
+Since the scene is set outside in a natural environment the only
+lightsource is the sun, which is a directional light. This allows
+several aspects of the lighting equation to be ignored. First of all
+since there is only one lightsource in the scene, the global ambience
+can be taken into account in the lightsource's ambience, removing that
+expression from the equation.
 
 \begin{displaymath}
   \mathbf{i}_{tot} = \mathbf{m}_{emi} + c_{spot}(\mathbf{i}_{amb} + d(\mathbf{i}_{diff} + \mathbf{i}_{spec}))
@@ -96,7 +96,8 @@ removed from the expression.
   \mathbf{i}_{tot} = \mathbf{m}_{emi} + \mathbf{i}_{amb} + \mathbf{i}_{diff} + \mathbf{i}_{spec}
 \end{displaymath}
 
-Lastly the emission factor is 0, so we end up with
+Lastly the emission factor is 0, since none of our surfaces emit
+light, so we end up with
 
 \begin{displaymath}
   \begin{array}{rl}
@@ -190,7 +191,7 @@ reflection vector, he proposed to base it on the angle between the
 normal and the halfvector, a vector halfway between the view- and
 light direction given by $\mathbf{h} = (\mathbf{l} + \mathbf{v}) /
 \|\mathbf{l} + \mathbf{v}\|$. An approximate relationship between the
-two is given in Real-time Rendering as
+two is given in \citebook{page~77}{RTR2} as
 
 \begin{displaymath}
   (\mathbf{r} \cdot \mathbf{v})^{m_{shi}} \approx (\mathbf{n} \cdot \mathbf{h})^{4m_{shi}} 
@@ -214,7 +215,7 @@ fragment shader and the results can be seen in \reffig{fig:specularLight}
 Since Blinn yields little to no framerate increase, we use Phong
 specular lighting as the default, as it gives a more pleasing result.
 
-The shader code for lighting with Phong specular light can be seen in
+The GLSL code for lighting with Phong specular light can be seen in
 \reflst{lst:phongLighting}.
 
 \begin{listing}
@@ -235,32 +236,34 @@ vec3 phongLighting(in vec3 text, in vec3 normal, in vec2 specProp){
                  gl_LightSource[0].specular.rgb * specular);
 }
 \end{cppcode}
-\caption{A glsl function calculating lighting given a color, normal and specular intensity.}
+\caption{A GLSL function calculating lighting given a color, normal
+  and specular intensity. The view/eye-and light direction are
+  uniforms.}
 \label{lst:phongLighting}
 \end{listing}
 
 
 \section{Bump mapping}
 
-With the terrain shaded by the sun, it's time to improve on the detail
-of the lighting by adding 'bumps' to the surface, or more precisely
+With the terrain shaded by the sun, it is time to improve on the detail
+of the lighting by adding `bumps' to the surface, or more precisely
 manipulating the normal to create a bumpy feel. This is done by
-storing the normals of a surface in a texture, then instead of using
+storing the normals of a surface in a normalmap texture, then instead of using
 the interpolated geometric normal for light calculations, we transform
 the texture normal into tangent space and use that for lighting.
 
-In order to do that the interpolated normal, tangent and bitangent are
-used as the axes of a tangent space coordinate system. Since we're
+In order to do this the interpolated normal, tangent and bitangent are
+used as the axes of a tangent space coordinate system. Since we are
 using the y-axis as up, the normal will be our y-axis in the tangent
 space coordinate system. The tangent and bitangent are normalized
-vectors perpendicular to the normal and lie along the bump maps
-texture coordinate axes. Normally calculating them is done as a
-preprocess and they are stored as vertex attributes, or in our case a
-tangent- and bitangentmap. However due to the heightmap being a 2D
-array of vertices with texture coordinates proportinal to the x- and
-z-coordinates, we can calculate the tangents directly in the
-shader. This saves us 2 texture lookup and the need to bind additional
-textures.
+vectors perpendicular to the normal and lie along the normalmaps
+texture coordinate axes. Calculating them normally is done as a
+preprocessing step and they are stored as vertex attributes, or in our
+case a tangent- and bitangentmap. However due to the heightmap being a
+2D array of vertices with texture coordinates proportinal to the x-
+and z-coordinates, we can calculate the tangents directly in the
+shader. This saves us two texture lookup and the need to bind
+additional textures.
 
 Since our texture coordinates are axis-aligned, the tangent will lie
 in the xy-plane and the bitangent is placed in the yz-plane. Below we
@@ -268,13 +271,13 @@ will show how to calculate the tangent, but the same principle can be
 applied to calculate the bitangent.
 
 The interpolated normal is our approximation of a vector perpendicular
-to the terrain surface. It can therefore also be used to calculate
+to the terrain surface. It can therefore also be used to approximate
 vectors along that surface, specifically the tangent along the
 xy-plane. This is done by taking the cross product between the normal,
 $n$, and the unit vector along the z-axis, $z_i = (0,0,1)$, which will
 ensure that the tangent is both perpendicular to the normal, ie.
 lying in the plane, and perpendicular to the z-axis, which places it
-in the xy-plane. The calculations are
+in the xy-plane. The calculations for the direction of the tangent are
 
 \begin{displaymath}
   \begin{array}{rl}
@@ -284,17 +287,16 @@ in the xy-plane. The calculations are
   \end{array}
 \end{displaymath}
 
-which is the direction of the tangent. All that is left is to
-normalize the vector to get the tangent.
+All that is left is to normalize the vector to get the tangent.
 
-The tangent, bitangent and normal now make up the axes in a tangent
-space coordinate-system and can be used to either move the direction
-of the light from global space to tangent space or move the bumped
-normal from tangent space to global space. For this project the latter
-was chosen to easier incorperate the shaders into a deferred lighting
-pipeline in the future.
+The tangent, bitangent and normal now make up the basis vectors of the
+tangent space coordinate-system and can be used to either transform
+the direction of the light from global space to tangent space or
+transform the bumped normal from tangent space to global space. For
+this project the latter was chosen to easier incorperate the shaders
+into a deferred lighting pipeline in the future.
 
-The glsl code can be seen in \reflst{lst:bumpmapping}
+The GLSL code can be seen in \reflst{lst:bumpmapping}
 
 \begin{listing}
 \centering
@@ -317,10 +319,10 @@ The glsl code can be seen in \reflst{lst:bumpmapping}
 
 \section{Texturing the terrain}
 
-Several layers of ground textures have been added to the heightmap for
-a more diverse looking terrain. There is a sand layer, a grass layer
-and a snow layer. Rocks have also been added where slopes are steep
-enough, but the focus is on layered texturing.
+Several layers of color textures and normalmaps have been added to the
+heightmap for a more diverse looking terrain. There is a sand layer, a
+grass layer and a snow layer. Rocks have also been added on steep
+slopes, but the focus is on layered texturing.
 
 % No blending between layers
 
@@ -333,51 +335,51 @@ shader.
 % We could have used a 3d texture instead but then we would loose
 % mipmapping and we want our mipmapping!
 
-An alternative would be placing all the layers in a 3D texture, which
-could then blend between the different layers upon texture lookup in
-the shader. The downside to this is that using mipmapping on a 3D
-texture, will 'blend' the different layers together, creating a
-brownish looking texture in the second mipmap level and onwards. The
+An alternative would be placing all the layers in a three dimensional
+texture, which could then blend between the different layers upon
+texture lookup in the shader. The downside to this approach is that
+using mipmapping on a three dimensional texture, will blend the
+different layers together. In our case creating this creates a
+brownish looking texture in the second mipmap level and downwards. The
 only solution to this would be to disable mipmapping, which results in
 a performance penalty and creates flickering textures.
 
-So in the end we opted for texture arrays over 3D textures and
-implemented the blending ourselves.
+In the end we opted for texture arrays over 3D textures and
+implemented the blending ourselves. For each layer several parameters
+can be chosen
 
-For each layer several parameters can be chosen
-
-\newcommand{\layerProp}[2]{\item \textbf{#1} - #2}
+\newcommand{\layerProp}[2]{\item \code{#1} - #2}
 \begin{itemize}
   \layerProp{startHeight}{At what height the layer should start to
     blend in.}
   \layerProp{blending}{How many units of height it takes the layer to
     become completely opaque.}
-  \layerProp{spec[i]}{The specular factor of the i'th layer, where the
+  \layerProp{spec[i]}{The specular factor of the $i^th$ layer, where the
     x-component specifies a specular intensity scalar and the
     y-component is the shininess}
 \end{itemize}
 
-How much of the i'th layer should be visible, $factor_i$, is then
+How much of the $i^th$ layer should be visible, $factor_i$, is then
 trivially calculated by
 
 \begin{displaymath}
   factor_i = (height - startHeight_i) / blending_i
 \end{displaymath}
 
-Since it doesn't make sense for a layer to be more than completely
+Since it does not make sense for a layer to be more than completely
 transparent or opaque , ie. a factor of 0 or 1, we clamp the factor
 between these values. The actual index of the layer to be used in the
 texture array is then quite easy to calculate. We simply sum over all
 the factors.
 
 And example could be when layer 2 is completely opaque and layer 3 is
-40\% visible. At that height layer 1 will also think it should be
-completely opaque. The layer height is then $1 + 1 + 0.4 = 2.4$, which
-means that the base layer is 2 and that has be blended with 40\% of
-the 3'rd layer.
+40\% visible. At that height layer 1 will also be completely
+opaque. The layer height is then $1 + 1 + 0.4 = 2.4$, which means that
+the base layer is 2 and that has be blended with 40\% of the 3'rd
+layer.
 
-When specifying the height or the terrain a little randomness is added
-to it from the normalmap. This is done to avoid smooth transitions
+When specifying the height or the terrain some randomness is added to
+it from the normalmap. This is done to avoid smooth transitions
 between the layers and give the terrain a more natural feel.
 
 

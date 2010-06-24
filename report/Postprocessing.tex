@@ -4,29 +4,28 @@
 % Why post processing? Cool effects that can easily be applied to any
 % project and reused.
 
-In the previous sections geometry has been used to create the
-landscape and sky and rendering it to the screen. Now we turn to
-screen space effects, which do not rely on geometry, but will instead
-use the final color image and the depth buffer to create the
-effects. \emph{Depth of field}, \emph{motion blur} and a screenwide
-\emph{glow} are all effects that can easily be produced through post
-processing and there are many more.
+In the previous sections geometry has been used to render the
+landscape and skyto the screen. Now we turn to \emph{screen space
+  effects}, which do not rely on geometry, but will instead use the
+final color image and the depth buffer to create effects. \emph{Depth
+  of field}, \emph{motion blur}, a screenwide \emph{glow} and many
+more effects can all easily be produced through post processing.
 
 % Easy to use important. Should handle most of the setup
 
 We will try to create a general framework inside OpenEngine that can
-handle most effects with the programmer having to do as little setup
-as possible. It should also be possible to layer post processing
+handle most effects where the programmer needs to do as little setup
+as possible. It should also be possible to stack post processing
 effects on top of each other, for example to combine a \emph{cartoon
   shader} with \emph{edge detection} or optimizing blurring by using
-the \emph{separable convolution technique}.
+the two pass \emph{separable convolution technique}.
 
 \section{Structure}
 
 In this section we will first outline the new scene node called
 \class{PostProcessNode} and how it will help the programmer setup post
 processing. Then we will discuss the specifics of rendering the scene,
-applying the post process effect to it and how we eventually chose to
+applying the post process effect and how we eventually chose to
 structure the rendering.
 
 \subsection*{Post Process Node}
@@ -36,22 +35,23 @@ manipulate the image rendered while visiting subnodes in the scene
 graph. Therefore it of course contains a pointer to OpenEngine's
 shader abstraction, \class{IShaderResource}, that points to the
 effect. It contains a pointer to an OpenEngine \class{FrameBuffer},
-which the scene is rendered to. The postprocess node also holds a
-\class{FrameBuffer} where the final image can be blitted into after
-the effect has been applied. This is useful for some implementations
-of motion blur, that relies on the previous image being availible.
+which scene subnodes are rendered to. The \class{PostProcessNode} also
+holds another \class{FrameBuffer} where the final image can be
+\emph{blitted} into after the effect has been applied. This is useful
+for some implementations of motion blur, that relies on the previous
+frame being availible.
 
-In order to allow users of the PostProcessNode to focus on writing
-their effects, the node will handle most of the setup as long as a few
-naming conventions are followed. If a uniform named \textit{depth} is
-detected then the subscenes depth texture will be bound to this
-uniform. Similarly if \textit{imageN}, where \textit{N} is any
-integer, is seen, then the \class{FrameBuffer}'s \textit{N}'th color
-attachment will be bound to that uniform. The same goes for the final
-image and the uniform name \textit{finalImageN}. The node can also
-decide to improve performance by not blitting the final image, if this
-isn't needed. Of course the previous image doesn't make sense in the
-very first rendering, so when initialized the node binds the
+In order to allow users of the \class{PostProcessNode} to focus on
+writing their effects, the node will handle most of the setup as long
+as a few naming conventions are followed. If a uniform named
+\textit{depth} is detected then the subscenes depth texture will be
+bound to this uniform. Similarly if \textit{imageN}, where \textit{N}
+is any integer, is seen, then the \class{FrameBuffer}'s \textit{N}'th
+color attachment will be bound to that uniform. The same goes for the
+final image and the uniform name \textit{finalImageN}. The node can
+also decide to improve performance by not blitting the final image, if
+this isn't needed. Of course the previous image doesn't make sense in
+the very first rendering, so when initialized the node binds the
 not-processed scene image as the final image, and then after the first
 frame it switches to the final image. And finally, if needed the node
 will pass the time to the shader.
