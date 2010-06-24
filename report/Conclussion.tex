@@ -20,14 +20,24 @@
 
 \section{Future work}
 
+Future work on the terrain itself would include a clipmap
+implementation and level of detail not only on teh textures and
+geometry, but also within the shaders. An example would be removing
+specular lighting and bumpmapping on distant terrain. An alternative
+to the current geomeorphing LOD system is alpha blending, which would
+make transistions between LODs easier, but ofcourse requires us to
+handle transparency.
+
+
+
 An extension to the atmospheric dome is to include the location or
 angle of the sun to make a more beautiful sunrise and sunset.
 
-Clip mapping, will make it easy to use LOD shaders (out with bump
-and specular) Also simply geometry LOD using alpha blending (take
-care to render geometry in the correct order)
 
-Next step for the PPnode is merge
-
-dof flicker
+The next step for the \class{PostProcessNode} is to allow it to be
+placed anywhere inside the scene graph and then merge the post
+processed image with the rest of the scene. Also optimized versions of
+the most commen effects could be made to increase performance and in
+the case of Depth of Field remove the flickering that comes from only
+sampling one focuspoint.
 
