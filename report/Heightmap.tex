@@ -8,40 +8,41 @@ heightmap is loaded from a texture and converted to geometry is pretty
 straight forward, and thus won't be the focus in this chapter. Instead
 we will focus on the lighting model and how it was derived from the
 generel model presented in \citeabook{RTR2}. We will talk about how we
-give the illusion of more detailed geometry by implementing bump maps,
-which requires us to transform a bumped normal from tangent space and
-into world space, where the lighting calculations are done. Finally we
-will explain how texture arrays where used to cut back on texture unit
-usage and texture lookups when rendering.\\
+give the illusion of more detailed geometry by implementing \emph{bump
+  maps}, which requires us to transform a bumped normal from
+\emph{tangent space} and into \emph{world space}, where the lighting
+calculations are done. Finally we will explain how \emph{texture
+  arrays} where used to cut back on texture unit usage and texture
+lookups when rendering.\\
 
 % Geomorphing because it is in the vertex shader
 
 However before we start, we must briefly touch upon the subject of
-geomorphing to understand part of what is going on in the vertex
+\emph{geomorphing} to understand part of what is going on in the vertex
 shader.
 
 % Geomorphing removes terrain popping
 
-The heightmap uses a cluster-based Continuous Level of Detail to
+The heightmap uses cluster-based Continuous Level of Detail to
 minimize vertex processing overhead. An example can be seen in
 \reffig{fig:tesselation} where a mound is rendered with three
-different levels of detail, LOD. When switching between different
-levels of detail, the terrain will appear to suddenly deform, this is
-termed \emph{Vertex Popping}. \emph{Geomorphing}, as presented by
-\citeabook{1936}, can be used to remove this popping by gently
-morphing in the new vertices. The technique is rather simple. Instead
-of letting a vertex pop into it's actual position when changing LOD,
-the vertex is created on the line between it's two visible neighbours
-and then morphed into its actual position. Because our terrain is a
-heightmap, geomorphing only needs to be done along the y-axis.
+different levels of detail, LOD. When changing level of detail, the
+terrain will appear to suddenly deform, this is termed \emph{Vertex
+  Popping}. Geomorphing, as presented by \citeabook{1936}, can be used
+to remove this popping by gently morphing in the new vertices. The
+technique is rather simple. Instead of letting a vertex pop into it's
+actual position when changing LOD, the vertex is created on the line
+between it's two visible neighbours and then morphed into its actual
+position. Because our terrain is a heightmap, geomorphing only needs
+to be done along the y-axis.
 
 \begin{figure}
-  \label{fig:tesselation}
   \centering
   \includegraphics[width=5cm]{tesselation}
   \caption{A wireframe mound rendered with 3 different levels of
     detail. The new vertices introduced in higher levels of detail are
     the ones causing vertex popping.}
+  \label{fig:tesselation}
 \end{figure}
 
 % We remove normal popping by using a normal map
@@ -52,17 +53,17 @@ popping. Our heightmap texture coordinates are proportional to the
 vertex positions and have therefore already been taken care of. But
 the adding or removing of normals will cause popping in the
 lighting. We could fix this by morphing the normals, but instead we've
-used a normalmap to store the normals in and look them up in the
-fragment shader. This has the added benefit that we will retain our
-light shading, even when the geometric detail is reduced. The downside
-is that it forces us to use per pixel lighting, since the normal is
-not available until the fragment shader.
+used a \emph{normalmap} to store the normals in and look them up in
+the fragment shader. This has the added benefit that we will retain
+our light shading, even when the geometric detail is reduced. The
+downside is that it forces us to use per pixel lighting, since the
+normal is not available until the fragment shader.
 
 We assume that the terrain is not rotated, scaled or translated, so
 all our vertices and normals are given directly in world/model
 space. This is done to simplify some of our calculations and save a
-normal transformation in the fragment shader, but can easily be
-extended to any geometry.
+normal transformation in the fragment shader, but the theory can
+easily be extended to transformed geometry.
 
 \section{Lighting}
 
@@ -129,13 +130,12 @@ and can be seen on \reffig{fig:lightVectors}.
 
 \begin{figure}
   \centering
-  \label{fig:lightVectors}
   \includegraphics[width=5cm]{lightVectors}
   \caption{The vectors used in lighting calculations}
+  \label{fig:lightVectors}
 \end{figure}
 
 \begin{figure}
-  \label{fig:lightComponents}
   \centering
   \subfloat[Ambient lighting.]{
     \includegraphics[width=6cm]{ambient}
@@ -151,6 +151,7 @@ and can be seen on \reffig{fig:lightVectors}.
   }
   \caption{Images of the different light components making up the
     terrain lighting.}
+  \label{fig:lightComponents}
 \end{figure}
 
 
@@ -177,8 +178,6 @@ This restriction is more physically correct, in the sense that only
 the color of the material is now shaded with respect to the different
 light components, but is also more restrictive to artists.\\
 
-% TODO ref phong and blinn as real-time rendering
-
 In the above formulas the specular lighting has been given by the
 \emph{Phong lighting equation}\footnote{\citebook{page~76}{RTR2}},
 $\mathbf{i}_{spec} = (\mathbf{v} \cdot \mathbf{r})^{m_{shi}}
@@ -190,8 +189,8 @@ A faster approximation was proposed by
 Blinn\footnote{\citebook{page~77}{RTR2}}. Instead of basing the
 specular highlight on the angle between the view direction and
 reflection vector, he proposed to base it on the angle between the
-normal and the halfvector, a vector halfway between the view vector
-and light vector given by $\mathbf{h} = (\mathbf{l} + \mathbf{v}) /
+normal and the halfvector, a vector halfway between the view- and
+light direction given by $\mathbf{h} = (\mathbf{l} + \mathbf{v}) /
 \|\mathbf{l} + \mathbf{v}\|$. An approximate relationship between the
 two is given in Real-time Rendering as
 
@@ -203,21 +202,24 @@ Both specular light models have been implemented in the terrain
 fragment shader and the results can be seen in \reffig{fig:specularLight}
 
 \begin{figure}
-  \label{fig:specularLight}
   \centering
-  \includegraphics[width=5cm]{phongSpec}
-  \includegraphics[width=5cm]{blinnSpec}
-  \caption{A comparison of Phong specular lighting and Blinn specular lighting. The image on the left is Phong and the right is Blinn.}
+  \subfloat[Phong specular lighting]{
+    \includegraphics[width=5cm]{phongSpec}
+  }
+  \subfloat[Phong specular lighting]{
+    \includegraphics[width=5cm]{blinnSpec}
+  }
+  \caption{A comparison of Phong specular lighting and Blinn specular lighting.}
+  \label{fig:specularLight}
 \end{figure}
 
-Since Blinn yields little to no framerate increase, Phong specular
-lighting as the default, as it gives a more pleasing result.
+Since Blinn yields little to no framerate increase, we use Phong
+specular lighting as the default, as it gives a more pleasing result.
 
-The shader code for Phong lighting can be seen in
+The shader code for lighting with Phong specular light can be seen in
 \reflst{lst:phongLighting}.
 
 \begin{listing}
-\label{lst:phongLighting}
 \centering
 \begin{cppcode}
 vec3 phongLighting(in vec3 text, in vec3 normal, in vec2 specProp){
@@ -236,6 +238,7 @@ vec3 phongLighting(in vec3 text, in vec3 normal, in vec2 specProp){
 }
 \end{cppcode}
 \caption{A glsl function calculating lighting given a color, normal and specular intensity.}
+\label{lst:phongLighting}
 \end{listing}
 
 
@@ -243,18 +246,18 @@ vec3 phongLighting(in vec3 text, in vec3 normal, in vec2 specProp){
 
 With the terrain shaded by the sun, it's time to improve on the detail
 of the lighting by adding 'bumps' to the surface, or more precisely
-manipulating the normal to create a bumpy feel. We do this by storing
-the normals of a surface in a texture, then instead of using the
-interpolated geometric normal for light calculations, we transform the
-texture normal into tangent space and use that for lighting.
+manipulating the normal to create a bumpy feel. This is done by
+storing the normals of a surface in a texture, then instead of using
+the interpolated geometric normal for light calculations, we transform
+the texture normal into tangent space and use that for lighting.
 
-In order to do that we need the interpolated normal, tangent and
-bitangent as the axes of a tangent space coordinate system. Since
-we're using the y-axis as up, the normal will be our y-axis in the
-tangent space coordinate system. The tangent and bitangent are
-normalized vectors perpendicular to the normal and lie along the bump
-maps texture coordinate axes. Normally calculating them is done as a
-preprocess and they are stored as vertex attributes or in our case a
+In order to do that the interpolated normal, tangent and bitangent are
+used as the axes of a tangent space coordinate system. Since we're
+using the y-axis as up, the normal will be our y-axis in the tangent
+space coordinate system. The tangent and bitangent are normalized
+vectors perpendicular to the normal and lie along the bump maps
+texture coordinate axes. Normally calculating them is done as a
+preprocess and they are stored as vertex attributes, or in our case a
 tangent- and bitangentmap. However due to the heightmap being a 2D
 array of vertices with texture coordinates proportinal to the x- and
 z-coordinates, we can calculate the tangents directly in the
@@ -262,16 +265,16 @@ shader. This saves us 2 texture lookup and the need to bind additional
 textures.
 
 Since our texture coordinates are axis-aligned, the tangent will lie
-in the xy-plane and the bitangent is placed in the yz-plane. Here we
-will focus on calculating the tangent, but the same principle can be
+in the xy-plane and the bitangent is placed in the yz-plane. Below we
+will show how to calculate the tangent, but the same principle can be
 applied to calculate the bitangent.
 
 The interpolated normal is our approximation of a vector perpendicular
 to the terrain surface. It can therefore also be used to calculate
 vectors along that surface, specifically the tangent along the
-xy-plane. This can be done by taking the cross product between the
-normal, $n$, and the unit vector along the z-axis, $z_i = (0,0,1)$, which
-will ensure that the tangent is both perpendicular to the normal, ie.
+xy-plane. This is done by taking the cross product between the normal,
+$n$, and the unit vector along the z-axis, $z_i = (0,0,1)$, which will
+ensure that the tangent is both perpendicular to the normal, ie.
 lying in the plane, and perpendicular to the z-axis, which places it
 in the xy-plane. The calculations are
 
@@ -296,7 +299,6 @@ pipeline in the future.
 The glsl code can be seen in \reflst{lst:bumpmapping}
 
 \begin{listing}
-\label{lst:bumpmapping}
 \centering
 \begin{cppcode}
   // Extract normal and calculate tangent and binormal
@@ -311,6 +313,7 @@ The glsl code can be seen in \reflst{lst:bumpmapping}
   bumpNormal = normalize(tangentSpace * bumpNormal);
 \end{cppcode}
 \caption{Calculating tangent space for a heightmap and rotating the normal in glsl.}
+\label{lst:bumpmapping}
 \end{listing}
 
 
@@ -347,7 +350,8 @@ For each layer several parameters can be chosen
 
 \newcommand{\layerProp}[2]{\item \textbf{#1} - #2}
 \begin{itemize}
-  \layerProp{startHeight}{When the layer should start to blend in.}
+  \layerProp{startHeight}{At what height the layer should start to
+    blend in.}
   \layerProp{blending}{How many units of height it takes the layer to
     become completely opaque.}
   \layerProp{spec[i]}{The specular factor of the i'th layer, where the
@@ -365,11 +369,11 @@ trivially calculated by
 Since it doesn't make sense for a layer to be more than completely
 transparent or opaque , ie. a factor of 0 or 1, we clamp the factor
 between these values. The actual index of the layer to be used in the
-texture array is then quite easy to calculate. We simply add all the
-factors. 
+texture array is then quite easy to calculate. We simply sum over all
+the factors.
 
-And example could be layer 2 is completely opaque and layer 3 is 40\%
-visible. At that height layer 1 will also think it should be
+And example could be when layer 2 is completely opaque and layer 3 is
+40\% visible. At that height layer 1 will also think it should be
 completely opaque. The layer height is then $1 + 1 + 0.4 = 2.4$, which
 means that the base layer is 2 and that has be blended with 40\% of
 the 3'rd layer.

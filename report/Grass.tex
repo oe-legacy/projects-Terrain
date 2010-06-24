@@ -4,7 +4,7 @@
 
 A completely static terrain would appear quite lifeless. Some foliage
 gently swaying in the wind would make the landscape seem more idyllic
-and grass was therefore added.
+and therefore we chose to add grass.
 
 Some considered rendering techniques for grass were
 
@@ -51,13 +51,14 @@ but other shapes should be possible.
 % explain algorithm
 
 On \reffig{fig:grassTranslation} the basics of the algorithm can be
-seen. We need to translate the square of grass centered around origo
-to the camera. But we can't simply use the vector from origo to the
-camera, since that would make the grass straws float along with the
-camera. Instead we need grass straws exiting the square on one side to
-overlap and appear on the other side. This can be achieved by ensuring
-that grass objects are always moved by a multiplum of the grass
-squares side's length, and is expressed in the following equation
+seen. We need to translate the grass bounding box centered around
+origo to the camera's position. We can't simply use the vector from
+origo to the camera, since that would make the grass straws float
+along with the camera. Instead we need grass straws exiting the square
+on one side to overlap and appear on the other side. This can be
+achieved by ensuring that grass objects are always moved by a
+multiplum of the grass squares side's length, and is expressed in the
+following equation
 
 \begin{displaymath}
     -halfSize \le position + size * n - eye \le halfSize, n \in N \\
@@ -96,13 +97,12 @@ in front of it, relative to the cameras current direction. Since at
 least half the grass square will be behind the camera, we choose to
 move the camera position by the halfsize multiplied by the normalized
 camera direction. This places the center of the grass in front of the
-camera, but the border will never be in front of the camera. The
-result is many more grass straws on the screen at the same vertex
-processing cost.
+camera, but the border will always be behind the camera. The result is
+many more grass straws on the screen at the same vertex processing
+cost.
 
 \begin{figure}
   \centering
-  \label{fig:grassTranslation}
   \begin{tikzpicture}[y=0.5cm, x=.5cm,font=\sffamily]
     \draw (0,0) -- coordinate (x axis mid) (10,0);
     \draw (0,0) -- coordinate (y axis mid) (0,5);
@@ -127,6 +127,7 @@ processing cost.
 
   \end{tikzpicture}
   \caption{The translation of the grass bounding box from origo out to the camera.}
+  \label{fig:grassTranslation}
 \end{figure}
 
 
@@ -142,13 +143,13 @@ individually.
 % Placing it on the heightmap and normal lookup
 
 Our next hurdle is placing the grass straws on the terrain. Since
-we're continuesly translating the grass quads, we can't know their
-correct height at creation time and must therefore calculate it in the
-vertex shader. We therefore calculate a texture coordinate from the
-grass position and use that to lookup into the heightmap texture,
-where we can find the correct height for the grass. To ensure that the
-terrain and grass are equally lighted (lit?), we use the same
-procedure to lookup into the heightmaps normalmap.
+we're continuesly translating the grass quads, we won't know their
+correct height at creation time and must therefore look it up in the
+vertex shader. We calculate a texture coordinate from the grass
+position and use that to lookup into the heightmap texture, where we
+can find the correct height for the grass. To ensure that the terrain
+and grass are equally lit, we use the same procedure to
+lookup into the heightmaps normalmap.
 
 % not on sand or snow.
 
@@ -172,11 +173,10 @@ needed a constant variable across the objects and that was the center.
 
 Our animation algorithm is the same as the one proposed in
 \citebook{section~7.4.4}{983868}, where the grass objects center is
-used to create 'local chaos'. This means that all the grass can still
-be drawn with only one draw call, texture are minimally distorted
-since the vertices always have the same distance to their neighbours
-and the local chaos creates a more natural wave effect. Of the two
-cons to the approach only one of them applies to our
+used to create 'local chaos'. This means textures are minimally
+distorted since the vertices always have the same distance to their
+neighbours and the local chaos creates a more natural wave effect. Of
+the two cons to the approach only one of them applies to our
 implementation. The first con, which is that extra uniform data is
 required to hold the center of the grass object, doesn't apply ion
 this case, since the center was needed anyway. The second con does
@@ -194,7 +194,7 @@ vertices, distinguished by their texture coordinate.
 With the grass placed on the terrain, texture transparency needs to be
 handled. The grass straw texture can be seen in
 \reffig{fig:grassStraws}. Since everything is drawn with one draw
-call, z-sorting every frame isn't an option. Instead the transparency
+call, \emph{z-sorting} every frame isn't an option. Instead the transparency
 and drawing order issue is completely ignored, by only rendering
 completely opaque fragments or discarding them. This is done in the
 fragment shader, where colors with alpha values below a certain value
@@ -206,10 +206,10 @@ still be rendered. In practice we found that discarding alphas below
 0.6 works well with the grass straw texture.
 
 \begin{figure}
-  \label{fig:grassStraws}
   \centering
   \includegraphics[width=5cm]{grassStraw}
   \caption{The grass straws.}
+  \label{fig:grassStraws}
 \end{figure}
 
 % Simple diffuse lighting, no specular.

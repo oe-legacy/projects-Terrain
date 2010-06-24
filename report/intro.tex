@@ -1,7 +1,7 @@
 % -*- mode: latex; mode: auto-fill; coding: utf-8; -*-
 
 \chapter{Introduction}
-This report is the product for the second part of the course:
+This report is the product of the second part of the course:
 Introduction to Computer Graphics, followed by the authors during the
 spring of 2010 at the department of computer science at Aarhus
 University. The focus of this second part of the course is OpenGL's
@@ -16,28 +16,28 @@ heavily rewritten.
 \section{Setting the scene}
 When creating a scene in computer graphics the director, as when
 making a movie or directing a play, writes a script. This script
-includes descriptions of the mood and describes the place for where
-the story unfolds.
+includes descriptions of the mood and the setting where the story
+unfolds.
 %
 This report describes techniques for rendering a scenery 
 where the authors had the following setting in mind.
 %
-The main scene consists of an island surrounded by calm ocean as far
+The scene consists of an island surrounded by a calm ocean as far
 as the eye can tell. The island has sandy beaches, fields of grass
 waving gently in the breeze, and tall mountains with pure white snow
-on the top. Above clouds are drifting on the breeze and in the horizon
+on the top. Clouds are drifting on the breeze and in the horizon
 the sun is setting, casting it's last golden rays toward the
 landscape.
 
 \section{Previous work}
 This project is build ontop of a previous heightmap project in the
-OpenEngine framework. While that old projects only purpose was to
+OpenEngine framework. While that old project's only purpose was to
 explorer heightmaps, this project has been about making the
 environment more aesthetically pleasing. Alot of effort have therefore
-gone into the shaders, both with respect to optimizing them and
-creating a more realistic result, and none of the old shaders
-remain. Most of the code behind the heightmap node have also been
-completely rewritten to better facilitate extensions made in this
+gone into the shaders, both with respect to creating a more realistic
+result and optimizing them, and thus none of the old shader code
+remains. Most of the code behind the heightmap scene node have also
+been completely rewritten to better facilitate extensions made in this
 project and future extensions.
 
 The water used in this project was also made by the authors as part of
@@ -76,12 +76,12 @@ OpenEngine is a framework for rendering 3D scenes using a scene graph.
 For our project we have mostly implemented new scene graph nodes, such
 as \class{HeightmapNode}, \class{MeshNode} or \class{PostProcessNode},
 where the two latter were developed during the Introduction to
-Computer Graphics course and made it's way into the core
+Computer Graphics course and have made their way into the core
 framework. The two existing nodes that where used by us is the
 \class{TransformationNode}, used for translating the skydome, and the
 \class{BlendNode}, used for making the skydome transparent.\\
 
-The engine is composed of a basic framework, extensions, and
+The engine is composed of a core framework, extensions, and
 projects. In this project we have made use of some already available
 extensions:
 
@@ -102,11 +102,11 @@ been created or extended during the implementation of our project:
   \item \code{OpenGLRenderer} which handles all interaction with
     OpenGL inside the OpenEngine framework. This includes the
     allocation of textures, vertex buffer object and frame buffer
-    objects on the graphics card and a RenderingView that traverses
-    the scene graph and renders it. During this course the OpenEngine
-    core and this extension have been extended with buffer object
-    support, 3d textures, new GLSL shader implementation and our
-    \code{PostProcessNode}.
+    objects on the graphics card and a \class{RenderingView} that
+    traverses the scene graph and renders it. During this course the
+    OpenEngine core and this extension have been extended with buffer
+    object support, 3d textures, new GLSL shader implementation and
+    our \code{PostProcessNode}.
   \item \code{FreeImage} was created to load and save \code{PNG},
     \code{TGA} and \code{EXR} images,
   \item \code{MeshUtils} which was created as part of the new geometry
@@ -140,11 +140,11 @@ implementation in the first quarter of the course.
 % Antager opengl 2.1 som core så brugte extensions
 
 Since every new version of OpenGL is composed of a set of extension,
-OpenGL now consists of quite a large number of extensions. Therefore
-instead of listing every extension used in this project, OpenGL 2.1 is
-assumed and only extensions not in this version will be listed. The
-extensions used in our project are described in appendix
-\ref{sec:GLext}
+OpenGL now consists of quite a large number of these
+extensions. Therefore instead of listing every extension used in this
+project, OpenGL 2.1 is assumed and only extensions not in this version
+will be listed. The extensions used in our project are described in
+appendix \ref{sec:GLext}
 
 %%% Local Variables:
 %%% mode: latex
