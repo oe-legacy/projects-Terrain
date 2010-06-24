@@ -308,10 +308,8 @@ provided a pleasing result.
 
 The result can be seen on \reffig{fig:dofMotionBlur} where the hill in
 the background and the horizon are slightly blurry. The shader that
-creates the horizontal depth of field blurring can be seen in
-\reflst{lst:dofShader}.
-
-% TODO ref appendix
+creates the horizontal depth of field blurring can be seen in shader
+HorizontalDepthOfField.frag.
 
 \begin{figure}
   \label{fig:dofMotionBlur}
@@ -322,31 +320,6 @@ creates the horizontal depth of field blurring can be seen in
     focus on the front grass. The right image shows ghosting motion
     blur in action.}
 \end{figure}
-
-%% \begin{listing}
-%% \label{lst:dofShader}
-%% \centering
-%% \lstinputlisting[language=C++]{../data/shaders/HorizontalDepthOfField.frag}
-%% \caption{The horizontally blurring depth of field shader.}
-%% \end{listing}
-
-
-
-\subsection{Summary}
-
-Storing and rebinding the previous framebuffer means that we can chain
-several post process nodes together to form complex effects or
-minimize the cost of applying an effect by using for example separable
-convolution.
-
-% One/two fbos pr node is a waste but makes it easy to setup and they
-% can be configured individually
-
-% Other effects have been implemented, like wobble, edge detection,
-% pixelate and an underwater that combines...
-
-% Next step is merge, blitting of the depth buffer to post process
-% subscene graphs
 
 
 

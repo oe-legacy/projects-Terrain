@@ -3,10 +3,31 @@
 \chapter{Conclussion}
 
 
+%Post Process
+
+%% Storing and rebinding the previous framebuffer means that we can chain
+%% several post process nodes together to form complex effects or
+%% minimize the cost of applying an effect by using for example separable
+%% convolution.
+
+% One/two fbos pr node is a waste but makes it easy to setup and they
+% can be configured individually
+
+% Other effects have been implemented, like wobble, edge detection,
+% pixelate and an underwater that combines...
+
+
 
 \section{Future work}
-dof flicker
-
 
 An extension to the atmospheric dome is to include the location or
 angle of the sun to make a more beautiful sunrise and sunset.
+
+Clip mapping, will make it easy to use LOD shaders (out with bump
+and specular) Also simply geometry LOD using alpha blending (take
+care to render geometry in the correct order)
+
+Next step for the PPnode is merge
+
+dof flicker
+

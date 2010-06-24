@@ -2,97 +2,149 @@
 
 \chapter{Introduction}
 This report is the product for the second part of the course:
-introduction to computer graphics, followed by the authors during the
+Introduction to Computer Graphics, followed by the authors during the
 spring of 2010 at the department of computer science at Aarhus
 University. The focus of this second part of the course is OpenGL's
 programmable pipeline and OpenGL extensions.
-%
+
 To utilize the power of these advanced rendering technologies we have
-chosen to try and make a more realistic looking outdoor environment
-for one of our previous projects.
+chosen to try and make a realistic looking outdoor environment. The
+project is based on a previous OpenEngine project, but has been
+heavily rewritten.
+
 
 \section{Setting the scene}
 When creating a scene in computer graphics the director, as when
 making a movie or directing a play, writes a script. This script
 includes descriptions of the mood and describes the place for where
-the story unrolls.
-%
+the story unfolds.
+
 This report describes techniques for rendering a scenery 
 where the authors had the following setting in mind.
-%
-The main scene consists of an island surrounded by ocean as far as the
-eye can tell, the island has sandy beaches, grass fields, and mountains
-with snow on the top.
+
+The main scene consists of an island surrounded by calm ocean as far
+as the eye can tell. The island has sandy beaches, fields of grass
+waving gently in the breeze, and tall mountains with pure white snow
+on the top. Above clouds are drifting on the breeze and in the horizon
+the sun is setting, casting it's last golden rays toward the
+landscape.
 
 \section{Previous work}
-We have previously been work on this project, but not been satisfied
-with the mood of the result because only the basic objects in the
-scene was put into play. In this project we want to focus our
-attention on the making the details of an outdoor scene seem realistic
-and convincing. In our previous work the island was implemented as a
-height map, where the ocean was plane separating the terrain into an
-underwater environment and land environment. The differentiation of
-sandy beach, grass fields, rocks, and snow was based on height and
-rendered by interpolating different textures for each type.
+This project is build ontop of a previous heightmap project in the
+OpenEngine framework. While that old projects only purpose was to
+explorer heightmaps, this project has been about making the
+environment more aesthetically pleasing. Alot of effort have therefore
+gone into the shaders, both with respect to optimizing them and
+creating a more realistic result, and none of the old shaders
+remain. Most of the code behind the heightmap node have also been
+completely rewritten to better facilitate extensions made in this
+project and future extensions.
 
-\section{Rendering outdoor scenes}
-To create a more convincing and realistic outdoor scenery we need to
-add more details than done in our previous work. This includes
-improving the details of the landscape by using more advanced
-lighting, animated grass the waves in the wind, a realistic looking
-sky, and added post processing effects.
+The water used in this project was also made by the authors as part of
+the old heightmap extension, but contains most of it's original code,
+appart from using the new \class{FrameBuffer} abstraction.
+
+Apart from the terrain, we have also extended the scene with an
+animated skydome, waving grass and post process effects.
+
+%% We have previously been work on this project, but not been satisfied
+%% with the mood of the result because only the basic objects in the
+%% scene was put into play. In this project we want to focus our
+%% attention on the making the details of an outdoor scene seem realistic
+%% and convincing. In our previous work the island was implemented as a
+%% height map, where the ocean was plane separating the terrain into an
+%% underwater environment and land environment. The differentiation of
+%% sandy beach, grass fields, rocks, and snow was based on height and
+%% rendered by interpolating different textures for each type.
+
+%% \section{Rendering outdoor scenes}
+%% To create a more convincing and realistic outdoor scenery we need to
+%% add more details than done in our previous work. This includes
+%% improving the details of the landscape by using more advanced
+%% lighting, animated grass that waves in the wind, a realistic looking
+%% sky, and added post processing effects.
 
 \section{OpenEngine}
-The work in this report as well as our previous work is build on top
-of the OpenEngine framework. This framework is an open source project
-that was started at Aarhus University in the spring of 2007, and which
-was original build to teach the course computer game development (CGD)
-the same year. The authors of this report are both deeply involved in
-the ongoing development of OpenEngine, and has been so from its
-beginning.
+The work presented in this report is build on top of the OpenEngine
+framework. This framework is an open source project that was started
+at Aarhus University in the spring of 2007, and was original build to
+teach the course Computer Game Development, CGD, the same year. The
+authors of this report are both deeply involved in the ongoing
+development of OpenEngine, and have been since its beginning.
 
-OpenEngine is a framework for rendering 3D scene using a scene graph,
-the engine is composed of a basic framework, extensions, and
-projects. For the work developed in this report, we have one project
-called \code{Terrain} that utilizes the basic framework and one extension 
-called \code{HeightMap}. The \code{Terrain} project
-uses the following other already available extensions: 
-\code{SDL} to create a window and get a OpenGL context,
-\code{OpenGLRenderer} which includes \code{GLEW} to visit and render
-the scene graph,
-\code{GenericHandlers} for keyboard and mouse event handling, 
-\code{CairoResource} and \code{HUD} to draw and render the FPS counter
-in orthogonal projection mode,
-\code{AntTweakBar}, \code{Inspection}, and \code{InspectionBar} to add
-graphically components which can change values of variables on run-time,
+OpenEngine is a framework for rendering 3D scenes using a scene graph.
+For our project we have mostly made use of new scene graph nodes, such
+as \class{HeightmapNode}, \class{MeshNode} or \class{PostProcessNode},
+where the two latter were developed during the Introduction to
+Computer Graphics course and made it's way into the core
+framework. The two existing nodes that where used by us is the
+\class{TransformationNode}, used for translating the skydome, and the
+\class{BlendNode}, used for making the skydome transparent.\\
 
-The following extensions is also used in our project but has been
-.. expanded during the implementation of our project:
-\code{FreeImage} to load and save \code{PNG} and \code{EXR} images, 
-\code{MeshUtils} which creates geodesic spheres and other geometric
-mesh types, 
-\code{TexUtils} which includes our noise generation algorithm
-described in chapter \ref{chap:noise},
-and \code{OpenGLPostProcessingEffects} which implements the effects
-described in chapter \ref{chap:pp}.
+The engine is composed of a basic framework, extensions, and
+projects. In this project we have made use of some already available
+extensions:
+
+\begin{itemize}
+  \item \code{SDL}, to create a window and get an OpenGL context.
+  \item \code{GenericHandlers} for keyboard and mouse event handling.
+  \item \code{CairoResource} and \code{HUD} to draw and render the FPS
+    counter ontop of the image.
+  \item \code{AntTweakBar}, \code{Inspection}, and
+    \code{InspectionBar} to add graphical components, allowing us to
+    change values of variables at runtime.
+\end{itemize}
+
+The following extensions are also used in our project and have either
+been created or extended during the implementation of our project:
+
+\begin{itemize}
+  \item \code{OpenGLRenderer} which handles all interaction with
+    OpenGL inside the OpenEngine framework. This includes the
+    allocation of textures, vertex buffer object and frame buffer
+    objects on the graphics card and a RenderingView that traverses
+    the scene graph and renders it. During this course the OpenEngine
+    core and this extension have been extended with buffer object
+    support, 3d textures, new GLSL shader implementation and our
+    \code{PostProcessNode}.
+  \item \code{FreeImage} was created to load and save \code{PNG},
+    \code{TGA} and \code{EXR} images,
+  \item \code{MeshUtils} which was created as part of the new geometry
+    structure to handle  buffer objects. It creates the geodesic
+    spheres used for the skydomes.
+  \item \code{TexUtils} which includes our noise generation algorithm
+    described in chapter \ref{chap:noise},
+  \item \code{OpenGLPostProcessingEffects} which holds shaders for
+    some of the effects described in chapter \ref{chap:pp} and a lot
+    of other effects.
+  \item \code{Heightmap} which implements a heightmap node and a grass
+    node. This extension also includes an extension to the
+    renderingview in \code{OpenGLRenderer}, which can render the
+    heightmap and grass.
+\end{itemize}
+
+All of these extensions are gathered in the \code{Terrain} project,
+which sets up the scene and modules for handling logic, like passing
+time of day or sun direction to shaders.
 
 % Which extensions contain the important code parts, and include
 % filenames in appendix
 
-To use OpenGL's programmable pipeline we have chosen to use the
-OpenGL Shader Language (GLSL), we chose this partly because we have
-most experience with this shading language and partly because our
-previous work already uses this language.
+To utilise OpenGL's programmable pipeline we chose to use the OpenGL
+Shader Language, GLSL, instead of NVIDIA's CG. This was partly due to
+our previous experience with GLSL and partly because a lot of work had
+gone into optimizing and extending the OpenEngine GLSL shader
+implementation in the first quarter of the course.
 
 \section{OpenGL version and extensions}
 % Antager opengl 2.1 som core så brugte extensions
 
 Since every new version of OpenGL is composed of a set of extension,
 OpenGL now consists of quite a large number of extensions. Therefore
-instead of listing every extension we're using, which would be quite a
-long list, we will instead assume OpenGL 2.1 and only list extensions
-not in this version. The extensions used in our project are described
-in appendix \ref{sec:GLext}
+instead of listing every extension used in this project, OpenGL 2.1 is
+assumed and only extensions not in this version will be listed. The
+extensions used in our project are described in appendix
+\ref{sec:GLext}
 
 %%% Local Variables:
 %%% mode: latex
