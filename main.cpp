@@ -243,6 +243,23 @@ public:
     }
 };
 
+class GlowHandler{
+private:
+    IShaderResourcePtr glow;
+public:
+    GlowHandler(IShaderResourcePtr g) {
+        glow = g;
+    }
+    void SetCoefficients(Vector<3, float> c){
+        glow->SetUniform("coefficients", c);
+    }
+    Vector<3, float> GetCoefficients(){
+        Vector<3, float> ret;
+        glow->GetUniform("coefficients",ret);
+        return ret;
+    }
+};
+
 class RenderStateHandler : public IListener<KeyboardEventArg> {
     RenderStateNode* node;
 public:
@@ -286,6 +303,21 @@ namespace Inspection {
                  &ChainPostProcessNode::Enabled,
                  &ChainPostProcessNode::SetEnabled);
             v->name = "Glow";
+            values.push_back(v);
+        }
+        {
+            GlowHandler* gh = new GlowHandler(glow->GetPostProcessNode(0)->GetEffect());
+            RWValueCall<GlowHandler, Vector<3, float> > *v
+                = new RWValueCall<GlowHandler, Vector<3, float> >
+                (*gh,
+                 &GlowHandler::GetCoefficients,
+                 &GlowHandler::SetCoefficients);
+            v->name = "Glow coefficients";
+            /*
+            v->properties[MIN] = 0;
+            v->properties[MAX] = 1;
+            v->properties[STEP] = 0.01;
+            */
             values.push_back(v);
         }
         {
