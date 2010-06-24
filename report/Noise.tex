@@ -103,7 +103,7 @@ stored at each grid point are the values that are interpolated and
 returned when the function is evaluated.
 
 \subsubsection{Gradient noise}
-Gradient noise however have generates a gradient at each point in the
+Gradient noise however generates a gradient at each point in the
 lattice, which is a vector with the same dimension as the number of
 dimensions wherein the function is defined. The gradients in each grid
 point is then used to calculate a continuous function between the grid
@@ -111,7 +111,7 @@ points, which again can be used to evaluate a noise value.
 %
 The gradient noise category includes the now famous noise
 function known as Perlin noise, first described by Ken Perlin in
-his famous paper: \citeabook{Perlin85}.
+the paper: \citeabook{PerlinNoise}.
 %
 Here it is time once again to warn the reader that many authors of web
 pages,
@@ -269,20 +269,22 @@ at run-time enable adaption in LOD in relation to the camera
 position. For the run-time computations to be fast enough for
 real-time rendering they are usually done on the GPU, but although noise
 functions exists in the GLSL API\citebook{}{}, they are not recommended because
-their behavior are not specific by the specification and are
-implemented differently in hardware by different vendors and on different
-hardware generations. Developers that still want to do the calculations
+their behavior are not fully described in the specification and are
+implemented differently by different vendors and on different
+hardware. Developers that still want to do the calculations
 at run-time, instead use a hybrid solution, generating a small noise
 texture which can be used to implement more sophisticated noise
 function on the GPU.
 %
 We however have chosen to do all the calculations as pre-computations
-implemented on the CPU, our implementation is based the
+implemented for CPU execution. Our implementation is based the
 \code{RandomGenerator} class of OpenEngine which again is based on the
 PRN from \citebook{page~278-283}{NRIC2}.
 %
-The entire algorithm of generating noise, composing layers, and
-blurring them is implemented as the following recursive function:
+The core of the entire algorithm for generating noise, composing
+layers, and blurring them is implemented as the following recursive
+function (the full implementation can be found in the \code{ValueNoise}
+class of the \code{TexUtils} OpenEngine extension):
 
 \begin{lstlisting}[frame=,language=C++]
     static FloatTexture2DPtr Generate(unsigned int xResolution, unsigned int yResolution,
