@@ -472,7 +472,7 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new TerrainHandler(land)));
 
     // Setup water
-    WaterNode* water = new WaterNode(Vector<3, float>(origo), 2048);
+    WaterNode* water = new WaterNode(Vector<3, float>(origo), 2560);
     if (useShader){
         IShaderResourcePtr waterShader = ResourceManager<IShaderResource>
             ::Create("projects/Terrain/data/shaders/water/Water.glsl");
@@ -515,7 +515,8 @@ int main(int argc, char** argv) {
             ValueNoise::ToRGBAinAlphaChannel3D(cloudChannel);
         TextureTool<float>::DumpTexture(cloudTexture, foldername);
     }
-    cloudTexture->SetMipmapping(false);
+    cloudTexture->SetMipmapping(true);
+    cloudTexture->SetWrapping(REPEAT);
     cloudTexture->SetCompression(false);
     cloudShader->SetTexture("clouds", (ITexture3DPtr)cloudTexture);
 
