@@ -25,7 +25,7 @@ noise functions. A noise function is a function that is apparently
 stochastic and will break up monotony of the patterns that would
 otherwise be too regular \citebook{page~67-78}{ebert2003}.
 %
-Typically a noise function is a function of a position so the arguments
+Typically a noise function is a function of position so the arguments
 can be filled directly when rendering, e.g. $f(x,y,z)$.
 %
 An obvious stochastic primitive is uniformly distributed random
@@ -270,7 +270,7 @@ is an increase in run-time performance, where as doing the calculations
 at run-time enable dynamic adaption in LOD in relation to the camera
 position. For the run-time computations to be fast enough for
 real-time rendering they are usually done on the GPU, but although noise
-functions exists in the GLSL API\citebook{page~145-146}{orangebook},
+functions exists in the GLSL API \citebook{page~145-146}{orangebook},
 they are not recommended because
 their behavior is not fully described in the specification and are
 implemented differently by different vendors and on different
@@ -285,11 +285,16 @@ implemented for CPU execution. Our implementation is based the
 PRN from \citebook{page~278-283}{NRIC2}.
 %
 The core of the entire algorithm for generating noise, composing
-layers, and blurring them is implemented as the following recursive
+layers, and blurring them is implemented as the recursive shown in
+listing \ref{lst:noisegeneration}
 function (the full implementation can be found in the \code{ValueNoise}
 class of the \code{TexUtils} OpenEngine extension):
 
-\begin{lstlisting}[frame=,language=C++]
+\vspace{7mm}
+
+\begin{listing}
+\centering
+\begin{cppcode}
     static FloatTexture2DPtr Generate(unsigned int xResolution, unsigned int yResolution,
                                       unsigned int bandwidth, float mResolution,
                                       float mBandwidth, unsigned int blur,
@@ -306,7 +311,11 @@ class of the \code{TexUtils} OpenEngine extension):
             }
             return noise;
     }
-\end{lstlisting}
+\end{cppcode}
+\caption{The \code{Generate} function from the \code{ValueNoise} class
+  of the \code{TexUtils} extension.}
+\label{lst:noisegeneration}
+\end{listing}
 
 %%% Local Variables:
 %%% mode: latex
