@@ -60,9 +60,24 @@ images which is to be mapped onto the sky dome.
 Before we describe the sky dome we will introduce the source that
 lights and thereby influences the entire scene. The only light source
 in our scene is the sun, which is a directional light source that we
-move around according to the time of day.
+move around according to the time of day. The direction of the
+sunlight is used in a lot of our shaders for light calculations and
+used to create the glowing sun in the sky. Apart from changing the
+direction of the light, the \class{SunNode} also changes the diffuse
+light depending on the time of day. This helps us create a more
+realistic looking sunset, where the sun first turns orange and then
+red as it sets. The scene is also lit with the diffuse sunlight, which
+means that at sunrise and sunset it has a warm orange glow, as can be
+seen on \reffig{fig:sunsetTerrain}.
 
-*** Lighting properties: shader on the dome, in the water, on the landscape...
+\begin{figure}
+  \centering
+  \includegraphics[width=8cm]{sunsetTerrain}
+  \caption{The sunlight shines orange at sundown.}
+  \label{fig:sunsetTerrain}
+\end{figure}
+
+
 
 \section{Sky domes}
 We have chosen to use two sky spheres, one inner sphere for rendering
