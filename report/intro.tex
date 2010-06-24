@@ -9,9 +9,8 @@ programmable pipeline and OpenGL extensions.
 
 To utilize the power of these advanced rendering technologies we have
 chosen to try and make a realistic looking outdoor environment. The
-project is based on a previous OpenEngine project, but has been
-heavily rewritten.
-
+project is based on a previous OpenEngine project, but most of it has
+been rewritten as part of this project.
 
 \section{Setting the scene}
 When creating a scene in computer graphics the director, as when
@@ -32,19 +31,19 @@ landscape.
 \section{Previous work}
 This project is build ontop of a previous heightmap project in the
 OpenEngine framework. While that old project's only purpose was to
-explorer heightmaps, this project has been about making the
+explorer heightmap techniques, this project has been about making the
 environment more aesthetically pleasing. Alot of effort have therefore
 gone into the shaders, both with respect to creating a more realistic
-result and optimizing them, and thus none of the old shader code
+result and optimizing them, this means that none of the old shader code
 remains. Most of the code behind the heightmap scene node have also
 been completely rewritten to better facilitate extensions made in this
-project and future extensions.
+project and for future extensions.
 
-The water used in this project was also made by the authors as part of
+The water used in this project was made by the authors as part of
 the old heightmap extension, but contains most of it's original code,
 appart from using the new \class{FrameBuffer} abstraction.
 
-Apart from the terrain, we have also extended the scene with an
+Apart from the terrain, we have extended the scene with an
 animated skydome, waving grass and post process effects.
 
 %% We have previously been work on this project, but not been satisfied
@@ -70,18 +69,17 @@ framework. This framework is an open source project that was started
 at Aarhus University in the spring of 2007, and was original build to
 teach the course Computer Game Development, CGD, the same year. The
 authors of this report are both deeply involved in the ongoing
-development of OpenEngine, and have been since its beginning.
+development of OpenEngine, and have been so since its beginning.
 
 OpenEngine is a framework for rendering 3D scenes using a scene graph.
 For our project we have mostly implemented new scene graph nodes, such
 as \class{HeightmapNode}, \class{MeshNode} or \class{PostProcessNode},
-where the two latter were developed during the Introduction to
-Computer Graphics course and have made their way into the core
-framework. The two existing nodes that where used by us is the
-\class{TransformationNode}, used for translating the skydome, and the
-\class{BlendNode}, used for making the skydome transparent.\\
+where the two latter were developed during the process of creating
+this project and have made their way into the core framework. We use
+the two existing nodes; \class{TransformationNode}, for translating
+the skydome, and \class{BlendNode}, to make the skydome transparent.\\
 
-The engine is composed of a core framework, extensions, and
+OpenEngine is composed of a core framework, extensions, and
 projects. In this project we have made use of some already available
 extensions:
 
@@ -89,7 +87,7 @@ extensions:
   \item \code{SDL}, to create a window and get an OpenGL context.
   \item \code{GenericHandlers} for keyboard and mouse event handling.
   \item \code{CairoResource} and \code{HUD} to draw and render the FPS
-    counter ontop of the image.
+    counter ontop of the rendered image.
   \item \code{AntTweakBar}, \code{Inspection}, and
     \code{InspectionBar} to add graphical components, allowing us to
     change values of variables at runtime.
@@ -101,14 +99,15 @@ been created or extended during the implementation of our project:
 \begin{itemize}
   \item \code{OpenGLRenderer} which handles all interaction with
     OpenGL inside the OpenEngine framework. This includes the
-    allocation of textures, vertex buffer object and frame buffer
-    objects on the graphics card and a \class{RenderingView} that
-    traverses the scene graph and renders it. During this course the
-    OpenEngine core and this extension have been extended with buffer
-    object support, 3d textures, new GLSL shader implementation and
-    our \code{PostProcessNode}.
-  \item \code{FreeImage} was created to load and save \code{PNG},
-    \code{TGA} and \code{EXR} images,
+    allocation of \emph{textures}, \emph{vertex buffer object} and
+    \emph{frame buffer objects} on the graphics card and a
+    \class{RenderingView} that traverses the scene graph and renders
+    it. During this course the OpenEngine core and this extension have
+    been extended with buffer object support, three dimensional
+    textures, new GLSL shader implementation and our
+    \code{PostProcessNode}.
+  \item \code{FreeImage} was wrapped in an extension and enables us to
+    load and save \code{PNG}, \code{TGA} and \code{EXR} images,
   \item \code{MeshUtils} which was created as part of the new geometry
     structure to handle  buffer objects. It creates the geodesic
     spheres used for the skydomes.
@@ -118,14 +117,14 @@ been created or extended during the implementation of our project:
     some of the effects described in chapter \ref{chap:pp} and a lot
     of other effects.
   \item \code{Heightmap} which implements a heightmap node and a grass
-    node. This extension also includes an extension to the
+    node. This extension also includes an expansion to the
     renderingview in \code{OpenGLRenderer}, which can render the
     heightmap and grass.
 \end{itemize}
 
-All of these extensions are gathered in the \code{Terrain} project,
-which sets up the scene and modules for handling logic, like passing
-time of day or sun direction to shaders.
+All of these extensions are used by our \code{Terrain} project, which
+sets up the scene and holds modules for handling logic, like passing time of
+day or sun direction to shaders.
 
 % Which extensions contain the important code parts, and include
 % filenames in appendix

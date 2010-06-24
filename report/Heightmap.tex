@@ -2,18 +2,19 @@
 
 % A few lines about heightmaps
 
-The terrain itself in our project is generated from a heightmap and is
-a continuation of work that we did in the first quarter. How a
-heightmap is loaded from a texture and converted to geometry is pretty
-straight forward, and thus won't be the focus in this chapter. Instead
-we will focus on the lighting model and how it was derived from the
-generel model presented in \citeabook{RTR2}. We will talk about how we
-give the illusion of more detailed geometry by implementing \emph{bump
-  maps}, which requires us to transform a bumped normal from
-\emph{tangent space} and into \emph{world space}, where the lighting
-calculations are done. Finally we will explain how \emph{texture
-  arrays} where used to cut back on texture unit usage and texture
-lookups when rendering.\\
+The terrain itself is generated from a heightmap and is a continuation
+of previous work, as already stated in the introduction. How a
+heightmap is loaded from a texture and converted into geometry is
+pretty straight forward, and thus won't be the focus in this
+chapter. Instead we will focus on the lighting model and how it was
+derived from the generel model presented in
+\citebook{page~83}{RTR2}. We will talk about how we give the illusion
+of more detailed geometry by implementing \emph{bump maps}, which
+requires us to transform a bumped normal from \emph{tangent space} and
+into \emph{world space}, where the lighting calculations are
+done. Finally we will explain how \emph{texture arrays} where used to
+cut back on \emph{texture unit} usage and texture lookups when
+rendering.\\
 
 % Geomorphing because it is in the vertex shader
 
@@ -39,7 +40,7 @@ to be done along the y-axis.
 \begin{figure}
   \centering
   \includegraphics[width=5cm]{tesselation}
-  \caption{A wireframe mound rendered with 3 different levels of
+  \caption{A wireframe mound rendered with three different levels of
     detail. The new vertices introduced in higher levels of detail are
     the ones causing vertex popping.}
   \label{fig:tesselation}
@@ -48,9 +49,9 @@ to be done along the y-axis.
 % We remove normal popping by using a normal map
 
 Vertex popping has now been removed, but all other vertex attributes
-must be morphed aswell to remove texture popping or normal
+must be morphed aswell to remove texture popping and normal
 popping. Our heightmap texture coordinates are proportional to the
-vertex positions and have therefore already been taken care of. But
+vertex xz-positions and will therefore not pop when changing LOD. But
 the adding or removing of normals will cause popping in the
 lighting. We could fix this by morphing the normals, but instead we've
 used a \emph{normalmap} to store the normals in and look them up in
@@ -67,8 +68,8 @@ easily be extended to transformed geometry.
 
 \section{Lighting}
 
-Because we're using shaders for rendering, we need to implement our
-own lighting model. Since the scene is set outside in a natural
+Because we are using shaders for rendering, we need to implement a
+light model. Since the scene is set outside in a natural
 environment the only lightsource is the sun, which is a directional
 light. This allows several aspects of the general lighting equation
 for one light source\footnote{\citebook{page~83}{RTR2}}, to be
@@ -87,8 +88,9 @@ ambience, removing that expression from the equation.
   \mathbf{i}_{tot} = \mathbf{m}_{emi} + c_{spot}(\mathbf{i}_{amb} + d(\mathbf{i}_{diff} + \mathbf{i}_{spec}))
 \end{displaymath}
 
-Also the lightsource is a directional light, so the spotlight factor,
-$c_{spot}$, and attenuation, $d$, can safely be removed.
+Also because the lightsource is a directional light, the spotlight
+factor, $c_{spot}$, and attenuation factor, $d$, can safely be
+removed from the expression.
 
 \begin{displaymath}
   \mathbf{i}_{tot} = \mathbf{m}_{emi} + \mathbf{i}_{amb} + \mathbf{i}_{diff} + \mathbf{i}_{spec}
@@ -111,20 +113,16 @@ where the following three formulas for ambient, diffuse and specular
 lighting where used.
 
 \begin{displaymath}
-  \mathbf{i}_{amb} = \mathbf{m}_{amb} \otimes \mathbf{s}_{amb} 
-\end{displaymath}
-
-\begin{displaymath}
-  \mathbf{i}_{diff} = (\mathbf{n} \cdot \mathbf{l}) \mathbf{m}_{diff} \otimes \mathbf{s}_{diff} 
-\end{displaymath}
-
-\begin{displaymath}
-  \mathbf{i}_{spec} = (\mathbf{v} \cdot \mathbf{r})^{m_{shi}} \mathbf{m}_{spec} \otimes \mathbf{s}_{spec} 
+  \begin{array}{c}
+    \mathbf{i}_{amb} = \mathbf{m}_{amb} \otimes \mathbf{s}_{amb} \\
+    \mathbf{i}_{diff} = (\mathbf{n} \cdot \mathbf{l}) \mathbf{m}_{diff} \otimes \mathbf{s}_{diff} \\
+    \mathbf{i}_{spec} = (\mathbf{v} \cdot \mathbf{r})^{m_{shi}} \mathbf{m}_{spec} \otimes \mathbf{s}_{spec} 
+  \end{array}
 \end{displaymath}
 
 where $\mathbf{n}$ is the surface normal, $\mathbf{l}$ is the
-direction of the light, $\mathbf{v}$ is the vector pointing from the
-camera to the surface point and $\mathbf{r}$ is the reflection of the
+direction of the light, $\mathbf{v}$ is the vector pointing to the
+camera from the surface point and $\mathbf{r}$ is the reflection of the
 light around the normal. All the vectors are assummed to be normalized
 and can be seen on \reffig{fig:lightVectors}.
 
@@ -175,7 +173,7 @@ specular, we can reduce the equation to
 \end{displaymath}
 
 This restriction is more physically correct, in the sense that only
-the color of the material is now shaded with respect to the different
+the color of the material is now used with respect to the different
 light components, but is also more restrictive to artists.\\
 
 In the above formulas the specular lighting has been given by the

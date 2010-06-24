@@ -75,11 +75,11 @@ texture based on a simple wind model, so the clouds change over time.
 We have tried two different ways of generating the sphere
 geometry. The first method used was the traditional
 longitudinal/latitude sphere commonly used for geographical maps. This
-however gave very obvious image stretching artifact at the poles
-because of oversampling in these regions. Instead we now use geodesic
-spheres which consist of equilateral triangles. This sphere is
-beautifully constructed by recursively subdividing the triangles of an
-icosahedron until the required LOD is attained.
+however gave very obvious image stretching artifact at the poles when
+mapping a rectangular texture directly onto the sphere. Instead we now
+use geodesic spheres which consist of equilateral triangles. This
+sphere is beautifully constructed by recursively subdividing the
+triangles of an icosahedron until the required LOD is attained.
 
 \subsection{Atmospheric dome}
 What phenomena drives the coloring of the sky, making it so beautiful
