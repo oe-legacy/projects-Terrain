@@ -421,13 +421,13 @@ int main(int argc, char** argv) {
     FloatTexture2DPtr cloudChannel = 
         ValueNoise::Generate(psize, psize, 128,
                               1.0/octaveFactor, octaveFactor, 3, 3, 0);
-    ValueNoise::Smooth(cloudChannel,20);
-    ValueNoise::Normalize(cloudChannel,0,1); 
-    ValueNoise::CloudExpCurve(cloudChannel);
+    TexUtils::Blur(cloudChannel,20);
+    TexUtils::Normalize(cloudChannel,0,1); 
+    TexUtils::CloudExpCurve(cloudChannel);
     FloatTexture2DPtr cloudTexture2d = 
-        ValueNoise::ToRGBAinAlphaChannel(cloudChannel);
+        TexUtils::ToRGBAinAlphaChannel(cloudChannel);
     TextureTool<unsigned char>::
-        DumpTexture(ValueNoise::ToUCharTexture(cloudTexture2d), "output.png");
+        DumpTexture(TexUtils::ToUCharTexture(cloudTexture2d), "output.png");
     TextureTool<float>::DumpTexture(cloudTexture2d, "output.exr");
     cloudTexture2d->SetColorFormat(RGBA32F);
     cloudTexture2d->SetMipmapping(false);
@@ -540,11 +540,11 @@ int main(int argc, char** argv) {
         FloatTexture3DPtr cloudChannel = 
             ValueNoise::Generate3D(128, 128, 64,
                                     128, 0.5, 1, 3, 3, 0);
-        //ValueNoise::Smooth3D(cloudChannel,20);
-        ValueNoise::Normalize3D(cloudChannel,0,1); 
-        ValueNoise::CloudExpCurve3D(cloudChannel);
+        //TexUtils::Blur3D(cloudChannel,20);
+        TexUtils::Normalize3D(cloudChannel,0,1); 
+        TexUtils::CloudExpCurve3D(cloudChannel);
         cloudTexture = 
-            ValueNoise::ToRGBAinAlphaChannel3D(cloudChannel);
+            TexUtils::ToRGBAinAlphaChannel3D(cloudChannel);
         TextureTool<float>::DumpTexture(cloudTexture, foldername);
     }
     cloudTexture->SetMipmapping(true);
@@ -621,7 +621,7 @@ int main(int argc, char** argv) {
                 (255 * r.UniformFloat(0.5, 0.9));
         }
         Directory::Make(starDir);
-        stars = ValueNoise::ToRGBAfromLuminance(stars);
+        stars = TexUtils::ToRGBAfromLuminance(stars);
         TextureTool<unsigned char>::DumpTexture(stars, starFile);
     }
 	gradientShader->SetTexture("stars", (ITexture2DPtr)stars);
