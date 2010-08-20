@@ -26,9 +26,11 @@ void main () {
     }
     
     // Square pyramidal numbers used for calculating the total weight
+    float halfSamples = halfSamples + 1.0;
     float doubleSumOfError = (halfSamples * halfSamples + halfSamples)
         * (halfSamples + 0.5) / 1.5;
     float totWeight = (2.0 * halfSamples + 1.0) * error - doubleSumOfError;
+
     gl_FragColor = color / totWeight;
     gl_FragDepth = d;
 }

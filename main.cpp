@@ -17,6 +17,7 @@
 #include <Display/Frustum.h>
 #include <Display/PerspectiveViewingVolume.h>
 #include <Geometry/Mesh.h>
+#include <Geometry/GeometrySet.h>
 #include <Resources/ResourceManager.h>
 #include <Resources/Directory.h>
 #include <Resources/Texture3D.h>
@@ -294,7 +295,11 @@ namespace Utils {
 namespace Inspection {
     ValueList PPInspect(ChainPostProcessNode* glow,
                         ChainPostProcessNode* depthOfField,
-                        PostProcessNode* motionBlur) {
+                        PostProcessNode* motionBlur,
+                        PostProcessNode* filmGrain,
+                        PostProcessNode* grayscale,
+                        PostProcessNode* underwater,
+                        PostProcessNode* edgeDetection) {
         ValueList values;
         {
             RWValueCall<ChainPostProcessNode, bool> *v
@@ -336,6 +341,42 @@ namespace Inspection {
                  &PostProcessNode::GetEnabled,
                  &PostProcessNode::SetEnabled);
             v->name = "Motion Blur";
+            values.push_back(v);
+        }
+        {
+            RWValueCall<PostProcessNode, bool> *v
+                = new RWValueCall<PostProcessNode, bool>
+                (*filmGrain,
+                 &PostProcessNode::GetEnabled,
+                 &PostProcessNode::SetEnabled);
+            v->name = "Film Grain";
+            values.push_back(v);
+        }
+        {
+            RWValueCall<PostProcessNode, bool> *v
+                = new RWValueCall<PostProcessNode, bool>
+                (*grayscale,
+                 &PostProcessNode::GetEnabled,
+                 &PostProcessNode::SetEnabled);
+            v->name = "Grayscale";
+            values.push_back(v);
+        }
+        {
+            RWValueCall<PostProcessNode, bool> *v
+                = new RWValueCall<PostProcessNode, bool>
+                (*underwater,
+                 &PostProcessNode::GetEnabled,
+                 &PostProcessNode::SetEnabled);
+            v->name = "Underwater";
+            values.push_back(v);
+        }
+        {
+            RWValueCall<PostProcessNode, bool> *v
+                = new RWValueCall<PostProcessNode, bool>
+                (*edgeDetection,
+                 &PostProcessNode::GetEnabled,
+                 &PostProcessNode::SetEnabled);
+            v->name = "Edge detection";
             values.push_back(v);
         }
 
@@ -408,32 +449,8 @@ int main(int argc, char** argv) {
     ResourceManager<UCharTexture2D>::AddPlugin(new UCharFreeImagePlugin());
     ResourceManager<FloatTexture2D>::AddPlugin(new FloatFreeImagePlugin());
     ResourceManager<IShaderResource>::AddPlugin(new GLShaderPlugin());
-    //Texture3DFileListResourcePlugin<float>* irp =
-    //    new Texture3DFileListResourcePlugin<float>();
-    //ResourceManager< Texture3D<float> >::AddPlugin(irp);
 
     DirectoryManager::AppendPath("projects/Terrain/data/");
-
-    /*
-    // output 2d clouds for the report
-    unsigned int octaveFactor = 2;
-    unsigned int psize = 64;
-    FloatTexture2DPtr cloudChannel = 
-        ValueNoise::Generate(psize, psize, 128,
-                              1.0/octaveFactor, octaveFactor, 3, 3, 0);
-    TexUtils::Blur(cloudChannel,20);
-    TexUtils::Normalize(cloudChannel,0,1); 
-    TexUtils::CloudExpCurve(cloudChannel);
-    FloatTexture2DPtr cloudTexture2d = 
-        TexUtils::ToRGBAinAlphaChannel(cloudChannel);
-    TextureTool<unsigned char>::
-        DumpTexture(TexUtils::ToUCharTexture(cloudTexture2d), "output.png");
-    TextureTool<float>::DumpTexture(cloudTexture2d, "output.exr");
-    cloudTexture2d->SetColorFormat(RGBA32F);
-    cloudTexture2d->SetMipmapping(false);
-    cloudTexture2d->SetCompression(false);
-    exit(0);
-    */
 
     scene = new SceneNode();
 
@@ -470,6 +487,26 @@ int main(int argc, char** argv) {
     ChainPostProcessNode* depthOfFieldNode = new ChainPostProcessNode(dof, dimension, 1, true);
     depthOfFieldNode->SetEnabled(true);
     renderer->InitializeEvent().Attach(*depthOfFieldNode);
+
+    IShaderResourcePtr filmGrain = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/FilmGrain.glsl");
+    PostProcessNode* filmGrainNode = new PostProcessNode(filmGrain, dimension);
+    filmGrainNode->SetEnabled(false);
+    renderer->InitializeEvent().Attach(*filmGrainNode);
+    
+    IShaderResourcePtr grayscale = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/GrayScale.glsl");
+    PostProcessNode* grayScaleNode = new PostProcessNode(grayscale, dimension);
+    grayScaleNode->SetEnabled(false);
+    renderer->InitializeEvent().Attach(*grayScaleNode);
+
+    IShaderResourcePtr underwater = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/UnderWater.glsl");
+    PostProcessNode* underwaterNode = new PostProcessNode(underwater, dimension);
+    underwaterNode->SetEnabled(false);
+    renderer->InitializeEvent().Attach(*underwaterNode);
+
+    IShaderResourcePtr edgeDetection = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/EdgeDetection.glsl");
+    PostProcessNode* edgeDetectionNode = new PostProcessNode(edgeDetection, dimension);
+    edgeDetectionNode->SetEnabled(false);
+    renderer->InitializeEvent().Attach(*edgeDetectionNode);
 
     
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>
@@ -560,10 +597,7 @@ int main(int argc, char** argv) {
     float cloud_radius = earth_radius + 1000;
     */
     MeshPtr clouds = 
-        //CreateGeodesicSphere(cloud_radius, 2, false, Vector<3,float>(1.0f));
         CreateGeodesicSphere(1000, 3, false, Vector<3,float>(1.0f));
-        //CreateGeodesicSphere(1000, 2, false, Vector<3,float>(1.0f));
-        //CreateGeodesicSphere(300, 5, false, Vector<3,float>(1.0f));
 
     clouds->GetMaterial()->shad = cloudShader;
     MeshNode* cloudNode = new MeshNode();
@@ -589,6 +623,7 @@ int main(int argc, char** argv) {
     // gradient dome
     MeshPtr atmosphericDome = 
         CreateGeodesicSphere(3000, 2, false, Vector<3,float>(1.0f));
+    
     IShaderResourcePtr gradientShader = ResourceManager<IShaderResource>::
     Create("projects/Terrain/data/shaders/gradient/Gradient.glsl");
     UCharTexture2DPtr gradient = ResourceManager<UCharTexture2D>
@@ -652,10 +687,14 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*(new RenderStateHandler(state)));
     
     // Scene setup
-    scene->AddNode(depthOfFieldNode);
+    scene->AddNode(filmGrainNode);
+    filmGrainNode->AddNode(grayScaleNode);
+    grayScaleNode->AddNode(underwaterNode);
+    underwaterNode->AddNode(depthOfFieldNode);
     depthOfFieldNode->AddNode(glowNode);
     glowNode->AddNode(motionBlurNode);
-    motionBlurNode->AddNode(water);
+    motionBlurNode->AddNode(edgeDetectionNode);
+    edgeDetectionNode->AddNode(water);
     water->AddNode(state);
     state->AddNode(atmosphericScene);
     atmosphericScene->AddNode(cloudScene);
@@ -667,7 +706,7 @@ int main(int argc, char** argv) {
     AntTweakBar *atb = new AntTweakBar();
     atb->AttachTo(*renderer);
     atb->AddBar(new InspectionBar("debug variables",Inspect(sun,cAnim)));
-    atb->AddBar(new InspectionBar("Post Process Nodes",PPInspect(glowNode,depthOfFieldNode,motionBlurNode)));
+    atb->AddBar(new InspectionBar("Post Process Nodes",PPInspect(glowNode,depthOfFieldNode,motionBlurNode,filmGrainNode,grayScaleNode,underwaterNode,edgeDetectionNode)));
     keyboard->KeyEvent().Attach(*atb);
     mouse->MouseMovedEvent().Attach(*atb);
     mouse->MouseButtonEvent().Attach(*atb);
@@ -698,6 +737,7 @@ void SetupDisplay(){
     // setup display and devices
     //env = new SDLEnvironment(1440,900,32,FRAME_FULLSCREEN);
     env = new SDLEnvironment(800,600);
+    //env = new SDLEnvironment(800, 600, 32, FRAME_FULLSCREEN);
     frame    = &env->CreateFrame();
     mouse    = env->GetMouse();
     keyboard = env->GetKeyboard();

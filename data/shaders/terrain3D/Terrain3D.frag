@@ -1,4 +1,5 @@
 #extension GL_EXT_texture_array : require
+#define BUMP_MAPPING
 
 const vec3 startHeight = vec3(-10.76, 5.0, 50.0); // {sand, grass, snow}
 const vec3 blending = 1.0 / vec3(10.0, 5.0, 20.0); // {sand, grass, snow}
@@ -104,6 +105,7 @@ void main()
     matSpecular = mix(spec[3], matSpecular, cliffFactor);
 
     vec3 color = phongLighting(text, bumpNormal, matSpecular);
+    //vec3 color = phongLighting(text, normal, matSpecular);
     //vec3 color = blinnLighting(text, bumpNormal, matSpecular);
     
     gl_FragColor.rgb = mix(WATER_COLOR, color, factors.x);

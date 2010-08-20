@@ -10,8 +10,10 @@ uniform float invGridDim;
 
 uniform float time;
 
+uniform vec3 lightDir; // Should be pre-normalized. Or else the world will BURN IN RIGHTEOUS FIRE!!
+
 varying vec2 texCoord;
-varying vec3 normal;
+varying float diffuse;
 
 void main() {
     texCoord = gl_MultiTexCoord0.xy;
@@ -29,11 +31,10 @@ void main() {
     vec2 mapCoord = (vertex.xz + 1.0) * invHmapDimsScale;
     vec2 centerCoord = (center.xz + 1.0) * invHmapDimsScale;
 
-    float height = texture2DLod(heightmap, mapCoord, 1.0).x + 0.5;
     float centerHeight = texture2DLod(heightmap, centerCoord, 1.0).x;
     // The normal map is translated, i'd find out why, but it's going
     // to be replaced by clipmaps anyways, so just swizzle them.
-    normal = texture2DLod(normalmap, mapCoord.yx, 1.0).xyz;
+    vec3 normal = texture2DLod(normalmap, mapCoord.yx, 1.0).xyz;
 
     center.y += centerHeight;
 
@@ -41,12 +42,15 @@ void main() {
     if (normal.y < 0.7 || center.y < 8.0 || 60.0 < center.y){
         gl_Position = vec4(0.0,0.0,0.0,0.0);
     }else {
+        float height = texture2DLod(heightmap, mapCoord, 1.0).x + 0.5;
         vertex.y += height;
         vertex.xz += hmapOffset;
         
         // Let the grass wave
         vec2 wave = vec2(cos(time + center.xz * 1000.0));
         vertex.xz += 0.5 * texCoord.y * wave;
+
+        diffuse = clamp(dot(normal, lightDir), 0.0, 1.0);
         gl_Position = gl_ModelViewProjectionMatrix * vec4(vertex, 1.0);
     }
 

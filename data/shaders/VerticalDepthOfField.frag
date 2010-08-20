@@ -19,15 +19,17 @@ void main () {
     float error = halfSamples + 1.0;
     error *= error;
 
-    // Square pyramidal numbers to quickly calculate the total weight
-    float doubleSumOfError = (halfSamples * halfSamples + halfSamples) * (halfSamples + 0.5) / 1.5;
-    float totWeight = (2.0 * halfSamples + 1.0) * error - doubleSumOfError;
     vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
     for (float y = -halfSamples; y < halfSamples; ++y){
         float weight = error - y * y;
         color += weight * texture2D(color0, texCoord + vec2(0.0,  y * blurOffset));
     }
     
+    // Square pyramidal numbers to quickly calculate the total weight
+    float halfSamples = halfSamples + 1.0;
+    float doubleSumOfError = (halfSamples * halfSamples + halfSamples) * (halfSamples + 0.5) / 1.5;
+    float totWeight = (2.0 * halfSamples + 1.0) * error - doubleSumOfError;
+
     gl_FragColor = color / totWeight;
     gl_FragDepth = d;
 }
