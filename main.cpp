@@ -510,7 +510,7 @@ int main(int argc, char** argv) {
 
     
     UCharTexture2DPtr tmap = ResourceManager<UCharTexture2D>
-        ::Create("textures/heightmap2.tga");
+        ::Create("textures/heightmap.png");
     tmap = ChangeChannels(tmap, 1);
     FloatTexture2DPtr map = ConvertTex(tmap);
     map->SetWrapping(CLAMP_TO_EDGE);
@@ -547,13 +547,13 @@ int main(int argc, char** argv) {
             ::Create("projects/Terrain/data/shaders/water/Water.glsl");
         water->SetWaterShader(waterShader, 64.0);
         UCharTexture2DPtr normalmap = ResourceManager<UCharTexture2D>
-            ::Create("textures/waterNormalmap.jpg");
+            ::Create("textures/waterNormals.png");
         UCharTexture2DPtr dudvmap = ResourceManager<UCharTexture2D>
-            ::Create("textures/waterDistortion.jpg");
+            ::Create("textures/waterDistortion.png");
         water->SetNormalDudvMap(normalmap, dudvmap);
     }else{
         ITexture2DPtr waterSurface = ResourceManager<ITexture2D>
-            ::Create("textures/water.tga");
+            ::Create("textures/water.png");
         water->SetSurfaceTexture(waterSurface, 64.0);
     }
     renderer->InitializeEvent().Attach(*water);

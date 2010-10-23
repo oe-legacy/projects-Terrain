@@ -55,17 +55,16 @@ namespace OpenEngine {
 
                     // Create the textures and place them in a 3d texture
                     UCharTexture2DPtr sand = ResourceManager<UCharTexture2D>
-                        //::Create("textures/newSand.tga");
-                        ::Create("textures/sand-old.jpg");
+                        ::Create("textures/sand.png");
                     texList.push_back(sand);
                     UCharTexture2DPtr grass = ResourceManager<UCharTexture2D>
-                        ::Create("textures/newGrass.tga");
+                        ::Create("textures/grass.png");
                     texList.push_back(grass);
                     UCharTexture2DPtr snow = ResourceManager<UCharTexture2D>
-                        ::Create("textures/snow.tga");
+                        ::Create("textures/snow.png");
                     texList.push_back(snow);
                     UCharTexture2DPtr cliff = ResourceManager<UCharTexture2D>
-                        ::Create("textures/rockface.jpg");
+                        ::Create("textures/rockface.png");
                     texList.push_back(cliff);
                     groundTex = UCharTexture3DPtr(new Texture3D<unsigned char>
                                                   (texList));
@@ -88,11 +87,11 @@ namespace OpenEngine {
 
 
                 UCharTexture2DPtr sandNormal = ResourceManager<UCharTexture2D>
-                    //::Create("textures/newSandNormals.tga");
-                    ::Create("textures/sandNormals-old.jpg");
+                    //::Create("textures/newSandNormals.png");
+                    ::Create("textures/sandNormals.png");
                 texList.push_back(sandNormal);
                 UCharTexture2DPtr grassNormal = ResourceManager<UCharTexture2D>
-                    ::Create("textures/newGrassNormals.tga");
+                    ::Create("textures/grassNormals.png");
 
                 grassNormal->Load();
                 for (unsigned int u = 0; u < grassNormal->GetWidth(); ++u)
@@ -136,7 +135,7 @@ namespace OpenEngine {
                 texList.push_back(snowNormal);
 
                 UCharTexture2DPtr cliffNormal = ResourceManager<UCharTexture2D>
-                    ::Create("textures/rockfaceBump.jpg");
+                    ::Create("textures/rockfaceNormals.png");
                 texList.push_back(cliffNormal);
 
                 normalTex = UCharTexture3DPtr(new Texture3D<unsigned char>
@@ -147,10 +146,10 @@ namespace OpenEngine {
                 }
                 
                 dirtTex = ResourceManager<UCharTexture2D>
-                    ::Create("textures/dirt.tga");
+                    ::Create("textures/dirt.png");
 
                 dirtNormalTex = ResourceManager<UCharTexture2D>
-                    ::Create("textures/dirtNormals.tga");
+                    ::Create("textures/dirtNormals.png");
             }
 
             void Initialize(RenderingEventArg arg) {

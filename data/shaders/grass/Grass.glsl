@@ -7,6 +7,4 @@ vert: shaders/grass/Grass.vert
 frag: shaders/grass/Grass.frag
 
 #textures
-
-#text: grassTex|textures/grass7319.png
-text: grassTex|textures/grassStraw.tga
+text: grassTex|textures/grassStraw.png
