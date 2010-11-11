@@ -42,7 +42,8 @@
 
 // Terrain stuff
 #include <Renderers/OpenGL/TerrainRenderingView.h>
-#include <Display/OpenGL/RenderCanvas.h>
+#include <Display/RenderCanvas.h>
+#include <Display/OpenGL/TextureCopy.h>
 #include "Scene/Island.h"
 #include <Scene/GrassNode.h>
 #include <Scene/SunNode.h>
@@ -761,7 +762,7 @@ void SetupRendering(){
 
     renderer->InitializeEvent().Attach(*renderingview);
     renderer->ProcessEvent().Attach(*renderingview);
-    canvas = new Display::OpenGL::RenderCanvas();
+    canvas = new Display::RenderCanvas(new Display::OpenGL::TextureCopy());
     canvas->SetViewingVolume(frustum);
     canvas->SetRenderer(renderer);
     canvas->SetScene(scene);
