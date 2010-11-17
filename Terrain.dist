@@ -41,6 +41,8 @@ win32 /libraries http://openengine.dk/data/libraries/boost-win32.zip
 win32 /libraries http://openengine.dk/data/libraries/glew-win32.zip
 win32 /libraries http://openengine.dk/data/libraries/sdl-win32.zip
 win32 /libraries http://openengine.dk/data/libraries/dlls-win32.zip
+win32 /libraries http://openengine.dk/data/libraries/FreeImage-win32.zip
+
 
 # darwin libraries
 
