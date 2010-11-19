@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------
 
 #if(WIN32)
-	#define AVOID_TWEAK_BAR
+//	#define AVOID_TWEAK_BAR
 #endif
 
 // OpenEngine stuff
