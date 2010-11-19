@@ -7,10 +7,6 @@
 // See the GNU General Public License for more details (see LICENSE). 
 //--------------------------------------------------------------------
 
-#if(WIN32)
-//	#define AVOID_TWEAK_BAR
-#endif
-
 // OpenEngine stuff
 #include <Meta/Config.h>
 #include <Logging/Logger.h>
@@ -65,11 +61,9 @@
 
 #include <Utils/BetterMoveHandler.h>
 
-#if not defined AVOID_TWEAK_BAR
-	#include <Display/AntTweakBar.h>
-	#include <Utils/IInspector.h>
-	#include <Utils/InspectionBar.h>
-#endif
+#include <Display/AntTweakBar.h>
+#include <Utils/IInspector.h>
+#include <Utils/InspectionBar.h>
 
 #include "TerrainHandler.h"
 
@@ -297,7 +291,7 @@ public:
         }
     }
 };
-#if not defined AVOID_TWEAK_BAR
+
 namespace OpenEngine {
 namespace Utils {
 namespace Inspection {
@@ -431,7 +425,6 @@ ValueList Inspect(SunNode *sun, CloudAnimator *ca) {
     return values;    
 }
 }}}
-#endif //AVOID_TWEAK_BAR
 
 // Forward declarations ... ffs c++
 void SetupDisplay();
@@ -709,7 +702,6 @@ int main(int argc, char** argv) {
     scene->AddNode(sun);
 
     // ant tweak bar
-#if not defined AVOID_TWEAK_BAR
     AntTweakBar *atb = new AntTweakBar();
     atb->AttachTo(*renderer);
     atb->AddBar(new InspectionBar("debug variables",Inspect(sun,cAnim)));
@@ -717,8 +709,8 @@ int main(int argc, char** argv) {
     keyboard->KeyEvent().Attach(*atb);
     mouse->MouseMovedEvent().Attach(*atb);
     mouse->MouseButtonEvent().Attach(*atb);
-#endif
-    // handlers
+    
+	// handlers
     BetterMoveHandler *move = new BetterMoveHandler(*camera,
                                                     *mouse,
                                                     true);
@@ -726,16 +718,12 @@ int main(int argc, char** argv) {
 
     engine->InitializeEvent().Attach(*move);
     engine->ProcessEvent().Attach(*move);
-#if not defined AVOID_TWEAK_BAR
+	
 	atb->KeyEvent().Attach(*move);   
     atb->MouseButtonEvent().Attach(*move);
     atb->MouseMovedEvent().Attach(*move);
-#else
-	keyboard->KeyEvent().Attach(*move);   
-    mouse->MouseButtonEvent().Attach(*move);
-    mouse->MouseMovedEvent().Attach(*move);
-#endif
-    QuitHandler* quit_h = new QuitHandler(*engine);
+    
+	QuitHandler* quit_h = new QuitHandler(*engine);
     keyboard->KeyEvent().Attach(*quit_h);
 
     engine->Start();
