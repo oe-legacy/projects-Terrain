@@ -104,9 +104,9 @@ void main()
     vec2 matSpecular = mix(specular, blendSpecular, blend);
     matSpecular = mix(spec[3], matSpecular, cliffFactor);
 
-    vec3 color = phongLighting(text, bumpNormal, matSpecular);
+    //vec3 color = phongLighting(text, bumpNormal, matSpecular);
     //vec3 color = phongLighting(text, normal, matSpecular);
-    //vec3 color = blinnLighting(text, bumpNormal, matSpecular);
+    vec3 color = blinnLighting(text, bumpNormal, matSpecular);
     
     gl_FragColor.rgb = mix(WATER_COLOR, color, factors.x);
     gl_FragColor.a = 1.0;
