@@ -13,40 +13,19 @@ darcs-dev /projects/Terrain fh.daimi.au.dk:/users/cgd/code/projects/Terrain
 # dist dependencies
 dist /extensions/HeightMap/HeightMap.dist http://openengine.dk/code/extensions/HeightMap/HeightMap.dist
 dist /extensions/Inspection/Inspection.dist       http://www.openengine.dk/code/extensions/Inspection/Inspection.dist
-dist /extensions/InspectionBar/InspectionBar.dist       http://www.openengine.dk/code/extensions/InspectionBar/InspectionBar.dist
-
-# required extensions
-darcs /extensions/HUD                    http://openengine.dk/code/extensions/HUD
-darcs /extensions/SDL                    http://openengine.dk/code/extensions/SDL
-darcs /extensions/OpenGLRenderer         http://openengine.dk/code/extensions/OpenGLRenderer
-darcs /extensions/CairoResource 	 http://openengine.dk/code/extensions/CairoResource
-darcs /extensions/GenericHandlers 	 http://openengine.dk/code/extensions/GenericHandlers
-darcs /extensions/TexUtils      	 http://openengine.dk/code/extensions/TexUtils
-darcs /extensions/FreeImage       	 http://openengine.dk/code/extensions/FreeImage
-darcs /extensions/OpenGLPostProcessEffects       	http://openengine.dk/code/extensions/OpenGLPostProcessEffects
-darcs /extensions/AntTweakBar       	http://openengine.dk/code/extensions/AntTweakBar
-
-darcs-dev /extensions/HUD                    fh.daimi.au.dk:/users/cgd/code/extensions/HUD
-darcs-dev /extensions/SDL                    fh.daimi.au.dk:/users/cgd/code/extensions/SDL
-darcs-dev /extensions/OpenGLRenderer         fh.daimi.au.dk:/users/cgd/code/extensions/OpenGLRenderer
-darcs-dev /extensions/CairoResource 	     fh.daimi.au.dk:/users/cgd/code/extensions/CairoResource
-darcs-dev /extensions/GenericHandlers 	     fh.daimi.au.dk:/users/cgd/code/extensions/GenericHandlers
-darcs-dev /extensions/TexUtils  	     fh.daimi.au.dk:/users/cgd/code/extensions/TexUtils
-darcs-dev /extensions/FreeImage  	     fh.daimi.au.dk:/users/cgd/code/extensions/FreeImage
-darcs-dev /extensions/OpenGLPostProcessEffects fh.daimi.au.dk:/users/cgd/code/extensions/OpenGLPostProcessEffects
-darcs-dev /extensions/AntTweakBar 	       fh.daimi.au.dk:/users/cgd/code/extensions/AntTweakBar
+dist /extensions/HUD/HUD.dist       http://www.openengine.dk/code/extensions/HUD/HUD.dist
+dist /extensions/SDL/SDL.dist       http://www.openengine.dk/code/extensions/SDL/SDL.dist
+dist /extensions/OpenGLRenderer/OpenGLRenderer.dist       http://www.openengine.dk/code/extensions/OpenGLRenderer/OpenGLRenderer.dist
+dist /extensions/CairoResource/CairoResource.dist       http://www.openengine.dk/code/extensions/CairoResource/CairoResource.dist
+dist /extensions/GenericHandlers/GenericHandlers.dist       http://www.openengine.dk/code/extensions/GenericHandlers/GenericHandlers.dist
+dist /extensions/TexUtils/TexUtils.dist       http://www.openengine.dk/code/extensions/TexUtils/TexUtils.dist
+dist /extensions/FreeImage/FreeImage.dist       http://www.openengine.dk/code/extensions/FreeImage/FreeImage.dist
+dist /extensions/OpenGLPostProcessEffects/OpenGLPostProcessEffects.dist       http://www.openengine.dk/code/extensions/OpenGLPostProcessEffects/OpenGLPostProcessEffects.dist
+dist /extensions/AntTweakBar/AntTweakBar.dist       http://www.openengine.dk/code/extensions/AntTweakBar/AntTweakBar.dist
 
 # windows libraries
-win32 /libraries http://openengine.dk/data/libraries/boost-win32.zip
-win32 /libraries http://openengine.dk/data/libraries/glew-win32.zip
-win32 /libraries http://openengine.dk/data/libraries/sdl-win32.zip
-win32 /libraries http://openengine.dk/data/libraries/FreeImage-win32.zip
-win32 /libraries http://openengine.dk/data/libraries/cairo-win32.zip
-
 # darwin libraries
-
 # linux libraries
 
 # project data
-
 any /projects/Terrain/data	http://www.openengine.dk/data/projects/Terrain/textures.zip
