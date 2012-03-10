@@ -9,6 +9,7 @@ git-dev /projects/Terrain git@github.com:oe-legacy/projects-Terrain.git
 # dist dependencies
 dist /extensions/HeightMap/HeightMap.dist                               https://raw.github.com/oe-legacy/extensions-HeightMap/master/HeightMap.dist
 dist /extensions/Inspection/Inspection.dist                             https://raw.github.com/oe-legacy/extensions-Inspection/master/Inspection.dist
+dist /extensions/InspectionBar/InspectionBar.dist                       https://raw.github.com/oe-legacy/extensions-Inspection/master/InspectionBar.dist
 dist /extensions/HUD/HUD.dist                                           https://raw.github.com/oe-legacy/extensions-HUD/master/HUD.dist
 dist /extensions/SDL/SDL.dist                                           https://raw.github.com/oe-legacy/extensions-SDL/master/SDL.dist
 dist /extensions/OpenGLRenderer/OpenGLRenderer.dist                     https://raw.github.com/oe-legacy/extensions-OpenGLRenderer/master/OpenGLRenderer.dist
