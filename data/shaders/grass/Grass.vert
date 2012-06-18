@@ -62,6 +62,8 @@ void main() {
         vertex.xz += 0.5 * texCoord.y * wave;
 
         diffuse = clamp(dot(normal, lightDir), 0.0, 1.0);
+        // Simulate 40% light passing through the grass
+        diffuse = clamp(diffuse * 1.4, 0.0, 1.0);
 
         gl_Position = gl_ModelViewProjectionMatrix * vec4(vertex, 1.0);
     }
