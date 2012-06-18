@@ -30,11 +30,14 @@ void main(void)
     vec2 fdist = sca * nuv.zw;
                  
     // phong specular highlight
-    //vec3 vRef = normalize(reflect(-lightDir, normal));
-    //float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
+    vec3 vRef = normalize(reflect(-lightDir, normal));
+    float stemp = clamp(dot(viewt, vRef), 0.0, 1.0);
     // blinn specular light
+    /*
     vec3 halfVec = normalize(viewt + lightDir);
     float stemp = clamp(dot(halfVec, normal), 0.0, 1.0);
+    */
+
     vec4 specular = gl_LightSource[0].specular * pow(stemp, exponent);
 
     //calculate fresnel and inverted fresnel
@@ -48,18 +51,17 @@ void main(void)
     projCoord.xy += fdist.xy;
 
     // load and calculate reflection
-    vec4 refl = REFLECTIVITY * texture2D(reflection, projCoord);
-    refl *= fres;
+    vec4 refl = REFLECTIVITY * fres * texture2D(reflection, projCoord);
 
     // Set the water color
-    vec4 waterColor = WATER_COLOR * invfres;
-    
+    vec4 light = gl_LightSource[0].ambient + gl_LightSource[0].diffuse * dot(lightDir, normal);
+    vec4 waterColor = WATER_COLOR * light;
+    waterColor *= invfres;
+
     // Add specular to the water
     vec4 color = waterColor + refl;
-    color *= gl_LightSource[0].ambient + gl_LightSource[0].diffuse;
     
     //add it all up for the effect
     gl_FragColor = color + specular;
-    //gl_FragColor.a = -0.35 * gl_LightSource[0].diffuse.a + 0.95;
     gl_FragColor.a = WATER_COLOR.a + fres;
 }
