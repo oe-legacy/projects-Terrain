@@ -64,6 +64,7 @@
 #include <Display/AntTweakBar.h>
 #include <Utils/IInspector.h>
 #include <Utils/InspectionBar.h>
+#include <Utils/CameraInspector.h>
 
 #include "TerrainHandler.h"
 
@@ -297,6 +298,7 @@ namespace Utils {
 namespace Inspection {
     ValueList PPInspect(ChainPostProcessNode* glow,
                         ChainPostProcessNode* depthOfField,
+                        PostProcessNode* volumeRendering,
                         PostProcessNode* motionBlur,
                         PostProcessNode* filmGrain,
                         PostProcessNode* grayscale,
@@ -334,6 +336,15 @@ namespace Inspection {
                  &ChainPostProcessNode::Enabled,
                  &ChainPostProcessNode::SetEnabled);
             v->name = "Depth Of Field";
+            values.push_back(v);
+        }
+        {
+            RWValueCall<PostProcessNode, bool> *v
+                = new RWValueCall<PostProcessNode, bool>
+                (*volumeRendering,
+                 &PostProcessNode::GetEnabled,
+                 &PostProcessNode::SetEnabled);
+            v->name = "Volume Rendering";
             values.push_back(v);
         }
         {
@@ -426,6 +437,17 @@ ValueList Inspect(SunNode *sun, CloudAnimator *ca) {
 }
 }}}
 
+class AntToggler : public Core::IListener<Devices::KeyboardEventArg> {
+    Display::AntTweakBar* atb;
+public:
+    AntToggler(Display::AntTweakBar* atb) : atb(atb) {}
+
+    void Handle(Devices::KeyboardEventArg arg){
+        if (arg.type == EVENT_PRESS && arg.sym == KEY_F5)
+            atb->ToggleEnabled();
+    }
+};
+
 // Forward declarations ... ffs c++
 void SetupDisplay();
 void SetupRendering();
@@ -456,13 +478,13 @@ int main(int argc, char** argv) {
     SetupRendering();
 
     // Setup fps counter
-    FPSSurfacePtr fps = FPSSurface::Create();
-    textureloader->Load(fps, TextureLoader::RELOAD_QUEUED);
-    engine->ProcessEvent().Attach(*fps);
-    hud = new HUD();
-    HUD::Surface* fpshud = hud->CreateSurface(fps);
-    renderer->PostProcessEvent().Attach(*hud);
-    fpshud->SetPosition(HUD::Surface::LEFT, HUD::Surface::TOP);
+    // FPSSurfacePtr fps = FPSSurface::Create();
+    // textureloader->Load(fps, TextureLoader::RELOAD_QUEUED);
+    // engine->ProcessEvent().Attach(*fps);
+    // hud = new HUD();
+    // HUD::Surface* fpshud = hud->CreateSurface(fps);
+    // renderer->PostProcessEvent().Attach(*hud);
+    // fpshud->SetPosition(HUD::Surface::LEFT, HUD::Surface::TOP);
 
     // Setup scene
     Vector<2, int> dimension(800, 600);
@@ -486,6 +508,11 @@ int main(int argc, char** argv) {
     ChainPostProcessNode* depthOfFieldNode = new ChainPostProcessNode(dof, dimension, 1, true);
     depthOfFieldNode->SetEnabled(true);
     renderer->InitializeEvent().Attach(*depthOfFieldNode);
+
+    IShaderResourcePtr rayCast = ResourceManager<IShaderResource>::Create("shaders/RayCast.glsl");
+    PostProcessNode* rayCastNode = new PostProcessNode(rayCast, dimension);
+    rayCastNode->SetEnabled(false);
+    renderer->InitializeEvent().Attach(*rayCastNode);
 
     IShaderResourcePtr filmGrain = ResourceManager<IShaderResource>::Create("extensions/OpenGLPostProcessEffects/shaders/FilmGrain.glsl");
     PostProcessNode* filmGrainNode = new PostProcessNode(filmGrain, dimension);
@@ -587,6 +614,8 @@ int main(int argc, char** argv) {
     cloudTexture->SetWrapping(REPEAT);
     cloudTexture->SetCompression(false);
     cloudShader->SetTexture("clouds", (ITexture3DPtr)cloudTexture);
+
+    rayCast->SetTexture("src", (ITexture3DPtr)cloudTexture);
 
     /*
     //from: http://geography.about.com/library/faq/blqzdiameter.htm
@@ -690,7 +719,8 @@ int main(int argc, char** argv) {
     filmGrainNode->AddNode(grayScaleNode);
     grayScaleNode->AddNode(underwaterNode);
     underwaterNode->AddNode(depthOfFieldNode);
-    depthOfFieldNode->AddNode(glowNode);
+    depthOfFieldNode->AddNode(rayCastNode);
+    rayCastNode->AddNode(glowNode);
     glowNode->AddNode(motionBlurNode);
     motionBlurNode->AddNode(edgeDetectionNode);
     edgeDetectionNode->AddNode(water);
@@ -705,15 +735,20 @@ int main(int argc, char** argv) {
     AntTweakBar *atb = new AntTweakBar();
     atb->AttachTo(*renderer);
     atb->AddBar(new InspectionBar("debug variables",Inspect(sun,cAnim)));
-    atb->AddBar(new InspectionBar("Post Process Nodes",PPInspect(glowNode,depthOfFieldNode,motionBlurNode,filmGrainNode,grayScaleNode,underwaterNode,edgeDetectionNode)));
+    atb->AddBar(new InspectionBar("Post Process Nodes",PPInspect(glowNode,depthOfFieldNode,rayCastNode,motionBlurNode,filmGrainNode,grayScaleNode,underwaterNode,edgeDetectionNode)));
+    atb->AddBar(new InspectionBar("Camera", Inspection::Inspect(camera)));
     keyboard->KeyEvent().Attach(*atb);
     mouse->MouseMovedEvent().Attach(*atb);
     mouse->MouseButtonEvent().Attach(*atb);
     
 	// handlers
+    AntToggler* antToggler = new AntToggler(atb);
+    atb->KeyEvent().Attach(*antToggler);
+
     BetterMoveHandler *move = new BetterMoveHandler(*camera,
                                                     *mouse,
                                                     true);
+    move->SetInverted(true);
     // move->nodes.push_back(lightTrans);
 
     engine->InitializeEvent().Attach(*move);
@@ -734,7 +769,7 @@ int main(int argc, char** argv) {
 
 void SetupDisplay(){
     // setup display and devices
-    //env = new SDLEnvironment(1440,900,32,FRAME_FULLSCREEN);
+    //env = new SDLEnvironment(1440,900,32);
     env = new SDLEnvironment(800,600);
     //env = new SDLEnvironment(800, 600, 32, FRAME_FULLSCREEN);
     frame    = &env->CreateFrame();
